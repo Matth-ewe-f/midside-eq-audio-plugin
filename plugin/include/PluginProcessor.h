@@ -27,21 +27,21 @@ public:
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
 
     // === Midi Information ===================================================
-    inline bool PluginProcessor::acceptsMidi() const
+    inline bool acceptsMidi() const override
 #if JucePlugin_WantsMidiInput
         { return true; }
 #else
         { return false; }
 #endif
 
-    inline bool PluginProcessor::producesMidi() const
+    inline bool producesMidi() const override
 #if JucePlugin_ProducesMidiOutput
         { return true; }
 #else
         { return false; }
 #endif
 
-    inline bool PluginProcessor::isMidiEffect() const
+    inline bool isMidiEffect() const override
 #if JucePlugin_IsMidiEffect
         { return true; }
 #else
