@@ -32,5 +32,9 @@ void PluginEditor::resized()
 // === User Interaction =======================================================
 void PluginEditor::sliderValueChanged(juce::Slider* slider)
 {
-    juce::ignoreUnused(slider);
+    if (slider == &freqSlider)
+    {
+        *processorRef.freq = (float) slider->getValue();
+        processorRef.updateFilterState();
+    }
 }

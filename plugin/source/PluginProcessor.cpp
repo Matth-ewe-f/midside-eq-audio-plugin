@@ -1,5 +1,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <juce_dsp/juce_dsp.h>
+namespace dsp = juce::dsp;
 
 // === Lifecycle ==============================================================
 PluginProcessor::PluginProcessor()
@@ -10,8 +12,13 @@ PluginProcessor::PluginProcessor()
 #endif
 		.withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-	)
-{ }
+	),
+	lowPass(dsp::IIR::Coefficients<float>::makeLowPass(48000, 20000))
+{ 
+	// default
+	lastSampleRate = 48000;
+    freq = new juce::AudioParameterFloat("freq", "Frequency", 20, 20000, 0.1f);
+}
 
 PluginProcessor::~PluginProcessor() { }
 
@@ -38,7 +45,13 @@ bool PluginProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
 // === Process Audio ==========================================================
 void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-	juce::ignoreUnused(sampleRate, samplesPerBlock);
+	lastSampleRate = sampleRate;
+	dsp::ProcessSpec spec;
+	spec.sampleRate = sampleRate;
+	spec.maximumBlockSize = (unsigned) samplesPerBlock;
+	spec.numChannels = (unsigned) getTotalNumOutputChannels();
+	lowPass.prepare(spec);
+	lowPass.reset();
 }
 
 void PluginProcessor::releaseResources() { }
@@ -52,13 +65,9 @@ void PluginProcessor::processBlock
 	// zeroes out any unused outputs (if there are any)
 	for (auto i = numInputChannels; i < numOutputChannels; i++)
 		buffer.clear(i, 0, buffer.getNumSamples());
-	// process each channel of the audio
-	for (int channel = 0; channel < numInputChannels; ++channel)
-	{
-		auto *channelData = buffer.getWritePointer(channel);
-		juce::ignoreUnused(channelData);
-		// process the audio
-	}
+	// process the audio
+	dsp::AudioBlock<float> block(buffer);
+	lowPass.process(dsp::ProcessContextReplacing<float>(block));
 }
 
 // === Factory Functions ======================================================
@@ -73,6 +82,13 @@ juce::AudioProcessorEditor *PluginProcessor::createEditor()
 }
 
 // === State ==================================================================
+void PluginProcessor::updateFilterState()
+{
+	*lowPass.state = *dsp::IIR::Coefficients<float>::makeLowPass(
+		lastSampleRate, *freq
+	);
+}
+
 void PluginProcessor::getStateInformation(juce::MemoryBlock &destData)
 {
 	juce::ignoreUnused(destData);
