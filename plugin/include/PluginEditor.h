@@ -16,10 +16,15 @@ public:
 
 private:
     PluginProcessor& processorRef;
-    juce::Slider freqSlider;
+    juce::Slider midFreqSlider;
+    juce::Slider sideFreqSlider;
 
     // === User Interaction ===================================================
     void sliderValueChanged(juce::Slider*) override;
+
+    // === Private Helper =====================================================
+    void setupSlider(juce::Slider*);
+    void layoutSlider(juce::Slider*, int);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
 };

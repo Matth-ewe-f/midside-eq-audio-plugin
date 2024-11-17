@@ -6,13 +6,8 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     : AudioProcessorEditor(&p), processorRef(p)
 {
     setSize(290, 260);
-    freqSlider.setSliderStyle(juce::Slider::LinearVertical);
-    freqSlider.setRange(20, 20000, 0.1f);
-    freqSlider.setSkewFactorFromMidPoint(2000);
-    freqSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 90, 20);
-    freqSlider.setTextValueSuffix(" Hz");
-    freqSlider.addListener(this);
-    addAndMakeVisible(freqSlider);
+    setupSlider(&midFreqSlider);
+    setupSlider(&sideFreqSlider);
 }
 
 PluginEditor::~PluginEditor() { }
@@ -26,15 +21,35 @@ void PluginEditor::paint(juce::Graphics &g)
 
 void PluginEditor::resized()
 {
-    freqSlider.setBounds(100, 30, 90, getHeight() - 60);
+    layoutSlider(&sideFreqSlider, 0);
+    layoutSlider(&midFreqSlider, 1);
 }
 
 // === User Interaction =======================================================
 void PluginEditor::sliderValueChanged(juce::Slider* slider)
 {
-    if (slider == &freqSlider)
+    if (slider == &midFreqSlider)
     {
         *processorRef.freq = (float) slider->getValue();
         processorRef.updateFilterState();
     }
+}
+
+// === Private Helper Functions ===============================================
+void PluginEditor::setupSlider(juce::Slider* slider)
+{
+    slider->setSliderStyle(juce::Slider::LinearVertical);
+    slider->setRange(20, 20000, 0.1f);
+    slider->setSkewFactorFromMidPoint(1500);
+    slider->setTextBoxStyle(juce::Slider::TextBoxBelow, false, 90, 20);
+    slider->setTextValueSuffix(" Hz");
+    slider->addListener(this);
+    addAndMakeVisible(*slider);
+}
+
+void PluginEditor::layoutSlider(juce::Slider* slider, int index)
+{
+    int start = 50;
+    int width = 120;
+    slider->setBounds(start + (width * index), 30, 90, getHeight() - 60);
 }
