@@ -13,17 +13,18 @@ PluginProcessor::PluginProcessor()
 		.withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
 	),
-	midLowPass(dsp::IIR::Coefficients<float>::makeLowPass(48000, 20000)),
-	sideLowPass(dsp::IIR::Coefficients<float>::makeLowPass(48000, 20000))
+	lowPassOne(dsp::IIR::Coefficients<float>::makeLowPass(48000, 20000)),
+	lowPassTwo(dsp::IIR::Coefficients<float>::makeLowPass(48000, 20000))
 { 
 	// default
 	lastSampleRate = 48000;
-    midFreq = new juce::AudioParameterFloat(
-		"mid-freq", "Frequency (Middle)", 20, 20000, 20000
+    freqOne = new juce::AudioParameterFloat(
+		"freq-one", "Frequency (Mid/Left)", 20, 20000, 20000
 	);
-    sideFreq = new juce::AudioParameterFloat(
-		"side-freq", "Frequency (Side)", 20, 20000, 20000
+    freqTwo = new juce::AudioParameterFloat(
+		"freq-two", "Frequency (Side/Right)", 20, 20000, 20000
 	);
+	isMidSide = new juce::AudioParameterBool("mode", "Mode", true);
 }
 
 PluginProcessor::~PluginProcessor() { }
@@ -55,10 +56,10 @@ void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 	spec.sampleRate = sampleRate;
 	spec.maximumBlockSize = (unsigned) samplesPerBlock;
 	spec.numChannels = (unsigned) getTotalNumOutputChannels();
-	midLowPass.prepare(spec);
-	midLowPass.reset();
-	sideLowPass.prepare(spec);
-	sideLowPass.reset();
+	lowPassOne.prepare(spec);
+	lowPassOne.reset();
+	lowPassTwo.prepare(spec);
+	lowPassTwo.reset();
 }
 
 void PluginProcessor::releaseResources() { }
@@ -76,27 +77,37 @@ void PluginProcessor::processBlock
 	// zeroes out any unused outputs (if there are any)
 	for (auto i = numInputChannels; i < numOutputChannels; i++)
 		buffer.clear(i, 0, buffer.getNumSamples());
-	// split into mid and side signals
-	size_t length = (size_t) buffer.getNumSamples();
-	float* mid = (float*) malloc(sizeof(float) * length);
-	float* side = (float*) malloc(sizeof(float) * length);
 	float* left = buffer.getWritePointer(0);
 	float* right = buffer.getWritePointer(1);
-	for (size_t i = 0;i < length;i++)
+	size_t length = (size_t) buffer.getNumSamples();
+	if (*isMidSide)
 	{
-		mid[i] = (left[i] + right[i]) / 2;
-		side[i] = (left[i] - right[i]) / 2;
+		// split into mid and side signals
+		float* mid = (float*) malloc(sizeof(float) * length);
+		float* side = (float*) malloc(sizeof(float) * length);
+		for (size_t i = 0;i < length;i++)
+		{
+			mid[i] = (left[i] + right[i]) / 2;
+			side[i] = (left[i] - right[i]) / 2;
+		}
+		// process the audio
+		dsp::AudioBlock<float> midBlock(&mid, 1, length);
+		dsp::AudioBlock<float> sideBlock(&side, 1, length);
+		lowPassOne.process(dsp::ProcessContextReplacing<float>(midBlock));
+		lowPassTwo.process(dsp::ProcessContextReplacing<float>(sideBlock));
+		// recombine the mid and side signals into left and right
+		for (size_t i = 0;i < length;i++)
+		{
+			left[i] = clampWithinOne(mid[i] + side[i]);
+			right[i] = clampWithinOne(mid[i] - side[i]);
+		}
 	}
-	// process the audio
-	dsp::AudioBlock<float> midBlock(&mid, 1, length);
-	dsp::AudioBlock<float> sideBlock(&side, 1, length);
-	midLowPass.process(dsp::ProcessContextReplacing<float>(midBlock));
-	sideLowPass.process(dsp::ProcessContextReplacing<float>(sideBlock));
-	// recombine the mid and side signals into left and right
-	for (size_t i = 0;i < length;i++)
+	else
 	{
-		left[i] = clampWithinOne(mid[i] + side[i]);
-		right[i] = clampWithinOne(mid[i] - side[i]);
+		dsp::AudioBlock<float> leftBlock(&left, 1, length);
+		dsp::AudioBlock<float> rightBlock(&right, 1, length);
+		lowPassOne.process(dsp::ProcessContextReplacing<float>(leftBlock));
+		lowPassTwo.process(dsp::ProcessContextReplacing<float>(rightBlock));
 	}
 }
 
@@ -114,26 +125,26 @@ juce::AudioProcessorEditor *PluginProcessor::createEditor()
 // === State ==================================================================
 void PluginProcessor::updateFilterState()
 {
-	*midLowPass.state = *dsp::IIR::Coefficients<float>::makeLowPass(
-		lastSampleRate, *midFreq
+	*lowPassOne.coefficients = *dsp::IIR::Coefficients<float>::makeLowPass(
+		lastSampleRate, *freqOne
 	);
-	*sideLowPass.state = *dsp::IIR::Coefficients<float>::makeLowPass(
-		lastSampleRate, *sideFreq
+	*lowPassTwo.coefficients = *dsp::IIR::Coefficients<float>::makeLowPass(
+		lastSampleRate, *freqTwo
 	);
 }
 
 void PluginProcessor::getStateInformation(juce::MemoryBlock &destData)
 {
 	auto stream = juce::MemoryOutputStream(destData, true);
-	stream.writeFloat(*midFreq);
-	stream.writeFloat(*sideFreq);
+	stream.writeFloat(*freqOne);
+	stream.writeFloat(*freqTwo);
 }
 
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
 	auto stream = juce::MemoryInputStream(data, (size_t)sizeInBytes, false);
-	*midFreq = stream.readFloat();
-	*sideFreq = stream.readFloat();
+	*freqOne = stream.readFloat();
+	*freqTwo = stream.readFloat();
 }
 
 // === State ==================================================================

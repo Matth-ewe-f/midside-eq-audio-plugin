@@ -7,8 +7,9 @@ class PluginProcessor final : public juce::AudioProcessor
 {
 public:
     // === Plugin Parameters ==================================================
-    juce::AudioParameterFloat* midFreq;
-    juce::AudioParameterFloat* sideFreq;
+    juce::AudioParameterFloat* freqOne;
+    juce::AudioParameterFloat* freqTwo;
+    juce::AudioParameterBool* isMidSide;
 
     // === Lifecycle ==========================================================
     PluginProcessor();
@@ -69,12 +70,8 @@ public:
     juce::AudioProcessorEditor* createEditor() override;
 
 private:
-    dsp::ProcessorDuplicator<
-        dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float>
-    > midLowPass;
-    dsp::ProcessorDuplicator<
-        dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float>
-    > sideLowPass;
+    dsp::IIR::Filter<float> lowPassOne;
+    dsp::IIR::Filter<float> lowPassTwo;
     double lastSampleRate;
 
     // === Private Helper Functions ===========================================
