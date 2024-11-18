@@ -18,6 +18,7 @@ target_sources(
     PRIVATE
         source/PluginProcessor.cpp
         source/PluginEditor.cpp
+        source/ParameterListener.cpp
 )
 
 target_include_directories(

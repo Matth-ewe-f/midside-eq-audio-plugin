@@ -10,11 +10,16 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     int h = (itemSize * maxRows) + (yPadding * (maxRows - 1)) + yStart + yEnd;
     h += headerHeight;
     setSize(w, h);
-    // setup gui components
-    setupSlider(&midFreqSlider);
-    midFreqSlider.setValue(*processorRef.freqOne);
-    setupSlider(&sideFreqSlider);
-    sideFreqSlider.setValue(*processorRef.freqTwo);
+    // setup sliders
+    setupSlider(&lowPassOneFreq);
+    lowPassOneFreqAttachment.reset(
+        new SliderAttachment(processorRef.tree, "freq-one", lowPassOneFreq)
+    );
+    setupSlider(&lowPassTwoFreq);
+    lowPassTwoFreqAttachment.reset(
+        new SliderAttachment(processorRef.tree, "freq-two", lowPassTwoFreq)
+    );
+    // setup buttons
     midSideButton.setButtonText("Mid-Side");
     midSideButton.setRadioGroupId(0, juce::dontSendNotification);
     midSideButton.onClick = [this] { 
@@ -49,37 +54,19 @@ void PluginEditor::paint(juce::Graphics &g)
 
 void PluginEditor::resized()
 {
-    layoutSlider(&midFreqSlider, 0, 0);
-    layoutSlider(&sideFreqSlider, 0, 1);
+    layoutSlider(&lowPassOneFreq, 0, 0);
+    layoutSlider(&lowPassTwoFreq, 0, 1);
     int middle = getWidth() / 2;
     midSideButton.setBounds(middle - 80, 10, 70, 30);
     leftRightButton.setBounds(middle + 10, 10, 70, 30);
-}
-
-// === User Interaction =======================================================
-void PluginEditor::sliderValueChanged(juce::Slider* slider)
-{
-    if (slider == &midFreqSlider)
-    {
-        *processorRef.freqOne = (float) slider->getValue();
-        processorRef.updateFilterState();
-    }
-    else if (slider == &sideFreqSlider)
-    {
-        *processorRef.freqTwo = (float) slider->getValue();
-        processorRef.updateFilterState();
-    }
 }
 
 // === Private Helper Functions ===============================================
 void PluginEditor::setupSlider(juce::Slider* slider)
 {
     slider->setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    slider->setRange(20, 20000, 0.1f);
-    slider->setSkewFactorFromMidPoint(1500);
     slider->setTextBoxStyle(juce::Slider::TextBoxBelow, false, 70, 20);
     slider->setTextValueSuffix(" Hz");
-    slider->addListener(this);
     addAndMakeVisible(slider);
 }
 

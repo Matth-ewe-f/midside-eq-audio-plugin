@@ -1,7 +1,9 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-#include <juce_dsp/juce_dsp.h>
+#include "ParameterListener.h"
+
 namespace dsp = juce::dsp;
+using Parameter = juce::AudioProcessorValueTreeState::Parameter;
 
 // === Lifecycle ==============================================================
 PluginProcessor::PluginProcessor()
@@ -12,24 +14,50 @@ PluginProcessor::PluginProcessor()
 #endif
 		.withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-	)
+	),
+	tree(*this, nullptr, "PARAMETERS", {
+		std::make_unique<Parameter>(
+			"freq-one", "Frequency (Mid/Left)",
+			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 20000
+		),
+		std::make_unique<Parameter>(
+			"freq-two", "Frequency (Side/Right)",
+			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 20000
+		),
+	})
 { 
-	// default sample rate
-	lastSampleRate = 48000;
+	// general setup
+	lastSampleRate = 48000; // default value
 	// parameters
-    freqOne = new juce::AudioParameterFloat(
-		"freq-one", "Frequency (Mid/Left)", 20, 20000, 20000
-	);
-    freqTwo = new juce::AudioParameterFloat(
-		"freq-two", "Frequency (Side/Right)", 20, 20000, 20000
-	);
+	juce::NormalisableRange<float> freqRange(20, 20000, 0.1f);
+	freqRange.setSkewForCentre(1500);
+	addParameterListener(new ParameterListener(
+		"freq-one", [this](const juce::String& s, float value) {
+			lowPassOne.setCutoffFrequency(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"freq-two", [this](const juce::String& s, float value) {
+			lowPassTwo.setCutoffFrequency(value);
+		}
+	));
 	isMidSide = new juce::AudioParameterBool("mode", "Mode", true);
 	// processors
 	lowPassOne.setType(dsp::StateVariableTPTFilterType::lowpass);
 	lowPassTwo.setType(dsp::StateVariableTPTFilterType::lowpass);
+	updateFilterState();
 }
 
-PluginProcessor::~PluginProcessor() { }
+PluginProcessor::~PluginProcessor() 
+{
+	while (paramListeners.size() > 0)
+	{
+		ParameterListener* listener = paramListeners.front();
+		paramListeners.remove(listener);
+		tree.removeParameterListener(listener->parameter, listener);
+		delete listener;
+	}
+}
 
 // === Plugin Information =====================================================
 bool PluginProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
@@ -125,29 +153,41 @@ juce::AudioProcessorEditor *PluginProcessor::createEditor()
 }
 
 // === State ==================================================================
-void PluginProcessor::updateFilterState()
-{
-	lowPassOne.setCutoffFrequency(*freqOne);
-	lowPassTwo.setCutoffFrequency(*freqTwo);
-}
-
 void PluginProcessor::getStateInformation(juce::MemoryBlock &destData)
 {
-	auto stream = juce::MemoryOutputStream(destData, true);
-	stream.writeFloat(*freqOne);
-	stream.writeFloat(*freqTwo);
-	stream.writeBool(*isMidSide);
+	auto state = tree.copyState();
+	std::unique_ptr<juce::XmlElement> xml(state.createXml());
+	copyXmlToBinary(*xml, destData);
+	// auto stream = juce::MemoryOutputStream(destData, true);
+	// stream.writeFloat(*freqOne);
+	// stream.writeFloat(*freqTwo);
+	// stream.writeBool(*isMidSide);
 }
 
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-	auto stream = juce::MemoryInputStream(data, (size_t)sizeInBytes, false);
-	*freqOne = stream.readFloat();
-	*freqTwo = stream.readFloat();
-	*isMidSide = stream.readBool();
+	std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
+	if (xml.get() != nullptr && xml->hasTagName(tree.state.getType()))
+		tree.replaceState(juce::ValueTree::fromXml(*xml));
+	// auto stream = juce::MemoryInputStream(data, (size_t)sizeInBytes, false);
+	// *freqOne = stream.readFloat();
+	// *freqTwo = stream.readFloat();
+	// *isMidSide = stream.readBool();
 }
 
-// === State ==================================================================
+// === Private Helper =========================================================
+void PluginProcessor::addParameterListener(ParameterListener* listener)
+{
+	paramListeners.push_front(listener);
+	tree.addParameterListener(listener->parameter, listener);
+}
+
+void PluginProcessor::updateFilterState()
+{
+	lowPassOne.setCutoffFrequency(*tree.getRawParameterValue("freq-one"));
+	lowPassTwo.setCutoffFrequency(*tree.getRawParameterValue("freq-two"));
+}
+
 float PluginProcessor::clampWithinOne(float f)
 {
 	if (f > 1)

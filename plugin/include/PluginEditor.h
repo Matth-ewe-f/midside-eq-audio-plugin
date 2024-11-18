@@ -1,9 +1,8 @@
 #pragma once
 #include "PluginProcessor.h"
+using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment; 
 
-class PluginEditor final :
-    public juce::AudioProcessorEditor,
-    private juce::Slider::Listener
+class PluginEditor final :  public juce::AudioProcessorEditor
 {
 public:
     // === Lifecycle ==========================================================
@@ -16,10 +15,13 @@ public:
 
 private:
     PluginProcessor& processorRef;
-    juce::Slider midFreqSlider;
-    juce::Slider sideFreqSlider;
+    juce::Slider lowPassOneFreq;
+    std::unique_ptr<SliderAttachment> lowPassOneFreqAttachment;
+    juce::Slider lowPassTwoFreq;
+    std::unique_ptr<SliderAttachment> lowPassTwoFreqAttachment;
     juce::TextButton midSideButton;
     juce::TextButton leftRightButton;
+    
     // === Layout constants ===================================================
     const int headerHeight = 50;
     const int xBound = 10;
@@ -32,9 +34,6 @@ private:
     const int maxCols = 2;
     const juce::Colour lineColor = juce::Colour::fromRGB(200, 200, 200);
     const juce::Colour brighterBgColor = juce::Colour::fromRGB(30, 62, 72);
-
-    // === User Interaction ===================================================
-    void sliderValueChanged(juce::Slider*) override;
 
     // === Private Helper =====================================================
     void setupSlider(juce::Slider*);

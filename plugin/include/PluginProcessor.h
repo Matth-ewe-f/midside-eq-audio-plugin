@@ -1,14 +1,16 @@
 #pragma once
+#include <list>
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
+#include "ParameterListener.h"
+
 namespace dsp = juce::dsp;
 
 class PluginProcessor final : public juce::AudioProcessor
 {
 public:
     // === Plugin Parameters ==================================================
-    juce::AudioParameterFloat* freqOne;
-    juce::AudioParameterFloat* freqTwo;
+    juce::AudioProcessorValueTreeState tree;
     juce::AudioParameterBool* isMidSide;
 
     // === Lifecycle ==========================================================
@@ -62,7 +64,6 @@ public:
     using AudioProcessor::processBlock;
 
     // === State ==============================================================
-    void updateFilterState();
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
@@ -73,8 +74,11 @@ private:
     dsp::StateVariableTPTFilter<float> lowPassOne;
     dsp::StateVariableTPTFilter<float> lowPassTwo;
     double lastSampleRate;
+    std::list<ParameterListener*> paramListeners;
 
     // === Private Helper Functions ===========================================
+    void addParameterListener(ParameterListener*);
+    void updateFilterState();
     float clampWithinOne(float);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)
