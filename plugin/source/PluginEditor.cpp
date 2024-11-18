@@ -8,6 +8,8 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     setSize(290, 260);
     setupSlider(&midFreqSlider);
     setupSlider(&sideFreqSlider);
+    setupLabel(&midLabel, "Mid");
+    setupLabel(&sideLabel, "Side");
 }
 
 PluginEditor::~PluginEditor() { }
@@ -21,8 +23,10 @@ void PluginEditor::paint(juce::Graphics &g)
 
 void PluginEditor::resized()
 {
-    layoutSlider(&sideFreqSlider, 0);
-    layoutSlider(&midFreqSlider, 1);
+    layoutSlider(&midFreqSlider, 0);
+    layoutSlider(&sideFreqSlider, 1);
+    layoutLabel(&midLabel, 0);
+    layoutLabel(&sideLabel, 1);
 }
 
 // === User Interaction =======================================================
@@ -30,7 +34,12 @@ void PluginEditor::sliderValueChanged(juce::Slider* slider)
 {
     if (slider == &midFreqSlider)
     {
-        *processorRef.freq = (float) slider->getValue();
+        *processorRef.midFreq = (float) slider->getValue();
+        processorRef.updateFilterState();
+    }
+    else if (slider == &sideFreqSlider)
+    {
+        *processorRef.sideFreq = (float) slider->getValue();
         processorRef.updateFilterState();
     }
 }
@@ -44,12 +53,26 @@ void PluginEditor::setupSlider(juce::Slider* slider)
     slider->setTextBoxStyle(juce::Slider::TextBoxBelow, false, 90, 20);
     slider->setTextValueSuffix(" Hz");
     slider->addListener(this);
-    addAndMakeVisible(*slider);
+    addAndMakeVisible(slider);
+}
+
+void PluginEditor::setupLabel(juce::Label* label, std::string text)
+{
+    label->setText(text, juce::dontSendNotification);
+    label->setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(label);
 }
 
 void PluginEditor::layoutSlider(juce::Slider* slider, int index)
 {
     int start = 50;
     int width = 120;
-    slider->setBounds(start + (width * index), 30, 90, getHeight() - 60);
+    slider->setBounds(start + (width * index), 30, 90, getHeight() - 90);
+}
+
+void PluginEditor::layoutLabel(juce::Label* label, int index)
+{
+    int start = 50;
+    int width = 120;
+    label->setBounds(start + (width * index), getHeight() - 50, 90, 20);
 }

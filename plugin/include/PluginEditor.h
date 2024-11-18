@@ -18,13 +18,17 @@ private:
     PluginProcessor& processorRef;
     juce::Slider midFreqSlider;
     juce::Slider sideFreqSlider;
+    juce::Label midLabel;
+    juce::Label sideLabel;
 
     // === User Interaction ===================================================
     void sliderValueChanged(juce::Slider*) override;
 
     // === Private Helper =====================================================
     void setupSlider(juce::Slider*);
+    void setupLabel(juce::Label*, std::string);
     void layoutSlider(juce::Slider*, int);
+    void layoutLabel(juce::Label*, int);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
 };

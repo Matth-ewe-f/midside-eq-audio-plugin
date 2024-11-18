@@ -7,7 +7,8 @@ class PluginProcessor final : public juce::AudioProcessor
 {
 public:
     // === Plugin Parameters ==================================================
-    juce::AudioParameterFloat* freq;
+    juce::AudioParameterFloat* midFreq;
+    juce::AudioParameterFloat* sideFreq;
 
     // === Lifecycle ==========================================================
     PluginProcessor();
@@ -60,7 +61,7 @@ public:
     using AudioProcessor::processBlock;
 
     // === State ==============================================================
-    void updateFilterState ();
+    void updateFilterState();
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
@@ -68,9 +69,16 @@ public:
     juce::AudioProcessorEditor* createEditor() override;
 
 private:
-    dsp::ProcessorDuplicator
-    <dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float>> lowPass;
+    dsp::ProcessorDuplicator<
+        dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float>
+    > midLowPass;
+    dsp::ProcessorDuplicator<
+        dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float>
+    > sideLowPass;
     double lastSampleRate;
+
+    // === Private Helper Functions ===========================================
+    float clampWithinOne(float);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)
 };
