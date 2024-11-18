@@ -18,17 +18,22 @@ private:
     PluginProcessor& processorRef;
     juce::Slider midFreqSlider;
     juce::Slider sideFreqSlider;
-    juce::Label midLabel;
-    juce::Label sideLabel;
+    // === Layout constants ===================================================
+    const int xBound = 10;
+    const int yStart = 10;
+    const int yEnd = 20;
+    const int xPadding = 10;
+    const int yPadding = 30;
+    const int itemSize = 100;
+    const int maxRows = 2;
+    const int maxCols = 2;
 
     // === User Interaction ===================================================
     void sliderValueChanged(juce::Slider*) override;
 
     // === Private Helper =====================================================
     void setupSlider(juce::Slider*);
-    void setupLabel(juce::Label*, std::string);
-    void layoutSlider(juce::Slider*, int);
-    void layoutLabel(juce::Label*, int);
+    void layoutSlider(juce::Slider*, int, int);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
 };
