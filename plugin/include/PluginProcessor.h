@@ -70,8 +70,8 @@ public:
     juce::AudioProcessorEditor* createEditor() override;
 
 private:
-    dsp::IIR::Filter<float> lowPassOne;
-    dsp::IIR::Filter<float> lowPassTwo;
+    dsp::StateVariableTPTFilter<float> lowPassOne;
+    dsp::StateVariableTPTFilter<float> lowPassTwo;
     double lastSampleRate;
 
     // === Private Helper Functions ===========================================

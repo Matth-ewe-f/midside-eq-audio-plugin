@@ -12,12 +12,11 @@ PluginProcessor::PluginProcessor()
 #endif
 		.withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-	),
-	lowPassOne(dsp::IIR::Coefficients<float>::makeLowPass(48000, 20000)),
-	lowPassTwo(dsp::IIR::Coefficients<float>::makeLowPass(48000, 20000))
+	)
 { 
-	// default
+	// default sample rate
 	lastSampleRate = 48000;
+	// parameters
     freqOne = new juce::AudioParameterFloat(
 		"freq-one", "Frequency (Mid/Left)", 20, 20000, 20000
 	);
@@ -25,6 +24,9 @@ PluginProcessor::PluginProcessor()
 		"freq-two", "Frequency (Side/Right)", 20, 20000, 20000
 	);
 	isMidSide = new juce::AudioParameterBool("mode", "Mode", true);
+	// processors
+	lowPassOne.setType(dsp::StateVariableTPTFilterType::lowpass);
+	lowPassTwo.setType(dsp::StateVariableTPTFilterType::lowpass);
 }
 
 PluginProcessor::~PluginProcessor() { }
@@ -125,12 +127,8 @@ juce::AudioProcessorEditor *PluginProcessor::createEditor()
 // === State ==================================================================
 void PluginProcessor::updateFilterState()
 {
-	*lowPassOne.coefficients = *dsp::IIR::Coefficients<float>::makeLowPass(
-		lastSampleRate, *freqOne
-	);
-	*lowPassTwo.coefficients = *dsp::IIR::Coefficients<float>::makeLowPass(
-		lastSampleRate, *freqTwo
-	);
+	lowPassOne.setCutoffFrequency(*freqOne);
+	lowPassTwo.setCutoffFrequency(*freqTwo);
 }
 
 void PluginProcessor::getStateInformation(juce::MemoryBlock &destData)
@@ -138,6 +136,7 @@ void PluginProcessor::getStateInformation(juce::MemoryBlock &destData)
 	auto stream = juce::MemoryOutputStream(destData, true);
 	stream.writeFloat(*freqOne);
 	stream.writeFloat(*freqTwo);
+	stream.writeBool(*isMidSide);
 }
 
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes)
@@ -145,6 +144,7 @@ void PluginProcessor::setStateInformation(const void *data, int sizeInBytes)
 	auto stream = juce::MemoryInputStream(data, (size_t)sizeInBytes, false);
 	*freqOne = stream.readFloat();
 	*freqTwo = stream.readFloat();
+	*isMidSide = stream.readBool();
 }
 
 // === State ==================================================================
