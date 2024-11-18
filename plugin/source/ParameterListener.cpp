@@ -3,7 +3,18 @@
 
 ParameterListener::ParameterListener(juce::String param) :
     parameter(param),
-    onChange([](const juce::String& s, float f) {})
+    onChange([](const juce::String& s, float f) {
+        juce::ignoreUnused(s, f);
+    })
+{ }
+
+ParameterListener::ParameterListener
+(juce::String param, std::function<void(float)> function) :
+    parameter(param),
+    onChange([function](const juce::String& s, float f) {
+        juce::ignoreUnused(s);
+        function(f);
+    })
 { }
 
 ParameterListener::ParameterListener
@@ -13,7 +24,7 @@ ParameterListener::ParameterListener
 { }
 
 void ParameterListener::parameterChanged
-(const juce::String& parameter, float value)
+(const juce::String& param, float value)
 {
-    onChange(parameter, value);
+    onChange(param, value);
 }

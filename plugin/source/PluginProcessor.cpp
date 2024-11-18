@@ -32,12 +32,12 @@ PluginProcessor::PluginProcessor()
 	juce::NormalisableRange<float> freqRange(20, 20000, 0.1f);
 	freqRange.setSkewForCentre(1500);
 	addParameterListener(new ParameterListener(
-		"freq-one", [this](const juce::String& s, float value) {
+		"freq-one", [this](float value) {
 			lowPassOne.setCutoffFrequency(value);
 		}
 	));
 	addParameterListener(new ParameterListener(
-		"freq-two", [this](const juce::String& s, float value) {
+		"freq-two", [this](float value) {
 			lowPassTwo.setCutoffFrequency(value);
 		}
 	));
