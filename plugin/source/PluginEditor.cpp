@@ -10,6 +10,8 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     setupSlider(&sideFreqSlider);
     setupLabel(&midLabel, "Mid");
     setupLabel(&sideLabel, "Side");
+    midFreqSlider.setValue(*processorRef.midFreq);
+    sideFreqSlider.setValue(*processorRef.sideFreq);
 }
 
 PluginEditor::~PluginEditor() { }

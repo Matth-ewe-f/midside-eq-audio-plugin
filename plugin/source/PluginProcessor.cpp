@@ -13,15 +13,16 @@ PluginProcessor::PluginProcessor()
 		.withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
 	),
-	midLowPass(dsp::IIR::Coefficients<float>::makeLowPass(48000, 20000))
+	midLowPass(dsp::IIR::Coefficients<float>::makeLowPass(48000, 20000)),
+	sideLowPass(dsp::IIR::Coefficients<float>::makeLowPass(48000, 20000))
 { 
 	// default
 	lastSampleRate = 48000;
     midFreq = new juce::AudioParameterFloat(
-		"mid-freq", "Frequency (Middle)", 20, 20000, 0.1f
+		"mid-freq", "Frequency (Middle)", 20, 20000, 20000
 	);
     sideFreq = new juce::AudioParameterFloat(
-		"side-freq", "Frequency (Side)", 20, 20000, 0.1f
+		"side-freq", "Frequency (Side)", 20, 20000, 20000
 	);
 }
 
@@ -123,18 +124,16 @@ void PluginProcessor::updateFilterState()
 
 void PluginProcessor::getStateInformation(juce::MemoryBlock &destData)
 {
-	juce::ignoreUnused(destData);
-	// you can store state like this
-	// auto stream = juce::MemoryOutputStream(destData, true);
-	// stream.writeFloat(...);
+	auto stream = juce::MemoryOutputStream(destData, true);
+	stream.writeFloat(*midFreq);
+	stream.writeFloat(*sideFreq);
 }
 
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-	juce::ignoreUnused(data, sizeInBytes);
-	// you can load state like this
-	// auto stream = juce::MemoryInputStream(data, (size_t)sizeInBytes, false);
-	// ... = stream.readFloat();
+	auto stream = juce::MemoryInputStream(data, (size_t)sizeInBytes, false);
+	*midFreq = stream.readFloat();
+	*sideFreq = stream.readFloat();
 }
 
 // === State ==================================================================
