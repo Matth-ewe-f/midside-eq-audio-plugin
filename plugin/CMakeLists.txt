@@ -19,6 +19,7 @@ target_sources(
         source/PluginProcessor.cpp
         source/PluginEditor.cpp
         source/ParameterListener.cpp
+        source/SliderLabel.cpp
 )
 
 target_include_directories(

@@ -6,19 +6,21 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     : AudioProcessorEditor(&p), processorRef(p)
 {
     // calculate size
-    int w = (itemSize * maxCols) + (xPadding * (maxCols - 1)) + (2 * xBound);
-    int h = (itemSize * maxRows) + (yPadding * (maxRows - 1)) + yStart + yEnd;
-    h += headerHeight;
+    int w = (itemWidth * maxCols) + (xPadding * (maxCols - 1)) + xStart + xEnd;
+    int h = (itemHeight * maxRows) + (yPadding * (maxRows - 2)) + yStart + yEnd
+        + ySectionBreak + headerHeight;
     setSize(w, h);
     // setup sliders
-    setupSlider(&lowPassOneFreq);
+    setupFreqSlider(&lowPassOneFreq, &lowPassOneFreqLabel);
     lowPassOneFreqAttachment.reset(
         new SliderAttachment(processorRef.tree, "freq-one", lowPassOneFreq)
     );
-    setupSlider(&lowPassTwoFreq);
+    setupFreqSlider(&lowPassTwoFreq, &lowPassTwoFreqLabel);
     lowPassTwoFreqAttachment.reset(
         new SliderAttachment(processorRef.tree, "freq-two", lowPassTwoFreq)
     );
+    setupOrderSlider(&lowPassOneOrder, &lowPassOneOrderLabel);
+    setupOrderSlider(&lowPassTwoOrder, &lowPassTwoOrderLabel);
     // setup buttons
     midSideButton.setButtonText("Mid-Side");
     midSideButton.setRadioGroupId(0, juce::dontSendNotification);
@@ -45,47 +47,83 @@ void PluginEditor::paint(juce::Graphics &g)
     g.fillAll(getLookAndFeel().findColour(colorId));
     // draw lines seperating the mid and side sections
     drawSectionLabels(g);
-    int secondRowStart = headerHeight + yStart + itemSize + (yPadding / 2);
     g.setColour(lineColor);
     g.drawRect(0, 0, getWidth(), getHeight(), 1);
     g.drawLine(0, headerHeight, getWidth(), headerHeight);
-    g.drawLine(0, secondRowStart, getWidth(), secondRowStart);
+    g.drawLine(0, secondRowStart(), getWidth(), secondRowStart());
 }
 
 void PluginEditor::resized()
 {
-    layoutSlider(&lowPassOneFreq, 0, 0);
-    layoutSlider(&lowPassTwoFreq, 0, 1);
+    layoutSlider(&lowPassOneFreq, &lowPassOneFreqLabel, 1, 0);
+    layoutSlider(&lowPassOneOrder, &lowPassOneOrderLabel, 1, 1);
+    layoutSlider(&lowPassTwoFreq, &lowPassTwoFreqLabel, 0, 2);
+    layoutSlider(&lowPassTwoOrder, &lowPassTwoOrderLabel, 1, 2);
     int middle = getWidth() / 2;
     midSideButton.setBounds(middle - 80, 10, 70, 30);
     leftRightButton.setBounds(middle + 10, 10, 70, 30);
 }
 
 // === Private Helper Functions ===============================================
-void PluginEditor::setupSlider(juce::Slider* slider)
+void PluginEditor::setupFreqSlider(juce::Slider* slider, SliderLabel* label)
 {
     slider->setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    slider->setTextBoxStyle(juce::Slider::TextBoxBelow, false, 70, 20);
-    slider->setTextValueSuffix(" Hz");
+    slider->setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    slider->addListener(label);
     addAndMakeVisible(slider);
+    label->setPostfix(" Hz");
+    label->updateText(slider);
+    addAndMakeVisible(label);
 }
 
-void PluginEditor::layoutSlider(juce::Slider* slider, int xIndex, int yIndex)
+void PluginEditor::setupOrderSlider(juce::Slider* slider, SliderLabel* label)
 {
-    int x = xBound + ((itemSize + xPadding) * xIndex);
-    int y = headerHeight + yStart + ((itemSize + yPadding) * yIndex);
-    slider->setBounds(x, y, itemSize, itemSize);
+    slider->setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    slider->setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    slider->setRange(6, 36, 6);
+    slider->addListener(label);
+    addAndMakeVisible(slider);
+    label->setPrefix("-");
+    label->setPostfix(" dB/oct");
+    label->updateText(slider);
+    addAndMakeVisible(label);
+}
+
+void PluginEditor::layoutSlider
+(juce::Slider* slider, SliderLabel* label, int xIndex, int yIndex)
+{
+    int x = xStart + ((itemWidth + xPadding) * xIndex);
+    int y = headerHeight + yStart + ((itemHeight + yPadding) * yIndex);
+    if (yIndex >= 2)
+    {
+        y += ySectionBreak;
+        y -= yPadding;
+    }
+    slider->setBounds(x, y - 9, itemWidth, itemHeight - 2);
+    label->setBounds(x, y + itemHeight - 17, itemWidth, 16);
+}
+
+void PluginEditor::layoutTest(juce::Graphics& g, int xIndex, int yIndex)
+{
+    int x = xStart + ((itemWidth + xPadding) * xIndex);
+    int y = headerHeight + yStart + ((itemHeight + yPadding) * yIndex);
+    if (yIndex >= 2)
+    {
+        y += ySectionBreak;
+        y -= yPadding;
+    }
+    g.setColour(juce::Colours::red);
+    g.fillRect(x, y, itemWidth, itemHeight);
 }
 
 void PluginEditor::drawSectionLabels(juce::Graphics& g)
 {
     // define the position and area of the labels
     bool ms = processorRef.isMidSide();
-    int secondRowStart = headerHeight + yStart + itemSize + (yPadding / 2);
     int x1 = ms ? 30 : 31;
     int y1 = headerHeight + 20;
     int x2 = ms ? 33 : 40;
-    int y2 = secondRowStart + 20;
+    int y2 = secondRowStart() + 20;
     // fill the labels with background color
     g.setColour(brighterBgColor);
     g.fillRect(0, y1 - 20, x1, 20);
@@ -106,5 +144,11 @@ void PluginEditor::drawSectionLabels(juce::Graphics& g)
     g.setFont(16);
     g.setColour(juce::Colours::white);
     g.drawText(ms ? "Mid" : "Left", 4, headerHeight + 1, 40, 18, false);
-    g.drawText(ms ? "Side" : "Right", 4, secondRowStart + 1, 40, 18, false);
+    g.drawText(ms ? "Side" : "Right", 4, secondRowStart() + 1, 40, 18, false);
+}
+
+int PluginEditor::secondRowStart()
+{
+    return (headerHeight + yStart + (itemHeight * 2) + yPadding
+        + (ySectionBreak / 2));
 }

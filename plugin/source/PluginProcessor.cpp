@@ -18,11 +18,11 @@ PluginProcessor::PluginProcessor()
 	tree(*this, nullptr, "PARAMETERS", {
 		std::make_unique<Parameter>(
 			"freq-one", "Frequency (Mid/Left)",
-			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 20000
+			juce::NormalisableRange<float>(20, 20000, 1, 0.35f), 20000
 		),
 		std::make_unique<Parameter>(
 			"freq-two", "Frequency (Side/Right)",
-			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 20000
+			juce::NormalisableRange<float>(20, 20000, 1, 0.35f), 20000
 		),
 		std::make_unique<Parameter>(
 			"mode", "Mode", juce::NormalisableRange<float>(0, 1, 1), 0
