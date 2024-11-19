@@ -23,14 +23,14 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     midSideButton.setButtonText("Mid-Side");
     midSideButton.setRadioGroupId(0, juce::dontSendNotification);
     midSideButton.onClick = [this] { 
-        *processorRef.isMidSide = true;
+        processorRef.tree.getParameter("mode")->setValue(0);
         repaint(); 
     };
     addAndMakeVisible(midSideButton);
     leftRightButton.setButtonText("Left-Right");
     leftRightButton.setRadioGroupId(0, juce::dontSendNotification);
     leftRightButton.onClick = [this] { 
-        *processorRef.isMidSide = false;
+        processorRef.tree.getParameter("mode")->setValue(1);
         repaint();
     };
     addAndMakeVisible(leftRightButton);
@@ -80,7 +80,7 @@ void PluginEditor::layoutSlider(juce::Slider* slider, int xIndex, int yIndex)
 void PluginEditor::drawSectionLabels(juce::Graphics& g)
 {
     // define the position and area of the labels
-    bool ms = *processorRef.isMidSide;
+    bool ms = processorRef.isMidSide();
     int secondRowStart = headerHeight + yStart + itemSize + (yPadding / 2);
     int x1 = ms ? 30 : 31;
     int y1 = headerHeight + 20;

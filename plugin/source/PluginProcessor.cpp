@@ -24,6 +24,9 @@ PluginProcessor::PluginProcessor()
 			"freq-two", "Frequency (Side/Right)",
 			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 20000
 		),
+		std::make_unique<Parameter>(
+			"mode", "Mode", juce::NormalisableRange<float>(0, 1, 1), 0
+		)
 	})
 { 
 	// general setup
@@ -41,7 +44,6 @@ PluginProcessor::PluginProcessor()
 			lowPassTwo.setCutoffFrequency(value);
 		}
 	));
-	isMidSide = new juce::AudioParameterBool("mode", "Mode", true);
 	// processors
 	lowPassOne.setType(dsp::StateVariableTPTFilterType::lowpass);
 	lowPassTwo.setType(dsp::StateVariableTPTFilterType::lowpass);
@@ -110,7 +112,7 @@ void PluginProcessor::processBlock
 	float* left = buffer.getWritePointer(0);
 	float* right = buffer.getWritePointer(1);
 	size_t length = (size_t) buffer.getNumSamples();
-	if (*isMidSide)
+	if (isMidSide())
 	{
 		// split into mid and side signals
 		float* mid = (float*) malloc(sizeof(float) * length);
@@ -153,15 +155,19 @@ juce::AudioProcessorEditor *PluginProcessor::createEditor()
 }
 
 // === State ==================================================================
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+bool PluginProcessor::isMidSide()
+{
+	return *tree.getRawParameterValue("mode") == 0;
+}
+#pragma GCC diagnostic pop
+
 void PluginProcessor::getStateInformation(juce::MemoryBlock &destData)
 {
 	auto state = tree.copyState();
 	std::unique_ptr<juce::XmlElement> xml(state.createXml());
 	copyXmlToBinary(*xml, destData);
-	// auto stream = juce::MemoryOutputStream(destData, true);
-	// stream.writeFloat(*freqOne);
-	// stream.writeFloat(*freqTwo);
-	// stream.writeBool(*isMidSide);
 }
 
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes)
@@ -169,10 +175,6 @@ void PluginProcessor::setStateInformation(const void *data, int sizeInBytes)
 	std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
 	if (xml.get() != nullptr && xml->hasTagName(tree.state.getType()))
 		tree.replaceState(juce::ValueTree::fromXml(*xml));
-	// auto stream = juce::MemoryInputStream(data, (size_t)sizeInBytes, false);
-	// *freqOne = stream.readFloat();
-	// *freqTwo = stream.readFloat();
-	// *isMidSide = stream.readBool();
 }
 
 // === Private Helper =========================================================

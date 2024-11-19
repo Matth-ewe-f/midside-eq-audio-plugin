@@ -11,7 +11,6 @@ class PluginProcessor final : public juce::AudioProcessor
 public:
     // === Plugin Parameters ==================================================
     juce::AudioProcessorValueTreeState tree;
-    juce::AudioParameterBool* isMidSide;
 
     // === Lifecycle ==========================================================
     PluginProcessor();
@@ -64,6 +63,7 @@ public:
     using AudioProcessor::processBlock;
 
     // === State ==============================================================
+    bool isMidSide();
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
