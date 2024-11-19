@@ -1,9 +1,10 @@
 #pragma once
 #include "PluginProcessor.h"
 #include "SliderLabel.h"
+#include "CtmLookAndFeel.h"
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment; 
 
-class PluginEditor final :  public juce::AudioProcessorEditor
+class PluginEditor final : public juce::AudioProcessorEditor
 {
 public:
     // === Lifecycle ==========================================================
@@ -28,6 +29,7 @@ private:
     SliderLabel lowPassTwoFreqLabel;
     juce::Slider lowPassTwoOrder;
     SliderLabel lowPassTwoOrderLabel;
+    CtmLookAndFeel lookAndFeel;
     
     // === Layout constants ===================================================
     const int headerHeight = 50;
@@ -38,12 +40,12 @@ private:
     const int xPadding = 2;
     const int yPadding = 6;
     const int ySectionBreak = 16;
-    const int itemWidth = 68;
-    const int itemHeight = 58;
+    const int itemWidth = 58;
+    const int itemHeight = 50;
     const int maxRows = 4;
     const int maxCols = 4;
-    const juce::Colour lineColor = juce::Colour::fromRGB(200, 200, 200);
     const juce::Colour brighterBgColor = juce::Colour::fromRGB(30, 62, 72);
+    const juce::Colour lineColor = juce::Colour::fromRGB(200, 200, 200);
 
     // === Private Helper =====================================================
     void setupFreqSlider(juce::Slider*, SliderLabel*);

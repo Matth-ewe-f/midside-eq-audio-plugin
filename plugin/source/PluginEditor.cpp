@@ -5,6 +5,7 @@
 PluginEditor::PluginEditor (PluginProcessor &p)
     : AudioProcessorEditor(&p), processorRef(p)
 {
+    setLookAndFeel(&lookAndFeel);
     // calculate size
     int w = (itemWidth * maxCols) + (xPadding * (maxCols - 1)) + xStart + xEnd;
     int h = (itemHeight * maxRows) + (yPadding * (maxRows - 2)) + yStart + yEnd
@@ -51,6 +52,10 @@ void PluginEditor::paint(juce::Graphics &g)
     g.drawRect(0, 0, getWidth(), getHeight(), 1);
     g.drawLine(0, headerHeight, getWidth(), headerHeight);
     g.drawLine(0, secondRowStart(), getWidth(), secondRowStart());
+    // layoutTest(g, 1, 0);
+    // layoutTest(g, 1, 1);
+    // layoutTest(g, 0, 2);
+    // layoutTest(g, 1, 2);
 }
 
 void PluginEditor::resized()
@@ -71,6 +76,8 @@ void PluginEditor::setupFreqSlider(juce::Slider* slider, SliderLabel* label)
     slider->setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     slider->addListener(label);
     addAndMakeVisible(slider);
+    juce::FontOptions font(12);
+    label->setFont(juce::Font(font));
     label->setPostfix(" Hz");
     label->updateText(slider);
     addAndMakeVisible(label);
@@ -83,6 +90,8 @@ void PluginEditor::setupOrderSlider(juce::Slider* slider, SliderLabel* label)
     slider->setRange(6, 36, 6);
     slider->addListener(label);
     addAndMakeVisible(slider);
+    juce::FontOptions font(12);
+    label->setFont(juce::Font(font));
     label->setPrefix("-");
     label->setPostfix(" dB/oct");
     label->updateText(slider);
@@ -99,8 +108,8 @@ void PluginEditor::layoutSlider
         y += ySectionBreak;
         y -= yPadding;
     }
-    slider->setBounds(x, y - 9, itemWidth, itemHeight - 2);
-    label->setBounds(x, y + itemHeight - 17, itemWidth, 16);
+    slider->setBounds(x, y, itemWidth, itemHeight - 12);
+    label->setBounds(x, y + itemHeight - 13, itemWidth, 14);
 }
 
 void PluginEditor::layoutTest(juce::Graphics& g, int xIndex, int yIndex)

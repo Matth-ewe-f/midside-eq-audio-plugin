@@ -20,6 +20,7 @@ target_sources(
         source/PluginEditor.cpp
         source/ParameterListener.cpp
         source/SliderLabel.cpp
+        source/CtmLookAndFeel.cpp
 )
 
 target_include_directories(
