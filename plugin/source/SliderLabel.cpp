@@ -1,12 +1,23 @@
 #include "SliderLabel.h"
+#include <string>
 #include <format>
 
+// === Lifecycle ==============================================================
 SliderLabel::SliderLabel() : prefix(""), postfix("")
 {
-    setEditable(true);
-    setJustificationType(juce::Justification::centred);
+    setJustification(juce::Justification::centred);
+    setSelectAllWhenFocused(true);
+    onReturnKey = [this]{ onInputReturnKey(); };
 }
 
+// === Listener ===============================================================
+void SliderLabel::listenTo(juce::Slider* slider)
+{
+    attachedSlider = slider;
+    slider->addListener(this);
+}
+
+// === Text Manipulation ======================================================
 void SliderLabel::setPrefix(std::string s)
 {
     prefix = s;
@@ -20,11 +31,83 @@ void SliderLabel::setPostfix(std::string s)
 void SliderLabel::updateText(juce::Slider* slider)
 {
     std::string value = std::format("{:.0f}", slider->getValue());
-    std::string text = prefix + value + postfix;
-    setText(text, juce::dontSendNotification);
+    setFont(mainFont);
+    std::string newText = prefix + (typeNegative ? "-" + value : value);
+    setText(newText, juce::dontSendNotification);
+    moveCaretToEnd();
+    setFont(postfixFont);
+    insertTextAtCaret(postfix);
 }
 
+void SliderLabel::setTypeNegativeValues(bool typeNegativeValues)
+{
+    typeNegative = typeNegativeValues;
+}
+
+// === Font Setters ===========================================================
+void SliderLabel::setMainFont(const juce::FontOptions& font)
+{
+    mainFont = font;
+}
+
+void SliderLabel::setPostfixFont(const juce::FontOptions& font)
+{
+    postfixFont = font;
+}
+
+// === Focus Functions ========================================================
+void SliderLabel::focusGained(juce::Component::FocusChangeType changeType)
+{
+    juce::ignoreUnused(changeType);
+    std::string value = std::format("{:.0f}", attachedSlider->getValue());
+    setFont(mainFont);
+    setText(typeNegative ? "-" + value : value);
+}
+
+void SliderLabel::focusLost(juce::Component::FocusChangeType changeType)
+{
+    juce::ignoreUnused(changeType);
+    updateText(attachedSlider);
+}
+
+// === Private ================================================================
 void SliderLabel::sliderValueChanged(juce::Slider* slider)
 {
     updateText(slider);
+}
+
+// warning can safely be ignored - float comparison involving no arithmetic
+// is perfectly safe
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+void SliderLabel::onInputReturnKey()
+{
+    double newValue = convertToSliderValue(getText().toStdString());
+    if (newValue != __DBL_MIN__)
+        attachedSlider->setValue(newValue);
+    getParentComponent()->grabKeyboardFocus();
+}
+#pragma GCC diagnostic pop
+
+double SliderLabel::convertToSliderValue(std::string text)
+{
+    for (size_t i = 0;i < text.length();i++)
+    {
+        char c = text[i];
+        bool first = i == 0;
+        bool last = i == text.length() - 1;
+        if (!isdigit(c) && c != '.' && !(first && c == '-')
+            && !(last && c == 'k'))
+        {
+            return __DBL_MIN__;
+        }
+    }
+    double result;
+    if (text[text.length() - 1] == 'k')
+        result = std::stod(text.substr(0, text.length() - 1)) * 1000;
+    else
+        result = std::stod(text);
+    if (typeNegative && result < 0)
+        result *= -1;
+    return result;
 }

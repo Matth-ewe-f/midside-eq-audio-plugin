@@ -40,12 +40,10 @@ private:
     const int xPadding = 2;
     const int yPadding = 6;
     const int ySectionBreak = 16;
-    const int itemWidth = 58;
-    const int itemHeight = 50;
+    const int itemWidth = 56;
+    const int itemHeight = 48;
     const int maxRows = 4;
     const int maxCols = 4;
-    const juce::Colour brighterBgColor = juce::Colour::fromRGB(30, 62, 72);
-    const juce::Colour lineColor = juce::Colour::fromRGB(200, 200, 200);
 
     // === Private Helper =====================================================
     void setupFreqSlider(juce::Slider*, SliderLabel*);
@@ -54,6 +52,7 @@ private:
     void layoutTest(juce::Graphics&, int, int);
     void drawSectionLabels(juce::Graphics&);
     int secondRowStart();
+    juce::Colour findColour(int);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
 };

@@ -155,6 +155,8 @@ juce::AudioProcessorEditor *PluginProcessor::createEditor()
 }
 
 // === State ==================================================================
+// warning can safely be ignored - float comparison involving no arithmetic
+// is perfectly safe
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 bool PluginProcessor::isMidSide()

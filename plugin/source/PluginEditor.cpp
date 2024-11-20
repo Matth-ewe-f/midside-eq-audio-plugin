@@ -6,6 +6,7 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     : AudioProcessorEditor(&p), processorRef(p)
 {
     setLookAndFeel(&lookAndFeel);
+    setWantsKeyboardFocus(true);
     // calculate size
     int w = (itemWidth * maxCols) + (xPadding * (maxCols - 1)) + xStart + xEnd;
     int h = (itemHeight * maxRows) + (yPadding * (maxRows - 2)) + yStart + yEnd
@@ -48,7 +49,7 @@ void PluginEditor::paint(juce::Graphics &g)
     g.fillAll(getLookAndFeel().findColour(colorId));
     // draw lines seperating the mid and side sections
     drawSectionLabels(g);
-    g.setColour(lineColor);
+    g.setColour(findColour(CtmColourIds::brightOutlineColourId));
     g.drawRect(0, 0, getWidth(), getHeight(), 1);
     g.drawLine(0, headerHeight, getWidth(), headerHeight);
     g.drawLine(0, secondRowStart(), getWidth(), secondRowStart());
@@ -74,11 +75,13 @@ void PluginEditor::setupFreqSlider(juce::Slider* slider, SliderLabel* label)
 {
     slider->setSliderStyle(juce::Slider::RotaryVerticalDrag);
     slider->setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    slider->addListener(label);
     addAndMakeVisible(slider);
-    juce::FontOptions font(12);
-    label->setFont(juce::Font(font));
+    label->listenTo(slider);
+    juce::FontOptions mainFont(12);
+    label->setMainFont(mainFont);
     label->setPostfix(" Hz");
+    juce::FontOptions postfixFont(9);
+    label->setPostfixFont(postfixFont);
     label->updateText(slider);
     addAndMakeVisible(label);
 }
@@ -88,12 +91,14 @@ void PluginEditor::setupOrderSlider(juce::Slider* slider, SliderLabel* label)
     slider->setSliderStyle(juce::Slider::RotaryVerticalDrag);
     slider->setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     slider->setRange(6, 36, 6);
-    slider->addListener(label);
     addAndMakeVisible(slider);
-    juce::FontOptions font(12);
-    label->setFont(juce::Font(font));
-    label->setPrefix("-");
+    label->listenTo(slider);
+    juce::FontOptions mainFont(12);
+    label->setMainFont(mainFont);
+    label->setTypeNegativeValues(true);
     label->setPostfix(" dB/oct");
+    juce::FontOptions postfixFont(9);
+    label->setPostfixFont(postfixFont);
     label->updateText(slider);
     addAndMakeVisible(label);
 }
@@ -108,7 +113,7 @@ void PluginEditor::layoutSlider
         y += ySectionBreak;
         y -= yPadding;
     }
-    slider->setBounds(x, y, itemWidth, itemHeight - 12);
+    slider->setBounds(x, y, itemWidth, itemHeight - 14);
     label->setBounds(x, y + itemHeight - 13, itemWidth, 14);
 }
 
@@ -134,7 +139,7 @@ void PluginEditor::drawSectionLabels(juce::Graphics& g)
     int x2 = ms ? 33 : 40;
     int y2 = secondRowStart() + 20;
     // fill the labels with background color
-    g.setColour(brighterBgColor);
+    g.setColour(findColour(CtmColourIds::brightBgColourId));
     g.fillRect(0, y1 - 20, x1, 20);
     juce::Path triangle1;
     triangle1.addTriangle(x1, y1 - 20, x1 + 4, y1 - 20, x1, y1);
@@ -144,7 +149,7 @@ void PluginEditor::drawSectionLabels(juce::Graphics& g)
     triangle2.addTriangle(x2, y2 - 20, x2 + 4, y2 - 20, x2, y2);
     g.fillPath(triangle2);
     // draw the outlines around the labels
-    g.setColour(lineColor);
+    g.setColour(findColour(CtmColourIds::brightOutlineColourId));
     g.drawLine(0, y1, x1, y1);
     g.drawLine(x1, y1, x1 + 4, y1 - 20);
     g.drawLine(0, y2, x2, y2);
@@ -160,4 +165,9 @@ int PluginEditor::secondRowStart()
 {
     return (headerHeight + yStart + (itemHeight * 2) + yPadding
         + (ySectionBreak / 2));
+}
+
+juce::Colour PluginEditor::findColour(int colourId)
+{
+    return getLookAndFeel().findColour(colourId);
 }
