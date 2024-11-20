@@ -1,9 +1,10 @@
-#include "SliderLabel.h"
 #include <string>
 #include <format>
+#include "SliderLabel.h"
 
 // === Lifecycle ==============================================================
-SliderLabel::SliderLabel() : prefix(""), postfix("")
+SliderLabel::SliderLabel() :
+    prefix(""), postfix(""), showDecimals(false), typeNegative(false)
 {
     setJustification(juce::Justification::centred);
     setSelectAllWhenFocused(true);
@@ -30,10 +31,9 @@ void SliderLabel::setPostfix(std::string s)
 
 void SliderLabel::updateText(juce::Slider* slider)
 {
-    std::string value = std::format("{:.0f}", slider->getValue());
+    std::string value = getSliderValueAsString(slider);
     setFont(mainFont);
-    std::string newText = prefix + (typeNegative ? "-" + value : value);
-    setText(newText, juce::dontSendNotification);
+    setText(prefix + value, juce::dontSendNotification);
     moveCaretToEnd();
     setFont(postfixFont);
     insertTextAtCaret(postfix);
@@ -42,6 +42,11 @@ void SliderLabel::updateText(juce::Slider* slider)
 void SliderLabel::setTypeNegativeValues(bool typeNegativeValues)
 {
     typeNegative = typeNegativeValues;
+}
+
+void SliderLabel::setShowDecimals(bool show)
+{
+    showDecimals = show;
 }
 
 // === Font Setters ===========================================================
@@ -59,9 +64,8 @@ void SliderLabel::setPostfixFont(const juce::FontOptions& font)
 void SliderLabel::focusGained(juce::Component::FocusChangeType changeType)
 {
     juce::ignoreUnused(changeType);
-    std::string value = std::format("{:.0f}", attachedSlider->getValue());
     setFont(mainFont);
-    setText(typeNegative ? "-" + value : value);
+    setText(getSliderValueAsString(attachedSlider));
 }
 
 void SliderLabel::focusLost(juce::Component::FocusChangeType changeType)
@@ -110,4 +114,17 @@ double SliderLabel::convertToSliderValue(std::string text)
     if (typeNegative && result < 0)
         result *= -1;
     return result;
+}
+
+std::string SliderLabel::getSliderValueAsString(juce::Slider* slider)
+{
+    double valueAsBbl = slider->getValue();
+    std::string value;
+    if (showDecimals && valueAsBbl < 10)
+        value = std::format("{:.2f}", slider->getValue());
+    else if (showDecimals && valueAsBbl < 1000)
+        value = std::format("{:.1f}", slider->getValue());
+    else
+        value = std::format("{:.0f}", slider->getValue());
+    return typeNegative ? '-' + value : value;
 }

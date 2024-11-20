@@ -17,6 +17,7 @@ public:
     void setPostfix(std::string s);
     void updateText(juce::Slider*);
     void setTypeNegativeValues(bool);
+    void setShowDecimals(bool);
 
     // === Focus Functions ====================================================
     void focusGained(juce::Component::FocusChangeType) override;
@@ -31,10 +32,12 @@ private:
     juce::FontOptions mainFont;
     juce::FontOptions postfixFont;
     juce::Slider* attachedSlider;
+    bool showDecimals;
     bool typeNegative;
 
     // === Private Helper =====================================================
     void sliderValueChanged(juce::Slider*) override;
     void onInputReturnKey();
     double convertToSliderValue(std::string);
+    std::string getSliderValueAsString(juce::Slider*);
 };

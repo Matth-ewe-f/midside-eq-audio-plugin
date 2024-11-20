@@ -1,6 +1,4 @@
 #include "PluginProcessor.h"
-#include "PluginEditor.h"
-#include "ParameterListener.h"
 
 namespace dsp = juce::dsp;
 using Parameter = juce::AudioProcessorValueTreeState::Parameter;
@@ -17,30 +15,43 @@ PluginProcessor::PluginProcessor()
 	),
 	tree(*this, nullptr, "PARAMETERS", {
 		std::make_unique<Parameter>(
-			"freq-one", "Frequency (Mid/Left)",
-			juce::NormalisableRange<float>(20, 20000, 1, 0.35f), 20000
+			"lpf1-freq", "Low-Pass Frequency (Mid/Left)",
+			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 20000
 		),
 		std::make_unique<Parameter>(
-			"freq-two", "Frequency (Side/Right)",
-			juce::NormalisableRange<float>(20, 20000, 1, 0.35f), 20000
+			"lpf1-falloff", "Low-Pass Falloff (Mid/Left)",
+			juce::NormalisableRange<float>(6, 36, 6, 1), 6
+		),
+		std::make_unique<Parameter>(
+			"lpf1-res", "Low-Pass Resonance (Mid/Left)",
+			juce::NormalisableRange<float>(0.5, 10, 0.01f, 0.7f), 0.71
+		),
+		std::make_unique<Parameter>(
+			"lpf2-freq", "Low-Pass Frequency (Side/Right)",
+			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 20000
+		),
+		std::make_unique<Parameter>(
+			"lpf2-falloff", "Low-Pass Falloff (Side/Right)",
+			juce::NormalisableRange<float>(6, 36, 6, 1), 6
+		),
+		std::make_unique<Parameter>(
+			"lpf2-res", "Low-Pass Resonance (Side/Right)",
+			juce::NormalisableRange<float>(0.5, 10, 0.01f, 0.7f), 0.71
 		),
 		std::make_unique<Parameter>(
 			"mode", "Mode", juce::NormalisableRange<float>(0, 1, 1), 0
 		)
-	})
-{ 
-	// general setup
-	lastSampleRate = 48000; // default value
+	}),
+	lastSampleRate(48000) // default value
+{
 	// parameters
-	juce::NormalisableRange<float> freqRange(20, 20000, 0.1f);
-	freqRange.setSkewForCentre(1500);
 	addParameterListener(new ParameterListener(
-		"freq-one", [this](float value) {
+		"lpf1-freq", [this](float value) {
 			lowPassOne.setCutoffFrequency(value);
 		}
 	));
 	addParameterListener(new ParameterListener(
-		"freq-two", [this](float value) {
+		"lpf2-freq", [this](float value) {
 			lowPassTwo.setCutoffFrequency(value);
 		}
 	));
@@ -188,8 +199,8 @@ void PluginProcessor::addParameterListener(ParameterListener* listener)
 
 void PluginProcessor::updateFilterState()
 {
-	lowPassOne.setCutoffFrequency(*tree.getRawParameterValue("freq-one"));
-	lowPassTwo.setCutoffFrequency(*tree.getRawParameterValue("freq-two"));
+	lowPassOne.setCutoffFrequency(*tree.getRawParameterValue("lpf1-freq"));
+	lowPassTwo.setCutoffFrequency(*tree.getRawParameterValue("lpf2-freq"));
 }
 
 float PluginProcessor::clampWithinOne(float f)

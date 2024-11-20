@@ -1,9 +1,7 @@
 #pragma once
-#include "PluginProcessor.h"
 #include "SliderLabel.h"
+#include "ParameterControls.h"
 #include "CtmLookAndFeel.h"
-#include "ParameterControl.h"
-
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment; 
 
 class PluginEditor final : public juce::AudioProcessorEditor
@@ -18,47 +16,40 @@ public:
     void resized() override;
 
 private:
+    /// === Private Variables =================================================
     PluginProcessor& processorRef;
     CtmLookAndFeel lookAndFeel;
     // buttons
     juce::TextButton midSideButton;
     juce::TextButton leftRightButton;
-    // low pass filter one
-    ParameterControl lowPassOneFreq;
-    // juce::Slider lowPassOneFreq;
-    // std::unique_ptr<SliderAttachment> lowPassOneFreqAttachment;
-    // SliderLabel lowPassOneFreqLabel;
-    // juce::Slider lowPassOneOrder;
-    // SliderLabel lowPassOneOrderLabel;
-    // // low pass filter two
-    ParameterControl lowPassTwoFreq;
-    // juce::Slider lowPassTwoFreq;
-    // std::unique_ptr<SliderAttachment> lowPassTwoFreqAttachment;
-    // SliderLabel lowPassTwoFreqLabel;
-    // juce::Slider lowPassTwoOrder;
-    // SliderLabel lowPassTwoOrderLabel;
+    // filters
+    LowPassControl lowPassOne;
+    LowPassControl lowPassTwo;
     
     // === Layout constants ===================================================
     const int headerHeight = 50;
-    const int xStart = 40;
-    const int xEnd = 8;
-    const int yStart = 8;
-    const int yEnd = 8;
-    const int xPadding = 2;
-    const int yPadding = 6;
-    const int ySectionBreak = 16;
-    const int itemWidth = 50;
-    const int itemHeight = 48;
-    const int maxRows = 4;
-    const int maxCols = 4;
+    const int xStart = 48;
+    const int xEnd = 16;
+    const int yStart = 10;
+    const int yEnd = 10;
+    const int cellWidth = 104;
+    const int cellHeight = 102;
+    const int cellMarginX = 12;
+    const int cellMarginY = 24;
+    const int cellPaddingX = 6;
+    const int columnPaddingY = 12;
+    const int columnBgCurvature = 24;
+    const int intraCellPaddingX = 0;
+    const int intraCellPaddingY = 8;
+    const int maxRows = 2;
+    const int maxCols = 3;
 
     // === Private Helper =====================================================
-    void setupFreqSlider(ParameterControl*, std::string);
-    void setupOrderSlider(ParameterControl*);
-    void layoutSlider(ParameterControl*, int, int);
+    void layoutLowPass(LowPassControl*, int xIndex, int yIndex);
     void layoutTest(juce::Graphics&, int, int);
     void drawSectionLabels(juce::Graphics&);
-    int secondRowStart();
+    void drawFilterBackground(juce::Graphics&, int);
+    int secondSectionStart();
     juce::Colour findColour(int);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)

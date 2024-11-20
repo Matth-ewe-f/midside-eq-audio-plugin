@@ -3,12 +3,13 @@
 CtmLookAndFeel::CtmLookAndFeel()
 {
     // override default colors
-    setColour(juce::ResizableWindow::backgroundColourId, darkBgColor);
+    setColour(juce::ResizableWindow::backgroundColourId, normalBgColor);
     juce::Colour trans = juce::Colour::fromRGBA(255, 255, 255, 0);
     setColour(juce::TextEditor::backgroundColourId, trans);
     setColour(juce::TextEditor::ColourIds::outlineColourId, trans);
     setColour(juce::TextEditor::ColourIds::focusedOutlineColourId, trans);
     // add custom colors
+    setColour(CtmColourIds::normalBgColourId, normalBgColor);
     setColour(CtmColourIds::darkBgColourId, darkBgColor);
     setColour(CtmColourIds::brightBgColourId, brightBgColor);
     setColour(CtmColourIds::darkOutlineColourId, darkOutlineColor);

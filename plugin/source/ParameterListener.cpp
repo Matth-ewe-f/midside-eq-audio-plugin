@@ -1,5 +1,4 @@
 #include "ParameterListener.h"
-#include <functional>
 
 ParameterListener::ParameterListener(juce::String param) :
     parameter(param),
