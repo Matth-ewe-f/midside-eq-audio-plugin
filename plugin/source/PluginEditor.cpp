@@ -13,16 +13,8 @@ PluginEditor::PluginEditor (PluginProcessor &p)
         + ySectionBreak + headerHeight;
     setSize(w, h);
     // setup sliders
-    setupFreqSlider(&lowPassOneFreq, &lowPassOneFreqLabel);
-    lowPassOneFreqAttachment.reset(
-        new SliderAttachment(processorRef.tree, "freq-one", lowPassOneFreq)
-    );
-    setupFreqSlider(&lowPassTwoFreq, &lowPassTwoFreqLabel);
-    lowPassTwoFreqAttachment.reset(
-        new SliderAttachment(processorRef.tree, "freq-two", lowPassTwoFreq)
-    );
-    setupOrderSlider(&lowPassOneOrder, &lowPassOneOrderLabel);
-    setupOrderSlider(&lowPassTwoOrder, &lowPassTwoOrderLabel);
+    setupFreqSlider(&lowPassOneFreq, "freq-one");
+    setupFreqSlider(&lowPassTwoFreq, "freq-two");
     // setup buttons
     midSideButton.setButtonText("Mid-Side");
     midSideButton.setRadioGroupId(0, juce::dontSendNotification);
@@ -53,58 +45,56 @@ void PluginEditor::paint(juce::Graphics &g)
     g.drawRect(0, 0, getWidth(), getHeight(), 1);
     g.drawLine(0, headerHeight, getWidth(), headerHeight);
     g.drawLine(0, secondRowStart(), getWidth(), secondRowStart());
-    // layoutTest(g, 1, 0);
-    // layoutTest(g, 1, 1);
-    // layoutTest(g, 0, 2);
-    // layoutTest(g, 1, 2);
 }
 
 void PluginEditor::resized()
 {
-    layoutSlider(&lowPassOneFreq, &lowPassOneFreqLabel, 1, 0);
-    layoutSlider(&lowPassOneOrder, &lowPassOneOrderLabel, 1, 1);
-    layoutSlider(&lowPassTwoFreq, &lowPassTwoFreqLabel, 0, 2);
-    layoutSlider(&lowPassTwoOrder, &lowPassTwoOrderLabel, 1, 2);
+    layoutSlider(&lowPassOneFreq, 0, 0);
+    layoutSlider(&lowPassTwoFreq, 0, 1);
     int middle = getWidth() / 2;
     midSideButton.setBounds(middle - 80, 10, 70, 30);
     leftRightButton.setBounds(middle + 10, 10, 70, 30);
 }
 
 // === Private Helper Functions ===============================================
-void PluginEditor::setupFreqSlider(juce::Slider* slider, SliderLabel* label)
+void PluginEditor::setupFreqSlider
+(ParameterControl* control, std::string parameter)
 {
-    slider->setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    slider->setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    addAndMakeVisible(slider);
-    label->listenTo(slider);
+    control->slider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    control->slider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    addAndMakeVisible(control->slider);
+    control->label.listenTo(&control->slider);
     juce::FontOptions mainFont(12);
-    label->setMainFont(mainFont);
-    label->setPostfix(" Hz");
+    control->label.setMainFont(mainFont);
+    control->label.setPostfix(" Hz");
     juce::FontOptions postfixFont(9);
-    label->setPostfixFont(postfixFont);
-    label->updateText(slider);
-    addAndMakeVisible(label);
+    control->label.setPostfixFont(postfixFont);
+    control->label.updateText(&control->slider);
+    addAndMakeVisible(control->label);
+    control->attachment.reset(
+        new SliderAttachment(processorRef.tree, parameter, control->slider)
+    );
 }
 
-void PluginEditor::setupOrderSlider(juce::Slider* slider, SliderLabel* label)
+void PluginEditor::setupOrderSlider(ParameterControl* control)
 {
-    slider->setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    slider->setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    slider->setRange(6, 36, 6);
-    addAndMakeVisible(slider);
-    label->listenTo(slider);
+    control->slider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    control->slider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    control->slider.setRange(6, 36, 6);
+    addAndMakeVisible(control->slider);
+    control->label.listenTo(&control->slider);
     juce::FontOptions mainFont(12);
-    label->setMainFont(mainFont);
-    label->setTypeNegativeValues(true);
-    label->setPostfix(" dB/oct");
+    control->label.setMainFont(mainFont);
+    control->label.setTypeNegativeValues(true);
+    control->label.setPostfix(" dB/oct");
     juce::FontOptions postfixFont(9);
-    label->setPostfixFont(postfixFont);
-    label->updateText(slider);
-    addAndMakeVisible(label);
+    control->label.setPostfixFont(postfixFont);
+    control->label.updateText(&control->slider);
+    addAndMakeVisible(control->label);
 }
 
 void PluginEditor::layoutSlider
-(juce::Slider* slider, SliderLabel* label, int xIndex, int yIndex)
+(ParameterControl* control, int xIndex, int yIndex)
 {
     int x = xStart + ((itemWidth + xPadding) * xIndex);
     int y = headerHeight + yStart + ((itemHeight + yPadding) * yIndex);
@@ -113,8 +103,8 @@ void PluginEditor::layoutSlider
         y += ySectionBreak;
         y -= yPadding;
     }
-    slider->setBounds(x, y, itemWidth, itemHeight - 14);
-    label->setBounds(x, y + itemHeight - 13, itemWidth, 14);
+    control->slider.setBounds(x, y, itemWidth, itemHeight - 14);
+    control->label.setBounds(x, y + itemHeight - 13, itemWidth, 14);
 }
 
 void PluginEditor::layoutTest(juce::Graphics& g, int xIndex, int yIndex)

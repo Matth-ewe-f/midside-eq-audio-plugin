@@ -2,6 +2,8 @@
 #include "PluginProcessor.h"
 #include "SliderLabel.h"
 #include "CtmLookAndFeel.h"
+#include "ParameterControl.h"
+
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment; 
 
 class PluginEditor final : public juce::AudioProcessorEditor
@@ -17,19 +19,24 @@ public:
 
 private:
     PluginProcessor& processorRef;
+    CtmLookAndFeel lookAndFeel;
+    // buttons
     juce::TextButton midSideButton;
     juce::TextButton leftRightButton;
-    juce::Slider lowPassOneFreq;
-    std::unique_ptr<SliderAttachment> lowPassOneFreqAttachment;
-    SliderLabel lowPassOneFreqLabel;
-    juce::Slider lowPassOneOrder;
-    SliderLabel lowPassOneOrderLabel;
-    juce::Slider lowPassTwoFreq;
-    std::unique_ptr<SliderAttachment> lowPassTwoFreqAttachment;
-    SliderLabel lowPassTwoFreqLabel;
-    juce::Slider lowPassTwoOrder;
-    SliderLabel lowPassTwoOrderLabel;
-    CtmLookAndFeel lookAndFeel;
+    // low pass filter one
+    ParameterControl lowPassOneFreq;
+    // juce::Slider lowPassOneFreq;
+    // std::unique_ptr<SliderAttachment> lowPassOneFreqAttachment;
+    // SliderLabel lowPassOneFreqLabel;
+    // juce::Slider lowPassOneOrder;
+    // SliderLabel lowPassOneOrderLabel;
+    // // low pass filter two
+    ParameterControl lowPassTwoFreq;
+    // juce::Slider lowPassTwoFreq;
+    // std::unique_ptr<SliderAttachment> lowPassTwoFreqAttachment;
+    // SliderLabel lowPassTwoFreqLabel;
+    // juce::Slider lowPassTwoOrder;
+    // SliderLabel lowPassTwoOrderLabel;
     
     // === Layout constants ===================================================
     const int headerHeight = 50;
@@ -40,15 +47,15 @@ private:
     const int xPadding = 2;
     const int yPadding = 6;
     const int ySectionBreak = 16;
-    const int itemWidth = 56;
+    const int itemWidth = 50;
     const int itemHeight = 48;
     const int maxRows = 4;
     const int maxCols = 4;
 
     // === Private Helper =====================================================
-    void setupFreqSlider(juce::Slider*, SliderLabel*);
-    void setupOrderSlider(juce::Slider*, SliderLabel*);
-    void layoutSlider(juce::Slider*, SliderLabel*, int, int);
+    void setupFreqSlider(ParameterControl*, std::string);
+    void setupOrderSlider(ParameterControl*);
+    void layoutSlider(ParameterControl*, int, int);
     void layoutTest(juce::Graphics&, int, int);
     void drawSectionLabels(juce::Graphics&);
     int secondRowStart();
