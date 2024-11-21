@@ -43,7 +43,6 @@ LowPassControl::LowPassControl()
 {
     frequency.label.setPostfix(" Hz");
     frequency.label.setShowDecimals(true);
-    frequency.slider.setColorOverride(juce::Colours::red);
     falloff.label.setPostfix(" dB/oct");
     falloff.label.setTypeNegativeValues(true);
     resonance.label.setPostfix(" res");
@@ -66,6 +65,13 @@ void LowPassControl::setBounds(int x, int y, int w, int h, int xPad, int yPad)
     frequency.setBounds(x, y, itemW, itemH);
     resonance.setBounds(x, y + itemH + yPad, itemW, itemH);
     falloff.setBounds(x + itemW + xPad, y + itemH + yPad, itemW, itemH);
+}
+
+void LowPassControl::setAllColorOverrides(juce::Colour color)
+{
+    frequency.slider.setColorOverride(color);
+    falloff.slider.setColorOverride(color);
+    resonance.slider.setColorOverride(color);
 }
 
 void LowPassControl::attachToLowPass

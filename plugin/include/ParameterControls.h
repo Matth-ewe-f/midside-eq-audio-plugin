@@ -37,6 +37,7 @@ public:
 
     void addToEditor(PluginEditor*);
     void setBounds(int x, int y, int width, int height, int xPad, int yPad);
+    void setAllColorOverrides(juce::Colour);
     void attachToLowPass
     (PluginProcessor* processor, std::string freq, std::string falloff,
     std::string res);

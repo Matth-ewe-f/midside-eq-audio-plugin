@@ -45,11 +45,20 @@ private:
     const int maxRows = 2;
     const int maxCols = 3;
 
+    // === Color Constants ====================================================
+    const juce::Colour midColor = juce::Colour::fromRGB(242, 50, 246);
+    const juce::Colour sideColor = juce::Colour::fromRGB(48, 166, 255);
+    const juce::Colour leftColor = juce::Colour::fromRGB(250, 50, 40);
+    const juce::Colour rightColor = juce::Colour::fromRGB(60, 230, 10);
+
     // === Private Helper =====================================================
     void layoutLowPass(LowPassControl*, int xIndex, int yIndex);
     void layoutTest(juce::Graphics&, int, int);
     void drawSectionLabels(juce::Graphics&);
     void drawFilterBackground(juce::Graphics&, int);
+    void setColorOverrides();
+    juce::Colour getColorOne();
+    juce::Colour getColorTwo();
     int secondSectionStart();
     juce::Colour findColour(int);
 

@@ -22,11 +22,13 @@ PluginEditor::PluginEditor (PluginProcessor &p)
         &processorRef, "lpf2-freq", "lpf2-falloff", "lpf2-res"
     );
     lowPassTwo.addToEditor(this);
+    setColorOverrides();
     // setup buttons
     midSideButton.setButtonText("Mid-Side");
     midSideButton.setRadioGroupId(0, juce::dontSendNotification);
     midSideButton.onClick = [this] { 
         processorRef.tree.getParameter("mode")->setValue(0);
+        setColorOverrides();
         repaint(); 
     };
     addAndMakeVisible(midSideButton);
@@ -34,6 +36,7 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     leftRightButton.setRadioGroupId(0, juce::dontSendNotification);
     leftRightButton.onClick = [this] { 
         processorRef.tree.getParameter("mode")->setValue(1);
+        setColorOverrides();
         repaint();
     };
     addAndMakeVisible(leftRightButton);
@@ -60,7 +63,7 @@ void PluginEditor::paint(juce::Graphics &g)
 void PluginEditor::resized()
 {
     layoutLowPass(&lowPassOne, 0, 0);
-    layoutLowPass(&lowPassTwo, 1, 0);
+    layoutLowPass(&lowPassTwo, 0, 1);
     int middle = getWidth() / 2;
     midSideButton.setBounds(middle - 80, 10, 70, 30);
     leftRightButton.setBounds(middle + 10, 10, 70, 30);
@@ -116,8 +119,9 @@ void PluginEditor::drawSectionLabels(juce::Graphics& g)
     g.drawLine(x2, y2, x2 + 4, y2 - 20);
     // draw text of the labels
     g.setFont(16);
-    g.setColour(juce::Colours::white);
+    g.setColour(juce::Colours::white.interpolatedWith(getColorOne(), 0.7f));
     g.drawText(ms ? "Mid" : "Left", 4, headerHeight + 1, 40, 18, false);
+    g.setColour(juce::Colours::white.interpolatedWith(getColorTwo(), 0.7f));
     g.drawText(ms ? "Side" : "Right", 4, secondSectionY + 1, 40, 18, false);
 }
 
@@ -132,6 +136,22 @@ void PluginEditor::drawFilterBackground(juce::Graphics& g, int index)
     p.addRoundedRectangle(x, y, w, h, columnBgCurvature);
     g.setColour(findColour(CtmColourIds::darkBgColourId));
     g.fillPath(p);
+}
+
+void PluginEditor::setColorOverrides()
+{
+    lowPassOne.setAllColorOverrides(getColorOne());
+    lowPassTwo.setAllColorOverrides(getColorTwo());
+}
+
+juce::Colour PluginEditor::getColorOne()
+{
+    return processorRef.isMidSide() ? midColor : leftColor;
+}
+
+juce::Colour PluginEditor::getColorTwo()
+{
+    return processorRef.isMidSide() ? sideColor : rightColor;
 }
 
 int PluginEditor::secondSectionStart()
