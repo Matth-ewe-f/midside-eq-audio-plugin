@@ -3,6 +3,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
 #include "ParameterListener.h"
+#include "LowPassFilter.h"
 
 namespace dsp = juce::dsp;
 
@@ -71,14 +72,13 @@ public:
     juce::AudioProcessorEditor* createEditor() override;
 
 private:
-    dsp::StateVariableTPTFilter<float> lowPassOne;
-    dsp::StateVariableTPTFilter<float> lowPassTwo;
+    LowPassFilter lowPassOne;
+    LowPassFilter lowPassTwo;
     double lastSampleRate;
     std::list<ParameterListener*> paramListeners;
 
     // === Private Helper Functions ===========================================
     void addParameterListener(ParameterListener*);
-    void updateFilterState();
     float clampWithinOne(float);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)

@@ -145,23 +145,21 @@ PluginProcessor::PluginProcessor()
 			"mode", "Mode", juce::NormalisableRange<float>(0, 1, 1), 0
 		)
 	}),
+	lowPassOne(48000),
+	lowPassTwo(48000),
 	lastSampleRate(48000) // default value
 {
 	// parameters
 	addParameterListener(new ParameterListener(
 		"lpf1-freq", [this](float value) {
-			lowPassOne.setCutoffFrequency(value);
+			lowPassOne.setFrequency(value);
 		}
 	));
 	addParameterListener(new ParameterListener(
 		"lpf2-freq", [this](float value) {
-			lowPassTwo.setCutoffFrequency(value);
+			lowPassTwo.setFrequency(value);
 		}
 	));
-	// processors
-	lowPassOne.setType(dsp::StateVariableTPTFilterType::lowpass);
-	lowPassTwo.setType(dsp::StateVariableTPTFilterType::lowpass);
-	updateFilterState();
 }
 
 PluginProcessor::~PluginProcessor() 
@@ -202,10 +200,10 @@ void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 	spec.sampleRate = sampleRate;
 	spec.maximumBlockSize = (unsigned) samplesPerBlock;
 	spec.numChannels = (unsigned) getTotalNumOutputChannels();
+	lowPassOne.reset(sampleRate, samplesPerBlock);
 	lowPassOne.prepare(spec);
-	lowPassOne.reset();
+	lowPassTwo.reset(sampleRate, samplesPerBlock);
 	lowPassTwo.prepare(spec);
-	lowPassTwo.reset();
 }
 
 void PluginProcessor::releaseResources() { }
@@ -223,37 +221,29 @@ void PluginProcessor::processBlock
 	// zeroes out any unused outputs (if there are any)
 	for (auto i = numInputChannels; i < numOutputChannels; i++)
 		buffer.clear(i, 0, buffer.getNumSamples());
+	// process the audio
 	float* left = buffer.getWritePointer(0);
 	float* right = buffer.getWritePointer(1);
 	size_t length = (size_t) buffer.getNumSamples();
 	if (isMidSide())
 	{
-		// split into mid and side signals
-		float* mid = (float*) malloc(sizeof(float) * length);
-		float* side = (float*) malloc(sizeof(float) * length);
 		for (size_t i = 0;i < length;i++)
 		{
-			mid[i] = (left[i] + right[i]) / 2;
-			side[i] = (left[i] - right[i]) / 2;
-		}
-		// process the audio
-		dsp::AudioBlock<float> midBlock(&mid, 1, length);
-		dsp::AudioBlock<float> sideBlock(&side, 1, length);
-		lowPassOne.process(dsp::ProcessContextReplacing<float>(midBlock));
-		lowPassTwo.process(dsp::ProcessContextReplacing<float>(sideBlock));
-		// recombine the mid and side signals into left and right
-		for (size_t i = 0;i < length;i++)
-		{
-			left[i] = clampWithinOne(mid[i] + side[i]);
-			right[i] = clampWithinOne(mid[i] - side[i]);
+			float mid = (left[i] + right[i]) / 2;
+			float side = (left[i] - right[i]) / 2;
+			mid = lowPassOne.processSample(mid);
+			side = lowPassTwo.processSample(side);
+			left[i] = clampWithinOne(mid + side);
+			right[i] = clampWithinOne(mid - side);
 		}
 	}
 	else
 	{
-		dsp::AudioBlock<float> leftBlock(&left, 1, length);
-		dsp::AudioBlock<float> rightBlock(&right, 1, length);
-		lowPassOne.process(dsp::ProcessContextReplacing<float>(leftBlock));
-		lowPassTwo.process(dsp::ProcessContextReplacing<float>(rightBlock));
+		for (size_t i = 0;i < length;i++)
+		{
+			left[i] = lowPassOne.processSample(left[i]);
+			right[i] = lowPassTwo.processSample(right[i]);
+		}
 	}
 }
 
@@ -298,12 +288,6 @@ void PluginProcessor::addParameterListener(ParameterListener* listener)
 {
 	paramListeners.push_front(listener);
 	tree.addParameterListener(listener->parameter, listener);
-}
-
-void PluginProcessor::updateFilterState()
-{
-	lowPassOne.setCutoffFrequency(*tree.getRawParameterValue("lpf1-freq"));
-	lowPassTwo.setCutoffFrequency(*tree.getRawParameterValue("lpf2-freq"));
 }
 
 float PluginProcessor::clampWithinOne(float f)
