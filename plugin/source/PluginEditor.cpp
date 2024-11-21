@@ -66,6 +66,8 @@ void PluginEditor::paint(juce::Graphics &g)
     g.drawRect(0, 0, getWidth(), getHeight(), 1);
     g.drawLine(0, headerHeight, getWidth(), headerHeight);
     g.drawLine(0, secondSectionStart(), getWidth(), secondSectionStart());
+    // draw the icons for the filters
+    drawFilterIcons(g);
 }
 
 void PluginEditor::resized()
@@ -141,6 +143,29 @@ void PluginEditor::drawSectionLabels(juce::Graphics& g)
     g.drawText(ms ? "Side" : "Right", 4, secondSectionY + 1, 40, 18, false);
 }
 
+void PluginEditor::drawFilterIcons(juce::Graphics& g)
+{
+    int cy = headerHeight + yStart + columnPaddingY + cellHeight
+        + (cellMarginY / 2);
+    g.setFont(14);
+    for (int i = 0;i < maxCols;i++)
+    {
+        int cx = xStart + ((cellMarginX + cellWidth) * i)
+            + (cellPaddingX * ((i * 2) + 1)) + (cellWidth / 2);
+        g.setColour(findColour(CtmColourIds::darkBgColourId));
+        g.fillRect(cx - 22, cy - 16, 44, 32);
+        juce::Path icon;
+        if (i == 0)
+            icon = getHighPassFilterIcon(cx - 12, cy - 8, 24, 16);
+        else if (i == maxCols - 1)
+            icon = getLowPassFilterIcon(cx - 12, cy - 8, 24, 16);
+        else
+            icon = getParametricEqIcon(cx - 16, cy - 11, 32, 22);
+        g.setColour(juce::Colours::white);
+        g.fillPath(icon);
+    }
+}
+
 void PluginEditor::drawFilterBackground(juce::Graphics& g, int index)
 {
     juce::Path p;
@@ -178,13 +203,59 @@ juce::Colour PluginEditor::getColorTwo()
     return processorRef.isMidSide() ? sideColor : rightColor;
 }
 
+juce::Path PluginEditor::getHighPassFilterIcon(int x, int y, int w, int h)
+{
+    juce::Path path;
+    juce::Line<float> lines[2];
+    lines[0] = juce::Line<float>(0, 1, 0.33f, 0.17f);
+    lines[1] = juce::Line<float>(0.33f, 0.17f, 1, 0.17f);
+    for (int i = 0;i < 2;i++)
+    {
+        lines[i].applyTransform(juce::AffineTransform::scale(w, h));
+        lines[i].applyTransform(juce::AffineTransform::translation(x, y));
+        path.addLineSegment(lines[i], 1);
+    }
+    return path;
+}
+
+juce::Path PluginEditor::getLowPassFilterIcon(int x, int y, int w, int h)
+{
+    juce::Path path;
+    juce::Line<float> lines[2];
+    lines[0] = juce::Line<float>(0, 0.17f, 0.67f, 0.17f);
+    lines[1] = juce::Line<float>(0.67f, 0.17f, 1, 1);
+    for (int i = 0;i < 2;i++)
+    {
+        lines[i].applyTransform(juce::AffineTransform::scale(w, h));
+        lines[i].applyTransform(juce::AffineTransform::translation(x, y));
+        path.addLineSegment(lines[i], 1);
+    }
+    return path;
+}
+
+juce::Path PluginEditor::getParametricEqIcon(int x, int y, int w, int h)
+{
+    juce::Path path;
+    juce::Line<float> lines[8];
+    lines[0] = juce::Line<float>(0, 0.5f, 0.17f, 0.5f);
+    lines[1] = juce::Line<float>(0.17f, 0.5f, 0.37f, 0.17f);
+    lines[2] = juce::Line<float>(0.17f, 0.5f, 0.37f, 0.83f);
+    lines[3] = juce::Line<float>(0.37f, 0.17f, 0.63f, 0.17f);
+    lines[4] = juce::Line<float>(0.37f, 0.83f, 0.63f, 0.83f);
+    lines[5] = juce::Line<float>(0.63f, 0.17f, 0.83f, 0.5f);
+    lines[6] = juce::Line<float>(0.63f, 0.83f, 0.83f, 0.5f);
+    lines[7] = juce::Line<float>(0.8f, 0.5f, 1, 0.5f);
+    for (int i = 0;i < 8;i++)
+    {
+        lines[i].applyTransform(juce::AffineTransform::scale(w, h));
+        lines[i].applyTransform(juce::AffineTransform::translation(x, y));
+        path.addLineSegment(lines[i], 1);
+    }
+    return path;
+}
+
 int PluginEditor::secondSectionStart()
 {
     return headerHeight + yStart + columnPaddingY + cellHeight
         + (cellMarginY / 2);
-}
-
-juce::Colour PluginEditor::findColour(int colourId)
-{
-    return getLookAndFeel().findColour(colourId);
 }

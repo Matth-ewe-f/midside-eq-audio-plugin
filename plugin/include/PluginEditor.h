@@ -44,7 +44,7 @@ private:
     const int cellWidth = 104;
     const int cellHeight = 102;
     const int cellMarginX = 12;
-    const int cellMarginY = 24;
+    const int cellMarginY = 40;
     const int cellPaddingX = 6;
     const int columnPaddingY = 12;
     const int columnBgCurvature = 24;
@@ -63,12 +63,15 @@ private:
     void layoutFilter(FilterControl*, int xIndex, int yIndex);
     void layoutTest(juce::Graphics&, int, int);
     void drawSectionLabels(juce::Graphics&);
+    void drawFilterIcons(juce::Graphics&);
     void drawFilterBackground(juce::Graphics&, int);
     void setColorOverrides();
     juce::Colour getColorOne();
     juce::Colour getColorTwo();
+    juce::Path getHighPassFilterIcon(int x, int y, int w, int h);
+    juce::Path getParametricEqIcon(int x, int y, int w, int h);
+    juce::Path getLowPassFilterIcon(int x, int y, int w, int h);
     int secondSectionStart();
-    juce::Colour findColour(int);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
 };
