@@ -61,8 +61,8 @@ private:
     const int maxCols = 5;
 
     // === Color Constants ====================================================
-    const juce::Colour midColor = juce::Colour::fromRGB(242, 50, 246);
-    const juce::Colour sideColor = juce::Colour::fromRGB(48, 166, 255);
+    const juce::Colour midColor = juce::Colour::fromRGB(252, 32, 250);
+    const juce::Colour sideColor = juce::Colour::fromRGB(12, 208, 255);
     const juce::Colour leftColor = juce::Colour::fromRGB(250, 50, 40);
     const juce::Colour rightColor = juce::Colour::fromRGB(60, 230, 10);
 
