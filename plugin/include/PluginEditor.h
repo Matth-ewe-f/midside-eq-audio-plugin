@@ -1,5 +1,6 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "PluginProcessor.h"
 #include "SliderLabel.h"
 #include "ParameterControls.h"
 #include "CtmLookAndFeel.h"
@@ -15,6 +16,12 @@ public:
     // === Graphics ===========================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+
+    // === Functions for Custom Components ====================================
+    void addParameterControl(ParameterControl*);
+    void addHighPassControl(HighPassControl*);
+    void addParametricEqControl(ParametricEqControl*);
+    void addLowPassControl(LowPassControl*);
 
 private:
     /// === Private Variables =================================================
@@ -59,12 +66,14 @@ private:
     const juce::Colour leftColor = juce::Colour::fromRGB(250, 50, 40);
     const juce::Colour rightColor = juce::Colour::fromRGB(60, 230, 10);
 
-    // === Private Helper =====================================================
+    // === Drawing and Layout Helper Functions ================================
     void layoutFilter(FilterControl*, int xIndex, int yIndex);
     void layoutTest(juce::Graphics&, int, int);
     void drawSectionLabels(juce::Graphics&);
     void drawFilterIcons(juce::Graphics&);
     void drawFilterBackground(juce::Graphics&, int);
+
+    // === Other Helper Functions =============================================
     void setColorOverrides();
     juce::Colour getColorOne();
     juce::Colour getColorTwo();

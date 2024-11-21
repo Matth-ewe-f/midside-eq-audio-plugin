@@ -1,5 +1,4 @@
 #include "PluginEditor.h"
-#include "PluginProcessor.h"
 
 // === Lifecycle ==============================================================
 PluginEditor::PluginEditor (PluginProcessor &p)
@@ -14,22 +13,22 @@ PluginEditor::PluginEditor (PluginProcessor &p)
         + (cellMarginY * (maxRows - 1)) + (columnPaddingY * 2) + yEnd;
     setSize(w, h);
     // setup sliders
-    highPassOne.addToEditor(this);
-    highPassTwo.addToEditor(this);
-    parametricOne.addToEditor(this);
-    parametricTwo.addToEditor(this);
-    parametricThree.addToEditor(this);
-    parametricFour.addToEditor(this);
-    parametricFive.addToEditor(this);
-    parametricSix.addToEditor(this);
+    addHighPassControl(&highPassOne);
+    addHighPassControl(&highPassTwo);
+    addParametricEqControl(&parametricOne);
+    addParametricEqControl(&parametricTwo);
+    addParametricEqControl(&parametricThree);
+    addParametricEqControl(&parametricFour);
+    addParametricEqControl(&parametricFive);
+    addParametricEqControl(&parametricSix);
+    addLowPassControl(&lowPassOne);
+    addLowPassControl(&lowPassTwo);
     lowPassOne.attachToLowPass(
-        &processorRef, "lpf1-freq", "lpf1-falloff", "lpf1-res"
+        &processorRef.tree, "lpf1-freq", "lpf1-falloff", "lpf1-res"
     );
-    lowPassOne.addToEditor(this);
     lowPassTwo.attachToLowPass(
-        &processorRef, "lpf2-freq", "lpf2-falloff", "lpf2-res"
+        &processorRef.tree, "lpf2-freq", "lpf2-falloff", "lpf2-res"
     );
-    lowPassTwo.addToEditor(this);
     setColorOverrides();
     // setup buttons
     midSideButton.setButtonText("Mid-Side");
@@ -87,7 +86,35 @@ void PluginEditor::resized()
     leftRightButton.setBounds(middle + 10, 10, 70, 30);
 }
 
-// === Private Helper Functions ===============================================
+// === Functions for Custom Components ========================================
+void PluginEditor::addParameterControl(ParameterControl* control)
+{
+    addAndMakeVisible(control->slider);
+    addAndMakeVisible(control->label);
+}
+
+void PluginEditor::addHighPassControl(HighPassControl* control)
+{
+    addParameterControl(&control->frequency);
+    addParameterControl(&control->falloff);
+    addParameterControl(&control->resonance);
+}
+
+void PluginEditor::addParametricEqControl(ParametricEqControl* control)
+{
+    addParameterControl(&control->frequency);
+    addParameterControl(&control->gain);
+    addParameterControl(&control->qFactor);
+}
+
+void PluginEditor::addLowPassControl(LowPassControl* control)
+{
+    addParameterControl(&control->frequency);
+    addParameterControl(&control->falloff);
+    addParameterControl(&control->resonance);
+}
+
+// === Drawing and Layout Helper Functions ====================================
 void PluginEditor::layoutFilter
 (FilterControl* lowPass, int xIndex, int yIndex)
 {
@@ -160,7 +187,7 @@ void PluginEditor::drawFilterIcons(juce::Graphics& g)
         else if (i == maxCols - 1)
             icon = getLowPassFilterIcon(cx - 12, cy - 8, 24, 16);
         else
-            icon = getParametricEqIcon(cx - 16, cy - 11, 32, 22);
+            icon = getParametricEqIcon(cx - 14, cy - 11, 28, 22);
         g.setColour(juce::Colours::white);
         g.fillPath(icon);
     }
@@ -179,6 +206,7 @@ void PluginEditor::drawFilterBackground(juce::Graphics& g, int index)
     g.fillPath(p);
 }
 
+// === Other Helper Functions =================================================
 void PluginEditor::setColorOverrides()
 {
     highPassOne.setAllColorOverrides(getColorOne());

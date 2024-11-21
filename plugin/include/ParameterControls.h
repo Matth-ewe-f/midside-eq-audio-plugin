@@ -4,10 +4,6 @@
 #include "SliderLabel.h"
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment; 
 
-// forward declarations
-class PluginEditor;
-class PluginProcessor;
-
 // General class for controlling a single parameter
 class ParameterControl
 {
@@ -19,9 +15,8 @@ public:
     ParameterControl();
     ~ParameterControl();
 
-    void addToEditor(PluginEditor*);
     void setBounds(int x, int y, int width, int height);
-    void attachToParameter(PluginProcessor* processor, std::string parameter);
+    void attachToParameter(juce::AudioProcessorValueTreeState*, std::string);
 };
 
 // Abstract base class for filter controls
@@ -42,11 +37,11 @@ public:
     LowPassControl();
     ~LowPassControl();
 
-    void addToEditor(PluginEditor*);
     void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
     void setAllColorOverrides(juce::Colour);
     void attachToLowPass
-    (PluginProcessor*, std::string freq, std::string falloff, std::string res);
+    (juce::AudioProcessorValueTreeState*, std::string freq,
+    std::string falloff, std::string res);
 };
 
 // Group of parameters for controlling a parametric EQ filter
@@ -60,11 +55,11 @@ public:
     ParametricEqControl();
     ~ParametricEqControl();
 
-    void addToEditor(PluginEditor*);
     void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
     void setAllColorOverrides(juce::Colour);
     void attachToParametricEq
-    (PluginProcessor*, std::string freq, std::string gain, std::string res);
+    (juce::AudioProcessorValueTreeState*, std::string freq,
+    std::string gain, std::string res);
 };
 
 // Group of parameters for controlling a high pass filter
@@ -78,9 +73,9 @@ public:
     HighPassControl();
     ~HighPassControl();
 
-    void addToEditor(PluginEditor*);
     void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
     void setAllColorOverrides(juce::Colour);
     void attachToHighPass
-    (PluginProcessor*, std::string freq, std::string falloff, std::string res);
+    (juce::AudioProcessorValueTreeState*, std::string freq,
+    std::string falloff, std::string res);
 };

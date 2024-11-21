@@ -1,6 +1,4 @@
 #include "ParameterControls.h"
-#include "PluginEditor.h"
-#include "PluginProcessor.h"
 
 // === ParameterControl =======================================================
 ParameterControl::ParameterControl()
@@ -17,12 +15,6 @@ ParameterControl::ParameterControl()
 
 ParameterControl::~ParameterControl() { }
 
-void ParameterControl::addToEditor(PluginEditor* editor)
-{
-    editor->addAndMakeVisible(slider);
-    editor->addAndMakeVisible(label);
-}
-
 void ParameterControl::setBounds(int x, int y, int width, int height)
 {
     slider.setBounds(x, y, width, height - 13);
@@ -30,10 +22,10 @@ void ParameterControl::setBounds(int x, int y, int width, int height)
 }
 
 void ParameterControl::attachToParameter
-(PluginProcessor* processor, std::string parameter)
+(juce::AudioProcessorValueTreeState* stateTree, std::string parameter)
 {
     attachment.reset(
-        new SliderAttachment(processor->tree, parameter, slider)
+        new SliderAttachment(*stateTree, parameter, slider)
     );
     label.updateText(&slider);
 }
@@ -50,13 +42,6 @@ LowPassControl::LowPassControl()
 }
 
 LowPassControl::~LowPassControl() { }
-
-void LowPassControl::addToEditor(PluginEditor* editor)
-{
-    frequency.addToEditor(editor);
-    falloff.addToEditor(editor);
-    resonance.addToEditor(editor);
-}
 
 void LowPassControl::setBounds(int x, int y, int w, int h, int xPad, int yPad)
 {
@@ -75,12 +60,12 @@ void LowPassControl::setAllColorOverrides(juce::Colour color)
 }
 
 void LowPassControl::attachToLowPass
-(PluginProcessor* processor, std::string freqParam, std::string falloffParam,
-std::string resParam)
+(juce::AudioProcessorValueTreeState* stateTree, std::string freqParam,
+std::string falloffParam, std::string resParam)
 {
-    frequency.attachToParameter(processor, freqParam);
-    falloff.attachToParameter(processor, falloffParam);
-    resonance.attachToParameter(processor, resParam);
+    frequency.attachToParameter(stateTree, freqParam);
+    falloff.attachToParameter(stateTree, falloffParam);
+    resonance.attachToParameter(stateTree, resParam);
 }
 
 // === ParametricEqControl ====================================================
@@ -95,13 +80,6 @@ ParametricEqControl::ParametricEqControl()
 }
 
 ParametricEqControl::~ParametricEqControl() { }
-
-void ParametricEqControl::addToEditor(PluginEditor* editor)
-{
-    frequency.addToEditor(editor);
-    gain.addToEditor(editor);
-    qFactor.addToEditor(editor);
-}
 
 void ParametricEqControl::setBounds
 (int x, int y, int w, int h, int xPad, int yPad)
@@ -121,12 +99,12 @@ void ParametricEqControl::setAllColorOverrides(juce::Colour color)
 }
 
 void ParametricEqControl::attachToParametricEq
-(PluginProcessor* processor, std::string freqParam, std::string gainParam,
-std::string qParam)
+(juce::AudioProcessorValueTreeState* stateTree, std::string freqParam,
+std::string gainParam, std::string qParam)
 {
-    frequency.attachToParameter(processor, freqParam);
-    gain.attachToParameter(processor, gainParam);
-    qFactor.attachToParameter(processor, qParam);
+    frequency.attachToParameter(stateTree, freqParam);
+    gain.attachToParameter(stateTree, gainParam);
+    qFactor.attachToParameter(stateTree, qParam);
 }
 
 // === HighPassControl ========================================================
@@ -141,13 +119,6 @@ HighPassControl::HighPassControl()
 }
 
 HighPassControl::~HighPassControl() { }
-
-void HighPassControl::addToEditor(PluginEditor* editor)
-{
-    frequency.addToEditor(editor);
-    falloff.addToEditor(editor);
-    resonance.addToEditor(editor);
-}
 
 void HighPassControl::setBounds(int x, int y, int w, int h, int xPad, int yPad)
 {
@@ -166,10 +137,10 @@ void HighPassControl::setAllColorOverrides(juce::Colour color)
 }
 
 void HighPassControl::attachToHighPass
-(PluginProcessor* processor, std::string freqParam, std::string falloffParam,
-std::string resParam)
+(juce::AudioProcessorValueTreeState* stateTree, std::string freqParam,
+std::string falloffParam, std::string resParam)
 {
-    frequency.attachToParameter(processor, freqParam);
-    falloff.attachToParameter(processor, falloffParam);
-    resonance.attachToParameter(processor, resParam);
+    frequency.attachToParameter(stateTree, freqParam);
+    falloff.attachToParameter(stateTree, falloffParam);
+    resonance.attachToParameter(stateTree, resParam);
 }

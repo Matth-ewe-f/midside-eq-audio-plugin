@@ -1,4 +1,5 @@
 #include "PluginProcessor.h"
+#include "PluginEditor.h"
 
 namespace dsp = juce::dsp;
 using Parameter = juce::AudioProcessorValueTreeState::Parameter;
