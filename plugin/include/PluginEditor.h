@@ -1,4 +1,5 @@
 #pragma once
+#include <juce_audio_processors/juce_audio_processors.h>
 #include "SliderLabel.h"
 #include "ParameterControls.h"
 #include "CtmLookAndFeel.h"

@@ -31,5 +31,6 @@ enum CtmColourIds
     darkBgColourId,
     brightBgColourId,
     darkOutlineColourId,
-    brightOutlineColourId
+    brightOutlineColourId,
+    meterFillColourId,
 };

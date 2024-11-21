@@ -1,5 +1,6 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "CtmSlider.h"
 #include "SliderLabel.h"
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment; 
 
@@ -11,7 +12,7 @@ class PluginProcessor;
 class ParameterControl
 {
 public:
-    juce::Slider slider;
+    CtmSlider slider;
     std::unique_ptr<SliderAttachment> attachment;
     SliderLabel label;
 

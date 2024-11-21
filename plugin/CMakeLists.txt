@@ -19,6 +19,7 @@ target_sources(
         source/PluginProcessor.cpp
         source/PluginEditor.cpp
         source/ParameterListener.cpp
+        source/CtmSlider.cpp
         source/SliderLabel.cpp
         source/ParameterControls.cpp
         source/CtmLookAndFeel.cpp

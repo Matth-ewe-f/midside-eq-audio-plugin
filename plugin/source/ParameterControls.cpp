@@ -43,6 +43,7 @@ LowPassControl::LowPassControl()
 {
     frequency.label.setPostfix(" Hz");
     frequency.label.setShowDecimals(true);
+    frequency.slider.setColorOverride(juce::Colours::red);
     falloff.label.setPostfix(" dB/oct");
     falloff.label.setTypeNegativeValues(true);
     resonance.label.setPostfix(" res");
