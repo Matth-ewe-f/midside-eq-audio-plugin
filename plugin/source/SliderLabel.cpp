@@ -4,7 +4,7 @@
 
 // === Lifecycle ==============================================================
 SliderLabel::SliderLabel() :
-    prefix(""), postfix(""), showDecimals(false), typeNegative(false)
+    prefix(""), postfix(""), maxDecimals(0), typeNegative(false)
 {
     setJustification(juce::Justification::centred);
     setSelectAllWhenFocused(true);
@@ -44,9 +44,9 @@ void SliderLabel::setTypeNegativeValues(bool typeNegativeValues)
     typeNegative = typeNegativeValues;
 }
 
-void SliderLabel::setShowDecimals(bool show)
+void SliderLabel::setMaxDecimals(int decimals)
 {
-    showDecimals = show;
+    maxDecimals = decimals;
 }
 
 // === Font Setters ===========================================================
@@ -120,9 +120,9 @@ std::string SliderLabel::getSliderValueAsString(juce::Slider* slider)
 {
     double valueAsBbl = slider->getValue();
     std::string value;
-    if (showDecimals && valueAsBbl < 10)
+    if (maxDecimals >= 2 && valueAsBbl < 10)
         value = std::format("{:.2f}", slider->getValue());
-    else if (showDecimals && valueAsBbl < 1000)
+    else if (maxDecimals >= 1 && valueAsBbl < 1000)
         value = std::format("{:.1f}", slider->getValue());
     else
         value = std::format("{:.0f}", slider->getValue());

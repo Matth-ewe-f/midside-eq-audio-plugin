@@ -17,7 +17,7 @@ public:
     void setPostfix(std::string s);
     void updateText(juce::Slider*);
     void setTypeNegativeValues(bool);
-    void setShowDecimals(bool);
+    void setMaxDecimals(int);
 
     // === Focus Functions ====================================================
     void focusGained(juce::Component::FocusChangeType) override;
@@ -32,7 +32,7 @@ private:
     juce::FontOptions mainFont;
     juce::FontOptions postfixFont;
     juce::Slider* attachedSlider;
-    bool showDecimals;
+    int maxDecimals;
     bool typeNegative;
 
     // === Private Helper =====================================================

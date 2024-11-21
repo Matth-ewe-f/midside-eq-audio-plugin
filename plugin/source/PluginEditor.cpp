@@ -14,6 +14,14 @@ PluginEditor::PluginEditor (PluginProcessor &p)
         + (cellMarginY * (maxRows - 1)) + (columnPaddingY * 2) + yEnd;
     setSize(w, h);
     // setup sliders
+    highPassOne.addToEditor(this);
+    highPassTwo.addToEditor(this);
+    parametricOne.addToEditor(this);
+    parametricTwo.addToEditor(this);
+    parametricThree.addToEditor(this);
+    parametricFour.addToEditor(this);
+    parametricFive.addToEditor(this);
+    parametricSix.addToEditor(this);
     lowPassOne.attachToLowPass(
         &processorRef, "lpf1-freq", "lpf1-falloff", "lpf1-res"
     );
@@ -62,16 +70,24 @@ void PluginEditor::paint(juce::Graphics &g)
 
 void PluginEditor::resized()
 {
-    layoutLowPass(&lowPassOne, 0, 0);
-    layoutLowPass(&lowPassTwo, 0, 1);
+    layoutFilter(&highPassOne, 0, 0);
+    layoutFilter(&highPassTwo, 0, 1);
+    layoutFilter(&parametricOne, 1, 0);
+    layoutFilter(&parametricTwo, 1, 1);
+    layoutFilter(&parametricThree, 2, 0);
+    layoutFilter(&parametricFour, 2, 1);
+    layoutFilter(&parametricFive, 3, 0);
+    layoutFilter(&parametricSix, 3, 1);
+    layoutFilter(&lowPassOne, 4, 0);
+    layoutFilter(&lowPassTwo, 4, 1);
     int middle = getWidth() / 2;
     midSideButton.setBounds(middle - 80, 10, 70, 30);
     leftRightButton.setBounds(middle + 10, 10, 70, 30);
 }
 
 // === Private Helper Functions ===============================================
-void PluginEditor::layoutLowPass
-(LowPassControl* lowPass, int xIndex, int yIndex)
+void PluginEditor::layoutFilter
+(FilterControl* lowPass, int xIndex, int yIndex)
 {
     int x = xStart + ((cellWidth + cellMarginX) * xIndex)
         + (cellPaddingX * ((2 * xIndex) + 1));
@@ -140,7 +156,15 @@ void PluginEditor::drawFilterBackground(juce::Graphics& g, int index)
 
 void PluginEditor::setColorOverrides()
 {
+    highPassOne.setAllColorOverrides(getColorOne());
+    parametricOne.setAllColorOverrides(getColorOne());
+    parametricThree.setAllColorOverrides(getColorOne());
+    parametricFive.setAllColorOverrides(getColorOne());
     lowPassOne.setAllColorOverrides(getColorOne());
+    highPassTwo.setAllColorOverrides(getColorTwo());
+    parametricTwo.setAllColorOverrides(getColorTwo());
+    parametricFour.setAllColorOverrides(getColorTwo());
+    parametricSix.setAllColorOverrides(getColorTwo());
     lowPassTwo.setAllColorOverrides(getColorTwo());
 }
 

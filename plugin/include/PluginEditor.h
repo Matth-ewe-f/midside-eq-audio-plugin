@@ -24,6 +24,14 @@ private:
     juce::TextButton midSideButton;
     juce::TextButton leftRightButton;
     // filters
+    HighPassControl highPassOne;
+    HighPassControl highPassTwo;
+    ParametricEqControl parametricOne;
+    ParametricEqControl parametricTwo;
+    ParametricEqControl parametricThree;
+    ParametricEqControl parametricFour;
+    ParametricEqControl parametricFive;
+    ParametricEqControl parametricSix;
     LowPassControl lowPassOne;
     LowPassControl lowPassTwo;
     
@@ -43,7 +51,7 @@ private:
     const int intraCellPaddingX = 0;
     const int intraCellPaddingY = 8;
     const int maxRows = 2;
-    const int maxCols = 3;
+    const int maxCols = 5;
 
     // === Color Constants ====================================================
     const juce::Colour midColor = juce::Colour::fromRGB(242, 50, 246);
@@ -52,7 +60,7 @@ private:
     const juce::Colour rightColor = juce::Colour::fromRGB(60, 230, 10);
 
     // === Private Helper =====================================================
-    void layoutLowPass(LowPassControl*, int xIndex, int yIndex);
+    void layoutFilter(FilterControl*, int xIndex, int yIndex);
     void layoutTest(juce::Graphics&, int, int);
     void drawSectionLabels(juce::Graphics&);
     void drawFilterBackground(juce::Graphics&, int);

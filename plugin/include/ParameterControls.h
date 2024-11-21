@@ -24,8 +24,15 @@ public:
     void attachToParameter(PluginProcessor* processor, std::string parameter);
 };
 
+// Abstract base class for filter controls
+class FilterControl
+{
+public:
+    virtual void setBounds(int x, int y, int w, int h, int xPad, int yPad) = 0;
+};
+
 // Group of parameters for controlling a low pass filter
-class LowPassControl
+class LowPassControl : public FilterControl
 {
 public:
     ParameterControl frequency;
@@ -36,9 +43,44 @@ public:
     ~LowPassControl();
 
     void addToEditor(PluginEditor*);
-    void setBounds(int x, int y, int width, int height, int xPad, int yPad);
+    void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
     void setAllColorOverrides(juce::Colour);
     void attachToLowPass
-    (PluginProcessor* processor, std::string freq, std::string falloff,
-    std::string res);
+    (PluginProcessor*, std::string freq, std::string falloff, std::string res);
+};
+
+// Group of parameters for controlling a parametric EQ filter
+class ParametricEqControl : public FilterControl
+{
+public:
+    ParameterControl frequency;
+    ParameterControl gain;
+    ParameterControl qFactor;
+
+    ParametricEqControl();
+    ~ParametricEqControl();
+
+    void addToEditor(PluginEditor*);
+    void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
+    void setAllColorOverrides(juce::Colour);
+    void attachToParametricEq
+    (PluginProcessor*, std::string freq, std::string gain, std::string res);
+};
+
+// Group of parameters for controlling a high pass filter
+class HighPassControl : public FilterControl
+{
+public:
+    ParameterControl frequency;
+    ParameterControl falloff;
+    ParameterControl resonance;
+
+    HighPassControl();
+    ~HighPassControl();
+
+    void addToEditor(PluginEditor*);
+    void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
+    void setAllColorOverrides(juce::Colour);
+    void attachToHighPass
+    (PluginProcessor*, std::string freq, std::string falloff, std::string res);
 };
