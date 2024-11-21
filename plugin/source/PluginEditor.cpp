@@ -23,6 +23,30 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     addParametricEqControl(&parametricSix);
     addLowPassControl(&lowPassOne);
     addLowPassControl(&lowPassTwo);
+    highPassOne.attachToHighPass(
+        &processorRef.tree, "hpf1-freq", "hpf1-falloff", "hpf1-res"
+    );
+    highPassTwo.attachToHighPass(
+        &processorRef.tree, "hpf2-freq", "hpf2-falloff", "hpf2-res"
+    );
+    parametricOne.attachToParametricEq(
+        &processorRef.tree, "para1-freq", "para1-gain", "para1-q"
+    );
+    parametricTwo.attachToParametricEq(
+        &processorRef.tree, "para2-freq", "para2-gain", "para2-q"
+    );
+    parametricThree.attachToParametricEq(
+        &processorRef.tree, "para3-freq", "para3-gain", "para3-q"
+    );
+    parametricFour.attachToParametricEq(
+        &processorRef.tree, "para4-freq", "para4-gain", "para4-q"
+    );
+    parametricFive.attachToParametricEq(
+        &processorRef.tree, "para5-freq", "para5-gain", "para5-q"
+    );
+    parametricSix.attachToParametricEq(
+        &processorRef.tree, "para6-freq", "para6-gain", "para6-q"
+    );
     lowPassOne.attachToLowPass(
         &processorRef.tree, "lpf1-freq", "lpf1-falloff", "lpf1-res"
     );

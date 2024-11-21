@@ -15,30 +15,132 @@ PluginProcessor::PluginProcessor()
 #endif
 	),
 	tree(*this, nullptr, "PARAMETERS", {
+		// frequency parameters
+		std::make_unique<Parameter>(
+			"hpf1-freq", "High-Pass Frequency (Mid/Left)",
+			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 20000
+		),
+		std::make_unique<Parameter>(
+			"hpf2-freq", "High-Pass Frequency (Side/Right)",
+			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 20000
+		),
+		std::make_unique<Parameter>(
+			"para1-freq", "Parametric #1 Frequency (Mid/Left)",
+			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 200
+		),
+		std::make_unique<Parameter>(
+			"para2-freq", "Parametric #1 Frequency (Side/Right)",
+			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 200
+		),
+		std::make_unique<Parameter>(
+			"para3-freq", "Parametric #2 Frequency (Mid/Left)",
+			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 1000
+		),
+		std::make_unique<Parameter>(
+			"para4-freq", "Parametric #2 Frequency (Side/Right)",
+			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 1000
+		),
+		std::make_unique<Parameter>(
+			"para5-freq", "Parametric #3 Frequency (Mid/Left)",
+			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 6000
+		),
+		std::make_unique<Parameter>(
+			"para6-freq", "Parametric #3 Frequency (Side/Right)",
+			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 6000
+		),
 		std::make_unique<Parameter>(
 			"lpf1-freq", "Low-Pass Frequency (Mid/Left)",
 			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 20000
+		),
+		std::make_unique<Parameter>(
+			"lpf2-freq", "Low-Pass Frequency (Side/Right)",
+			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 20000
+		),
+		// falloff (filter order) parameters
+		std::make_unique<Parameter>(
+			"hpf1-falloff", "High-Pass Falloff (Mid/Left)",
+			juce::NormalisableRange<float>(6, 36, 6, 1), 6
+		),
+		std::make_unique<Parameter>(
+			"hpf2-falloff", "High-Pass Falloff (Side/Right)",
+			juce::NormalisableRange<float>(6, 36, 6, 1), 6
 		),
 		std::make_unique<Parameter>(
 			"lpf1-falloff", "Low-Pass Falloff (Mid/Left)",
 			juce::NormalisableRange<float>(6, 36, 6, 1), 6
 		),
 		std::make_unique<Parameter>(
-			"lpf1-res", "Low-Pass Resonance (Mid/Left)",
+			"lpf2-falloff", "Low-Pass Falloff (Side/Right)",
+			juce::NormalisableRange<float>(6, 36, 6, 1), 6
+		),
+		// gain parameters (parametric EQ)
+		std::make_unique<Parameter>(
+			"para1-gain", "Parametric #1 Gain (Mid/Left)",
+			juce::NormalisableRange<float>(-18, 18, 0.1f), 0
+		),
+		std::make_unique<Parameter>(
+			"para2-gain", "Parametric #1 Gain (Side/Right)",
+			juce::NormalisableRange<float>(-18, 18, 0.1f), 0
+		),
+		std::make_unique<Parameter>(
+			"para3-gain", "Parametric #2 Gain (Mid/Left)",
+			juce::NormalisableRange<float>(-18, 18, 0.1f), 0
+		),
+		std::make_unique<Parameter>(
+			"para4-gain", "Parametric #2 Gain (Side/Right)",
+			juce::NormalisableRange<float>(-18, 18, 0.1f), 0
+		),
+		std::make_unique<Parameter>(
+			"para5-gain", "Parametric #3 Gain (Mid/Left)",
+			juce::NormalisableRange<float>(-18, 18, 0.1f), 0
+		),
+		std::make_unique<Parameter>(
+			"para6-gain", "Parametric #3 Gain (Side/Right)",
+			juce::NormalisableRange<float>(-18, 18, 0.1f), 0
+		),
+		// resonance parameters
+		std::make_unique<Parameter>(
+			"hpf1-res", "High-Pass Resonance (Mid/Left)",
 			juce::NormalisableRange<float>(0.5, 10, 0.01f, 0.7f), 0.71
 		),
 		std::make_unique<Parameter>(
-			"lpf2-freq", "Low-Pass Frequency (Side/Right)",
-			juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f), 20000
+			"hpf2-res", "High-Pass Resonance (Side/Right)",
+			juce::NormalisableRange<float>(0.5, 10, 0.01f, 0.7f), 0.71
 		),
 		std::make_unique<Parameter>(
-			"lpf2-falloff", "Low-Pass Falloff (Side/Right)",
-			juce::NormalisableRange<float>(6, 36, 6, 1), 6
+			"lpf1-res", "Low-Pass Resonance (Mid/Left)",
+			juce::NormalisableRange<float>(0.5, 10, 0.01f, 0.7f), 0.71
 		),
 		std::make_unique<Parameter>(
 			"lpf2-res", "Low-Pass Resonance (Side/Right)",
 			juce::NormalisableRange<float>(0.5, 10, 0.01f, 0.7f), 0.71
 		),
+		// q-factor parameters
+		std::make_unique<Parameter>(
+			"para1-q", "Parametric #1 Q (Mid/Left)",
+			juce::NormalisableRange<float>(0.25, 10, 0.01f, 0.7f), 0.71
+		),
+		std::make_unique<Parameter>(
+			"para2-q", "Parametric #1 Q (Side/Right)",
+			juce::NormalisableRange<float>(0.25, 10, 0.01f, 0.7f), 0.71
+		),
+		std::make_unique<Parameter>(
+			"para3-q", "Parametric #2 Q (Mid/Left)",
+			juce::NormalisableRange<float>(0.25, 10, 0.01f, 0.7f), 0.71
+		),
+		std::make_unique<Parameter>(
+			"para4-q", "Parametric #2 Q (Side/Right)",
+			juce::NormalisableRange<float>(0.25, 10, 0.01f, 0.7f), 0.71
+		),
+		std::make_unique<Parameter>(
+			"para5-q", "Parametric #3 Q (Mid/Left)",
+			juce::NormalisableRange<float>(0.25, 10, 0.01f, 0.7f), 0.71
+		),
+		std::make_unique<Parameter>(
+			"para6-q", "Parametric #3 Q (Side/Right)",
+			juce::NormalisableRange<float>(0.25, 10, 0.01f, 0.7f), 0.71
+		),
+		// configuration parameters
 		std::make_unique<Parameter>(
 			"mode", "Mode", juce::NormalisableRange<float>(0, 1, 1), 0
 		)
