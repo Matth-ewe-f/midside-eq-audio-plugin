@@ -16,13 +16,16 @@ public:
 private:
     // === Internal Layout Constants ==========================================
     const float rotaryOutlineWidth = 4;
-    const Colour darkBgColor = Colour::fromRGB(36, 46, 52);
-    const Colour normalBgColor = Colour::fromRGB(44, 54, 60);
-    const Colour brightBgColor = juce::Colour::fromRGB(54, 72, 82);
-    const Colour darkOutlineColor = Colour::fromRGB(22, 28, 30);
-    const Colour brightOutlineColor = Colour::fromRGB(200, 200, 200);
-    const Colour rotaryColor = Colour::fromRGB(40, 80, 100);
-    const Colour meterFillColor = Colour::fromRGB(57, 125, 227);
+    inline static const Colour darkBgColor { Colour::fromRGB(36, 46, 52) };
+    inline static const Colour normalBgColor { Colour::fromRGB(44, 54, 60) };
+    inline static const Colour brightBgColor { Colour::fromRGB(54, 72, 82) };
+    inline static const Colour darkOutlineColor
+        { Colour::fromRGB(22, 28, 30) };
+    inline static const Colour brightOutlineColor
+        { Colour::fromRGB(200, 200, 200) };
+    inline static const Colour rotaryColor { Colour::fromRGB(40, 80, 100) };
+    inline static const Colour meterFillColor
+        { Colour::fromRGB(57, 125, 227) };
 };
 
 enum CtmColourIds

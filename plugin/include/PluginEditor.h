@@ -4,7 +4,8 @@
 #include "SliderLabel.h"
 #include "ParameterControls.h"
 #include "CtmLookAndFeel.h"
-using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment; 
+using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
+using Colour = juce::Colour;
 
 class PluginEditor final : public juce::AudioProcessorEditor
 {
@@ -43,28 +44,28 @@ private:
     LowPassControl lowPassTwo;
     
     // === Layout constants ===================================================
-    const int headerHeight = 50;
-    const int xStart = 48;
-    const int xEnd = 16;
-    const int yStart = 10;
-    const int yEnd = 10;
-    const int cellWidth = 104;
-    const int cellHeight = 102;
-    const int cellMarginX = 12;
-    const int cellMarginY = 40;
-    const int cellPaddingX = 6;
-    const int columnPaddingY = 12;
-    const int columnBgCurvature = 24;
-    const int intraCellPaddingX = 0;
-    const int intraCellPaddingY = 8;
-    const int maxRows = 2;
-    const int maxCols = 5;
+    inline static const int headerHeight { 50 };
+    inline static const int xStart { 48 };
+    inline static const int xEnd { 16 };
+    inline static const int yStart { 10 };
+    inline static const int yEnd { 10 };
+    inline static const int cellWidth { 104 };
+    inline static const int cellHeight { 102 };
+    inline static const int cellMarginX { 12 };
+    inline static const int cellMarginY { 40 };
+    inline static const int cellPaddingX { 6 };
+    inline static const int columnPaddingY { 12 };
+    inline static const int columnBgCurvature { 24 };
+    inline static const int intraCellPaddingX { 0 };
+    inline static const int intraCellPaddingY { 8 };
+    inline static const int maxRows { 2 };
+    inline static const int maxCols { 5 };
 
     // === Color Constants ====================================================
-    const juce::Colour midColor = juce::Colour::fromRGB(252, 32, 250);
-    const juce::Colour sideColor = juce::Colour::fromRGB(12, 208, 255);
-    const juce::Colour leftColor = juce::Colour::fromRGB(250, 50, 40);
-    const juce::Colour rightColor = juce::Colour::fromRGB(60, 230, 10);
+    inline static const Colour midColor{ Colour::fromRGB(252, 32, 250) };
+    inline static const Colour sideColor { Colour::fromRGB(12, 208, 255) };
+    inline static const Colour leftColor { Colour::fromRGB(250, 50, 40) };
+    inline static const Colour rightColor { Colour::fromRGB(60, 230, 10) };
 
     // === Drawing and Layout Helper Functions ================================
     void layoutFilter(FilterControl*, int xIndex, int yIndex);
