@@ -18,6 +18,7 @@ target_sources(
     PRIVATE
         source/PluginProcessor.cpp
         source/HighPassFilter.cpp
+        source/PeakFilter.cpp
         source/LowPassFilter.cpp
         source/PluginEditor.cpp
         source/ParameterListener.cpp

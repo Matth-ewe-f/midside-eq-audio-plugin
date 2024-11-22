@@ -3,8 +3,8 @@
 using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 // === Lifecycle ==============================================================
-LowPassFilter::LowPassFilter(double sampleRateArg)
-    : order(1), pendingOrder(-1), fadeSamples(-1), sampleRate(sampleRateArg)
+LowPassFilter::LowPassFilter()
+    : order(1), pendingOrder(-1), fadeSamples(-1), sampleRate(48000)
 {
     filterOne.coefficients
         = Coefficients::makeLowPass(sampleRate, 20000, 0.71f);

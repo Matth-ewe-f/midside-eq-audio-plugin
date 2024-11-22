@@ -21,7 +21,7 @@ public:
     // === Functions for Custom Components ====================================
     void addParameterControl(ParameterControl*);
     void addHighPassControl(HighPassControl*);
-    void addParametricEqControl(ParametricEqControl*);
+    void addPeakFilterControl(PeakFilterControl*);
     void addLowPassControl(LowPassControl*);
 
 private:
@@ -34,12 +34,12 @@ private:
     // filters
     HighPassControl highPassOne;
     HighPassControl highPassTwo;
-    ParametricEqControl parametricOne;
-    ParametricEqControl parametricTwo;
-    ParametricEqControl parametricThree;
-    ParametricEqControl parametricFour;
-    ParametricEqControl parametricFive;
-    ParametricEqControl parametricSix;
+    PeakFilterControl peakOne;
+    PeakFilterControl peakTwo;
+    PeakFilterControl peakThree;
+    PeakFilterControl peakFour;
+    PeakFilterControl peakFive;
+    PeakFilterControl peakSix;
     LowPassControl lowPassOne;
     LowPassControl lowPassTwo;
     
@@ -79,7 +79,7 @@ private:
     juce::Colour getColorOne();
     juce::Colour getColorTwo();
     juce::Path getHighPassFilterIcon(int x, int y, int w, int h);
-    juce::Path getParametricEqIcon(int x, int y, int w, int h);
+    juce::Path getPeakFilterIcon(int x, int y, int w, int h);
     juce::Path getLowPassFilterIcon(int x, int y, int w, int h);
     int secondSectionStart();
 

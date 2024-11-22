@@ -3,8 +3,9 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
 #include "ParameterListener.h"
-#include "LowPassFilter.h"
 #include "HighPassFilter.h"
+#include "PeakFilter.h"
+#include "LowPassFilter.h"
 
 namespace dsp = juce::dsp;
 
@@ -75,6 +76,12 @@ public:
 private:
     HighPassFilter highPassOne;
     HighPassFilter highPassTwo;
+    PeakFilter peakOne;
+    PeakFilter peakTwo;
+    PeakFilter peakThree;
+    PeakFilter peakFour;
+    PeakFilter peakFive;
+    PeakFilter peakSix;
     LowPassFilter lowPassOne;
     LowPassFilter lowPassTwo;
     double lastSampleRate;
@@ -94,6 +101,8 @@ private:
     
 
     // === Private Helper Functions ===========================================
+    float processSampleChannelOne(float sample);
+    float processSampleChannelTwo(float sample);
     void addParameterListener(ParameterListener*);
     float clampWithinOne(float);
 

@@ -15,12 +15,12 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     // setup sliders
     addHighPassControl(&highPassOne);
     addHighPassControl(&highPassTwo);
-    addParametricEqControl(&parametricOne);
-    addParametricEqControl(&parametricTwo);
-    addParametricEqControl(&parametricThree);
-    addParametricEqControl(&parametricFour);
-    addParametricEqControl(&parametricFive);
-    addParametricEqControl(&parametricSix);
+    addPeakFilterControl(&peakOne);
+    addPeakFilterControl(&peakTwo);
+    addPeakFilterControl(&peakThree);
+    addPeakFilterControl(&peakFour);
+    addPeakFilterControl(&peakFive);
+    addPeakFilterControl(&peakSix);
     addLowPassControl(&lowPassOne);
     addLowPassControl(&lowPassTwo);
     highPassOne.attachToHighPass(
@@ -29,23 +29,23 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     highPassTwo.attachToHighPass(
         &processorRef.tree, "hpf2-freq", "hpf2-falloff", "hpf2-res"
     );
-    parametricOne.attachToParametricEq(
-        &processorRef.tree, "para1-freq", "para1-gain", "para1-q"
+    peakOne.attachToPeakFilter(
+        &processorRef.tree, "peak1-freq", "peak1-gain", "peak1-q"
     );
-    parametricTwo.attachToParametricEq(
-        &processorRef.tree, "para2-freq", "para2-gain", "para2-q"
+    peakTwo.attachToPeakFilter(
+        &processorRef.tree, "peak2-freq", "peak2-gain", "peak2-q"
     );
-    parametricThree.attachToParametricEq(
-        &processorRef.tree, "para3-freq", "para3-gain", "para3-q"
+    peakThree.attachToPeakFilter(
+        &processorRef.tree, "peak3-freq", "peak3-gain", "peak3-q"
     );
-    parametricFour.attachToParametricEq(
-        &processorRef.tree, "para4-freq", "para4-gain", "para4-q"
+    peakFour.attachToPeakFilter(
+        &processorRef.tree, "peak4-freq", "peak4-gain", "peak4-q"
     );
-    parametricFive.attachToParametricEq(
-        &processorRef.tree, "para5-freq", "para5-gain", "para5-q"
+    peakFive.attachToPeakFilter(
+        &processorRef.tree, "peak5-freq", "peak5-gain", "peak5-q"
     );
-    parametricSix.attachToParametricEq(
-        &processorRef.tree, "para6-freq", "para6-gain", "para6-q"
+    peakSix.attachToPeakFilter(
+        &processorRef.tree, "peak6-freq", "peak6-gain", "peak6-q"
     );
     lowPassOne.attachToLowPass(
         &processorRef.tree, "lpf1-freq", "lpf1-falloff", "lpf1-res"
@@ -97,12 +97,12 @@ void PluginEditor::resized()
 {
     layoutFilter(&highPassOne, 0, 0);
     layoutFilter(&highPassTwo, 0, 1);
-    layoutFilter(&parametricOne, 1, 0);
-    layoutFilter(&parametricTwo, 1, 1);
-    layoutFilter(&parametricThree, 2, 0);
-    layoutFilter(&parametricFour, 2, 1);
-    layoutFilter(&parametricFive, 3, 0);
-    layoutFilter(&parametricSix, 3, 1);
+    layoutFilter(&peakOne, 1, 0);
+    layoutFilter(&peakTwo, 1, 1);
+    layoutFilter(&peakThree, 2, 0);
+    layoutFilter(&peakFour, 2, 1);
+    layoutFilter(&peakFive, 3, 0);
+    layoutFilter(&peakSix, 3, 1);
     layoutFilter(&lowPassOne, 4, 0);
     layoutFilter(&lowPassTwo, 4, 1);
     int middle = getWidth() / 2;
@@ -124,7 +124,7 @@ void PluginEditor::addHighPassControl(HighPassControl* control)
     addParameterControl(&control->resonance);
 }
 
-void PluginEditor::addParametricEqControl(ParametricEqControl* control)
+void PluginEditor::addPeakFilterControl(PeakFilterControl* control)
 {
     addParameterControl(&control->frequency);
     addParameterControl(&control->gain);
@@ -211,7 +211,7 @@ void PluginEditor::drawFilterIcons(juce::Graphics& g)
         else if (i == maxCols - 1)
             icon = getLowPassFilterIcon(cx - 12, cy - 8, 24, 16);
         else
-            icon = getParametricEqIcon(cx - 14, cy - 11, 28, 22);
+            icon = getPeakFilterIcon(cx - 14, cy - 11, 28, 22);
         g.setColour(juce::Colours::white);
         g.fillPath(icon);
     }
@@ -234,14 +234,14 @@ void PluginEditor::drawFilterBackground(juce::Graphics& g, int index)
 void PluginEditor::setColorOverrides()
 {
     highPassOne.setAllColorOverrides(getColorOne());
-    parametricOne.setAllColorOverrides(getColorOne());
-    parametricThree.setAllColorOverrides(getColorOne());
-    parametricFive.setAllColorOverrides(getColorOne());
+    peakOne.setAllColorOverrides(getColorOne());
+    peakThree.setAllColorOverrides(getColorOne());
+    peakFive.setAllColorOverrides(getColorOne());
     lowPassOne.setAllColorOverrides(getColorOne());
     highPassTwo.setAllColorOverrides(getColorTwo());
-    parametricTwo.setAllColorOverrides(getColorTwo());
-    parametricFour.setAllColorOverrides(getColorTwo());
-    parametricSix.setAllColorOverrides(getColorTwo());
+    peakTwo.setAllColorOverrides(getColorTwo());
+    peakFour.setAllColorOverrides(getColorTwo());
+    peakSix.setAllColorOverrides(getColorTwo());
     lowPassTwo.setAllColorOverrides(getColorTwo());
 }
 
@@ -285,7 +285,7 @@ juce::Path PluginEditor::getLowPassFilterIcon(int x, int y, int w, int h)
     return path;
 }
 
-juce::Path PluginEditor::getParametricEqIcon(int x, int y, int w, int h)
+juce::Path PluginEditor::getPeakFilterIcon(int x, int y, int w, int h)
 {
     juce::Path path;
     juce::Line<float> lines[8];

@@ -8,7 +8,7 @@ class HighPassFilter
 {
 public:
     // === Lifecycle ==========================================================
-    HighPassFilter(double sampleRate);
+    HighPassFilter();
     ~HighPassFilter();
 
     // === Set Parameters =====================================================

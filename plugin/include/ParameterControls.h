@@ -45,19 +45,19 @@ public:
 };
 
 // Group of parameters for controlling a parametric EQ filter
-class ParametricEqControl : public FilterControl
+class PeakFilterControl : public FilterControl
 {
 public:
     ParameterControl frequency;
     ParameterControl gain;
     ParameterControl qFactor;
 
-    ParametricEqControl();
-    ~ParametricEqControl();
+    PeakFilterControl();
+    ~PeakFilterControl();
 
     void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
     void setAllColorOverrides(juce::Colour);
-    void attachToParametricEq
+    void attachToPeakFilter
     (juce::AudioProcessorValueTreeState*, std::string freq,
     std::string gain, std::string res);
 };

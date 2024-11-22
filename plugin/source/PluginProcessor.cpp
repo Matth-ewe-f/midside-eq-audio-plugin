@@ -23,22 +23,22 @@ PluginProcessor::PluginProcessor()
 			"hpf2-freq", "High-Pass Frequency (S/R)", freqRange, 20
 		),
 		std::make_unique<Parameter>(
-			"para1-freq", "Parametric #1 Frequency (M/L)", freqRange, 200
+			"peak1-freq", "Parametric #1 Frequency (M/L)", freqRange, 200
 		),
 		std::make_unique<Parameter>(
-			"para2-freq", "Parametric #1 Frequency (S/R)", freqRange, 200
+			"peak2-freq", "Parametric #1 Frequency (S/R)", freqRange, 200
 		),
 		std::make_unique<Parameter>(
-			"para3-freq", "Parametric #2 Frequency (M/L)", freqRange, 1000
+			"peak3-freq", "Parametric #2 Frequency (M/L)", freqRange, 1000
 		),
 		std::make_unique<Parameter>(
-			"para4-freq", "Parametric #2 Frequency (S/R)", freqRange, 1000
+			"peak4-freq", "Parametric #2 Frequency (S/R)", freqRange, 1000
 		),
 		std::make_unique<Parameter>(
-			"para5-freq", "Parametric #3 Frequency (M/L)", freqRange, 6000
+			"peak5-freq", "Parametric #3 Frequency (M/L)", freqRange, 6000
 		),
 		std::make_unique<Parameter>(
-			"para6-freq", "Parametric #3 Frequency (S/R)", freqRange, 6000
+			"peak6-freq", "Parametric #3 Frequency (S/R)", freqRange, 6000
 		),
 		std::make_unique<Parameter>(
 			"lpf1-freq", "Low-Pass Frequency (M/L)", freqRange, 20000
@@ -61,22 +61,22 @@ PluginProcessor::PluginProcessor()
 		),
 		// gain parameters (parametric EQ)
 		std::make_unique<Parameter>(
-			"para1-gain", "Parametric #1 Gain (M/L)", gainRange, 0
+			"peak1-gain", "Parametric #1 Gain (M/L)", gainRange, 0
 		),
 		std::make_unique<Parameter>(
-			"para2-gain", "Parametric #1 Gain (S/R)", gainRange, 0
+			"peak2-gain", "Parametric #1 Gain (S/R)", gainRange, 0
 		),
 		std::make_unique<Parameter>(
-			"para3-gain", "Parametric #2 Gain (M/L)", gainRange, 0
+			"peak3-gain", "Parametric #2 Gain (M/L)", gainRange, 0
 		),
 		std::make_unique<Parameter>(
-			"para4-gain", "Parametric #2 Gain (S/R)", gainRange, 0
+			"peak4-gain", "Parametric #2 Gain (S/R)", gainRange, 0
 		),
 		std::make_unique<Parameter>(
-			"para5-gain", "Parametric #3 Gain (M/L)", gainRange, 0
+			"peak5-gain", "Parametric #3 Gain (M/L)", gainRange, 0
 		),
 		std::make_unique<Parameter>(
-			"para6-gain", "Parametric #3 Gain (S/R)", gainRange, 0
+			"peak6-gain", "Parametric #3 Gain (S/R)", gainRange, 0
 		),
 		// resonance parameters
 		std::make_unique<Parameter>(
@@ -93,32 +93,34 @@ PluginProcessor::PluginProcessor()
 		),
 		// q-factor parameters
 		std::make_unique<Parameter>(
-			"para1-q", "Parametric #1 Q (M/L)", qRange, 0.71
+			"peak1-q", "Parametric #1 Q (M/L)", qRange, 0.71
 		),
 		std::make_unique<Parameter>(
-			"para2-q", "Parametric #1 Q (S/R)", qRange, 0.71
+			"peak2-q", "Parametric #1 Q (S/R)", qRange, 0.71
 		),
 		std::make_unique<Parameter>(
-			"para3-q", "Parametric #2 Q (M/L)", qRange, 0.71
+			"peak3-q", "Parametric #2 Q (M/L)", qRange, 0.71
 		),
 		std::make_unique<Parameter>(
-			"para4-q", "Parametric #2 Q (S/R)", qRange, 0.71
+			"peak4-q", "Parametric #2 Q (S/R)", qRange, 0.71
 		),
 		std::make_unique<Parameter>(
-			"para5-q", "Parametric #3 Q (M/L)", qRange, 0.71
+			"peak5-q", "Parametric #3 Q (M/L)", qRange, 0.71
 		),
 		std::make_unique<Parameter>(
-			"para6-q", "Parametric #3 Q (S/R)", qRange, 0.71
+			"peak6-q", "Parametric #3 Q (S/R)", qRange, 0.71
 		),
 		// configuration parameters
 		std::make_unique<Parameter>(
 			"mode", "Mode", juce::NormalisableRange<float>(0, 1, 1), 0
 		)
 	}),
-	highPassOne(48000),
-	highPassTwo(48000),
-	lowPassOne(48000),
-	lowPassTwo(48000),
+	peakOne(200),
+	peakTwo(200),
+	peakThree(1000),
+	peakFour(1000),
+	peakFive(6000),
+	peakSix(6000),
 	lastSampleRate(48000) // default value
 {
 	// parameters
@@ -140,6 +142,96 @@ PluginProcessor::PluginProcessor()
 	addParameterListener(new ParameterListener(
 		"lpf2-falloff", [this](float value) {
 			lowPassTwo.setOrder((int)value / 6);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak1-freq", [this](float value) {
+			peakOne.setFrequency(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak1-gain", [this](float value) {
+			peakOne.setGain((float) pow(10, value / 20));
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak1-q", [this](float value) {
+			peakOne.setQFactor(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak2-freq", [this](float value) {
+			peakTwo.setFrequency(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak2-gain", [this](float value) {
+			peakTwo.setGain((float) pow(10, value / 20));
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak2-q", [this](float value) {
+			peakTwo.setQFactor(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak3-freq", [this](float value) {
+			peakThree.setFrequency(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak3-gain", [this](float value) {
+			peakThree.setGain((float) pow(10, value / 20));
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak3-q", [this](float value) {
+			peakThree.setQFactor(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak4-freq", [this](float value) {
+			peakFour.setFrequency(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak4-gain", [this](float value) {
+			peakFour.setGain((float) pow(10, value / 20));
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak4-q", [this](float value) {
+			peakFour.setQFactor(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak5-freq", [this](float value) {
+			peakFive.setFrequency(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak5-gain", [this](float value) {
+			peakFive.setGain((float) pow(10, value / 20));
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak5-q", [this](float value) {
+			peakFive.setQFactor(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak6-freq", [this](float value) {
+			peakSix.setFrequency(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak6-gain", [this](float value) {
+			peakSix.setGain((float) pow(10, value / 20));
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak6-q", [this](float value) {
+			peakSix.setQFactor(value);
 		}
 	));
 	addParameterListener(new ParameterListener(
@@ -231,28 +323,31 @@ void PluginProcessor::processBlock
 	float* left = buffer.getWritePointer(0);
 	float* right = buffer.getWritePointer(1);
 	size_t length = (size_t) buffer.getNumSamples();
-	if (isMidSide())
+	for (size_t i = 0;i < length;i++)
 	{
-		for (size_t i = 0;i < length;i++)
+		float sampleOne;
+		float sampleTwo;
+		if (isMidSide())
 		{
-			float mid = (left[i] + right[i]) / 2;
-			float side = (left[i] - right[i]) / 2;
-			mid = highPassOne.processSample(mid);
-			mid = lowPassOne.processSample(mid);
-			side = highPassTwo.processSample(side);
-			side = lowPassTwo.processSample(side);
-			left[i] = clampWithinOne(mid + side);
-			right[i] = clampWithinOne(mid - side);
+			sampleOne = (left[i] + right[i]) / 2;
+			sampleTwo = (left[i] - right[i]) / 2;
 		}
-	}
-	else
-	{
-		for (size_t i = 0;i < length;i++)
+		else
 		{
-			left[i] = highPassOne.processSample(left[i]);
-			left[i] = lowPassOne.processSample(left[i]);
-			right[i] = highPassTwo.processSample(right[i]);
-			right[i] = lowPassTwo.processSample(right[i]);
+			sampleOne = left[i];
+			sampleTwo = right[i];
+		}
+		sampleOne = processSampleChannelOne(sampleOne);
+		sampleTwo = processSampleChannelTwo(sampleTwo);
+		if (isMidSide())
+		{
+			left[i] = clampWithinOne(sampleOne + sampleTwo);
+			right[i] = clampWithinOne(sampleOne - sampleTwo);
+		}
+		else
+		{
+			left[i] = sampleOne;
+			right[i] = sampleTwo;
 		}
 	}
 }
@@ -294,6 +389,26 @@ void PluginProcessor::setStateInformation(const void *data, int sizeInBytes)
 }
 
 // === Private Helper =========================================================
+float PluginProcessor::processSampleChannelOne(float sample)
+{
+	sample = highPassOne.processSample(sample);
+	sample = peakOne.processSample(sample);
+	sample = peakThree.processSample(sample);
+	sample = peakFive.processSample(sample);
+	sample = lowPassOne.processSample(sample);
+	return sample;
+}
+
+float PluginProcessor::processSampleChannelTwo(float sample)
+{
+	sample = highPassTwo.processSample(sample);
+	sample = peakTwo.processSample(sample);
+	sample = peakFour.processSample(sample);
+	sample = peakSix.processSample(sample);
+	sample = lowPassTwo.processSample(sample);
+	return sample;
+}
+
 void PluginProcessor::addParameterListener(ParameterListener* listener)
 {
 	paramListeners.push_front(listener);

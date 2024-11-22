@@ -8,7 +8,7 @@ class LowPassFilter
 {
 public:
     // === Lifecycle ==========================================================
-    LowPassFilter(double sampleRate);
+    LowPassFilter();
     ~LowPassFilter();
 
     // === Set Parameters =====================================================

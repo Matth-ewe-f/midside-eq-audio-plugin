@@ -69,7 +69,7 @@ std::string falloffParam, std::string resParam)
 }
 
 // === ParametricEqControl ====================================================
-ParametricEqControl::ParametricEqControl()
+PeakFilterControl::PeakFilterControl()
 {
     frequency.label.setPostfix(" Hz");
     frequency.label.setMaxDecimals(1);
@@ -79,9 +79,9 @@ ParametricEqControl::ParametricEqControl()
     qFactor.label.setMaxDecimals(2);
 }
 
-ParametricEqControl::~ParametricEqControl() { }
+PeakFilterControl::~PeakFilterControl() { }
 
-void ParametricEqControl::setBounds
+void PeakFilterControl::setBounds
 (int x, int y, int w, int h, int xPad, int yPad)
 {
     int itemW = (w - xPad) / 2;
@@ -91,14 +91,14 @@ void ParametricEqControl::setBounds
     qFactor.setBounds(x + itemW + xPad, y + itemH + yPad, itemW, itemH);
 }
 
-void ParametricEqControl::setAllColorOverrides(juce::Colour color)
+void PeakFilterControl::setAllColorOverrides(juce::Colour color)
 {
     frequency.slider.setColorOverride(color);
     gain.slider.setColorOverride(color);
     qFactor.slider.setColorOverride(color);
 }
 
-void ParametricEqControl::attachToParametricEq
+void PeakFilterControl::attachToPeakFilter
 (juce::AudioProcessorValueTreeState* stateTree, std::string freqParam,
 std::string gainParam, std::string qParam)
 {
