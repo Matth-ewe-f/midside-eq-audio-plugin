@@ -115,6 +115,8 @@ PluginProcessor::PluginProcessor()
 			"mode", "Mode", juce::NormalisableRange<float>(0, 1, 1), 0
 		)
 	}),
+	highPassOne(48000),
+	highPassTwo(48000),
 	lowPassOne(48000),
 	lowPassTwo(48000),
 	lastSampleRate(48000) // default value
@@ -138,6 +140,26 @@ PluginProcessor::PluginProcessor()
 	addParameterListener(new ParameterListener(
 		"lpf2-falloff", [this](float value) {
 			lowPassTwo.setOrder((int)value / 6);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"hpf1-freq", [this](float value) {
+			highPassOne.setFrequency(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"hpf1-falloff", [this](float value) {
+			highPassOne.setOrder((int)value / 6);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"hpf2-freq", [this](float value) {
+			highPassTwo.setFrequency(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"hpf2-falloff", [this](float value) {
+			highPassTwo.setOrder((int)value / 6);
 		}
 	));
 }
@@ -180,6 +202,10 @@ void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 	spec.sampleRate = sampleRate;
 	spec.maximumBlockSize = (unsigned) samplesPerBlock;
 	spec.numChannels = (unsigned) getTotalNumOutputChannels();
+	highPassOne.reset(sampleRate, samplesPerBlock);
+	highPassOne.prepare(spec);
+	highPassTwo.reset(sampleRate, samplesPerBlock);
+	highPassTwo.prepare(spec);
 	lowPassOne.reset(sampleRate, samplesPerBlock);
 	lowPassOne.prepare(spec);
 	lowPassTwo.reset(sampleRate, samplesPerBlock);
@@ -211,7 +237,9 @@ void PluginProcessor::processBlock
 		{
 			float mid = (left[i] + right[i]) / 2;
 			float side = (left[i] - right[i]) / 2;
+			mid = highPassOne.processSample(mid);
 			mid = lowPassOne.processSample(mid);
+			side = highPassTwo.processSample(side);
 			side = lowPassTwo.processSample(side);
 			left[i] = clampWithinOne(mid + side);
 			right[i] = clampWithinOne(mid - side);
@@ -221,7 +249,9 @@ void PluginProcessor::processBlock
 	{
 		for (size_t i = 0;i < length;i++)
 		{
+			left[i] = highPassOne.processSample(left[i]);
 			left[i] = lowPassOne.processSample(left[i]);
+			right[i] = highPassTwo.processSample(right[i]);
 			right[i] = lowPassTwo.processSample(right[i]);
 		}
 	}

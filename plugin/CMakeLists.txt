@@ -17,6 +17,7 @@ target_sources(
     ${PROJECT_NAME}
     PRIVATE
         source/PluginProcessor.cpp
+        source/HighPassFilter.cpp
         source/LowPassFilter.cpp
         source/PluginEditor.cpp
         source/ParameterListener.cpp

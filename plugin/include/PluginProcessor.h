@@ -4,6 +4,7 @@
 #include <juce_dsp/juce_dsp.h>
 #include "ParameterListener.h"
 #include "LowPassFilter.h"
+#include "HighPassFilter.h"
 
 namespace dsp = juce::dsp;
 
@@ -72,6 +73,8 @@ public:
     juce::AudioProcessorEditor* createEditor() override;
 
 private:
+    HighPassFilter highPassOne;
+    HighPassFilter highPassTwo;
     LowPassFilter lowPassOne;
     LowPassFilter lowPassTwo;
     double lastSampleRate;
