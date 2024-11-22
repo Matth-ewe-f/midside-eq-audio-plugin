@@ -126,8 +126,18 @@ PluginProcessor::PluginProcessor()
 		}
 	));
 	addParameterListener(new ParameterListener(
+		"lpf1-falloff", [this](float value) {
+			lowPassOne.setOrder((int)value / 6);
+		}
+	));
+	addParameterListener(new ParameterListener(
 		"lpf2-freq", [this](float value) {
 			lowPassTwo.setFrequency(value);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"lpf2-falloff", [this](float value) {
+			lowPassTwo.setOrder((int)value / 6);
 		}
 	));
 }
