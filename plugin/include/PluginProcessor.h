@@ -77,6 +77,19 @@ private:
     double lastSampleRate;
     std::list<ParameterListener*> paramListeners;
 
+    // === Parameter Ranges ===================================================
+    inline static const juce::NormalisableRange<float> freqRange
+        { juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f) };
+    inline static const juce::NormalisableRange<float> falloffRange
+        { juce::NormalisableRange<float>(6, 36, 6, 1) };
+    inline static const juce::NormalisableRange<float> gainRange
+        { juce::NormalisableRange<float>(-18, 18, 0.1f) };
+    inline static const juce::NormalisableRange<float> resRange
+        { juce::NormalisableRange<float>(0.5, 10, 0.01f, 0.7f) };
+    inline static const juce::NormalisableRange<float> qRange
+        { juce::NormalisableRange<float>(0.25, 10, 0.01f, 0.7f) };
+    
+
     // === Private Helper Functions ===========================================
     void addParameterListener(ParameterListener*);
     float clampWithinOne(float);
