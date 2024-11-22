@@ -33,7 +33,7 @@ private:
     int fadeSamples;
     double sampleRate;
 
-    inline static const int fadeLength { 400 };
+    inline static const int fadeLength { 1000 };
 
     // === Private Helper =====================================================
     void updateFilters(float frequency);
