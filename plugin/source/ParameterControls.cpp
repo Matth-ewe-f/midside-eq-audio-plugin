@@ -1,5 +1,22 @@
 #include "ParameterControls.h"
 
+// === ParameterToggle ========================================================
+
+ParameterToggle::ParameterToggle() { }
+
+ParameterToggle::~ParameterToggle() { }
+
+void ParameterToggle::setBounds(int x, int y, int width, int height)
+{
+    toggle.setBounds(x, y, width, height);
+}
+
+void ParameterToggle::attachToParameter
+(juce::AudioProcessorValueTreeState* tree, std::string parameter)
+{
+    attachment.reset(new ButtonAttachment(*tree, parameter, toggle));
+}
+
 // === ParameterControl =======================================================
 ParameterControl::ParameterControl()
 {
@@ -24,9 +41,7 @@ void ParameterControl::setBounds(int x, int y, int width, int height)
 void ParameterControl::attachToParameter
 (juce::AudioProcessorValueTreeState* stateTree, std::string parameter)
 {
-    attachment.reset(
-        new SliderAttachment(*stateTree, parameter, slider)
-    );
+    attachment.reset(new SliderAttachment(*stateTree, parameter, slider));
     label.updateText(&slider);
 }
 
@@ -39,6 +54,7 @@ LowPassControl::LowPassControl()
     falloff.label.setTypeNegativeValues(true);
     resonance.label.setPostfix(" res");
     resonance.label.setMaxDecimals(2);
+    onOff.toggle.setText("ON", "OFF");
 }
 
 LowPassControl::~LowPassControl() { }
@@ -50,6 +66,9 @@ void LowPassControl::setBounds(int x, int y, int w, int h, int xPad, int yPad)
     frequency.setBounds(x, y, itemW, itemH);
     falloff.setBounds(x, y + itemH + yPad, itemW, itemH);
     resonance.setBounds(x + itemW + xPad, y + itemH + yPad, itemW, itemH);
+    int toggleW = 28;
+    int toggleX = x + itemW + xPad + ((itemW - toggleW) / 2);
+    onOff.setBounds(toggleX, y + 6, toggleW, 20);
 }
 
 void LowPassControl::setAllColorOverrides(juce::Colour color)
@@ -57,15 +76,19 @@ void LowPassControl::setAllColorOverrides(juce::Colour color)
     frequency.slider.setColorOverride(color);
     falloff.slider.setColorOverride(color);
     resonance.slider.setColorOverride(color);
+    color = color.withMultipliedSaturation(0.8f);
+    color = color.withMultipliedBrightness(0.8f);
+    onOff.toggle.setColorOverride(color);
 }
 
 void LowPassControl::attachToLowPass
 (juce::AudioProcessorValueTreeState* stateTree, std::string freqParam,
-std::string falloffParam, std::string resParam)
+std::string falloffParam, std::string resParam, std::string onOffParam)
 {
     frequency.attachToParameter(stateTree, freqParam);
     falloff.attachToParameter(stateTree, falloffParam);
     resonance.attachToParameter(stateTree, resParam);
+    onOff.attachToParameter(stateTree, onOffParam);
 }
 
 // === ParametricEqControl ====================================================

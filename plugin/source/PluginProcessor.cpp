@@ -15,6 +15,13 @@ PluginProcessor::PluginProcessor()
 #endif
 	),
 	tree(*this, nullptr, "PARAMETERS", {
+		// on-off parameters
+		std::make_unique<Parameter>(
+			"lpf1-on", "Low-Pass On/Off (M/L)", onOffRange, 1
+		),
+		std::make_unique<Parameter>(
+			"lpf2-on", "Low-Pass On/Off (S/R)", onOffRange, 1
+		),
 		// frequency parameters
 		std::make_unique<Parameter>(
 			"hpf1-freq", "High-Pass Frequency (M/L)", freqRange, 20
@@ -124,6 +131,16 @@ PluginProcessor::PluginProcessor()
 	lastSampleRate(48000) // default value
 {
 	// parameters
+	addParameterListener(new ParameterListener(
+		"lpf1-on", [this](float value) {
+			lowPassOne.setBypass((int)value == 0);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"lpf2-on", [this](float value) {
+			lowPassTwo.setBypass((int)value == 0);
+		}
+	));
 	addParameterListener(new ParameterListener(
 		"lpf1-freq", [this](float value) {
 			lowPassOne.setFrequency(value);

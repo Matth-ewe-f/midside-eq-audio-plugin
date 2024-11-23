@@ -32,10 +32,6 @@ private:
     // buttons
     juce::TextButton midSideButton;
     juce::TextButton leftRightButton;
-    CtmToggle toggleTestOne;
-    CtmToggle toggleTestTwo;
-    CtmToggle toggleTestThree;
-    CtmToggle toggleTestFour;
     // filters
     HighPassControl highPassOne;
     HighPassControl highPassTwo;

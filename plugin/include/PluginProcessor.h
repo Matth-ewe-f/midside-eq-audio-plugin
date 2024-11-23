@@ -88,6 +88,8 @@ private:
     std::list<ParameterListener*> paramListeners;
 
     // === Parameter Ranges ===================================================
+    inline static const juce::NormalisableRange<float> onOffRange
+        { juce::NormalisableRange<float>(0, 1, 1) };
     inline static const juce::NormalisableRange<float> freqRange
         { juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f) };
     inline static const juce::NormalisableRange<float> falloffRange

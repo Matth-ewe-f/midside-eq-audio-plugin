@@ -4,7 +4,8 @@ using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 // === Lifecycle ==============================================================
 LowPassFilter::LowPassFilter()
-    : order(1), pendingOrder(-1), fadeSamples(-1), sampleRate(48000)
+    : bypass(false), order(1), pendingOrder(-1), fadeSamples(-1),
+    sampleRate(48000)
 {
     filterOne.coefficients
         = Coefficients::makeLowPass(sampleRate, 20000, 0.71f);
@@ -28,6 +29,11 @@ void LowPassFilter::reset(double newSampleRate, int samplesPerBlock)
     filterFour.reset();
     smoothFrequency.reset(samplesPerBlock);
     sampleRate = newSampleRate;
+}
+
+void LowPassFilter::setBypass(bool isBypassed)
+{
+    bypass = isBypassed;
 }
 
 void LowPassFilter::setFrequency(float newFrequency)
@@ -57,6 +63,8 @@ void LowPassFilter::prepare(const dsp::ProcessSpec& spec)
 
 float LowPassFilter::processSample(float sample)
 {
+    if (bypass)
+        return sample;
     if (smoothFrequency.isSmoothing())
         updateFilters(smoothFrequency.getNextValue());
     if (filterOneEnabled())

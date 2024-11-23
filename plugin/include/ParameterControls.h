@@ -1,8 +1,25 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "CtmToggle.h"
 #include "CtmSlider.h"
 #include "SliderLabel.h"
-using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment; 
+
+using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
+using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
+
+// Class for controlling a toggleable parameter (i.e. an on/off switch)
+class ParameterToggle
+{
+public:
+    CtmToggle toggle;
+    std::unique_ptr<ButtonAttachment> attachment;
+
+    ParameterToggle();
+    ~ParameterToggle();
+
+    void setBounds(int x, int y, int width, int height);
+    void attachToParameter(juce::AudioProcessorValueTreeState*, std::string);
+};
 
 // General class for controlling a single parameter
 class ParameterControl
@@ -33,6 +50,7 @@ public:
     ParameterControl frequency;
     ParameterControl falloff;
     ParameterControl resonance;
+    ParameterToggle onOff;
 
     LowPassControl();
     ~LowPassControl();
@@ -40,8 +58,8 @@ public:
     void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
     void setAllColorOverrides(juce::Colour);
     void attachToLowPass
-    (juce::AudioProcessorValueTreeState*, std::string freq,
-    std::string falloff, std::string res);
+    (juce::AudioProcessorValueTreeState*, std::string freqParam,
+    std::string falloffParam, std::string resParam, std::string onOffParam);
 };
 
 // Group of parameters for controlling a parametric EQ filter
