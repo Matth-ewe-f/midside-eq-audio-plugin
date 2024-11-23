@@ -29,7 +29,7 @@ private:
     dsp::IIR::Filter<float> filterThree;
     dsp::IIR::Filter<float> filterFour;
     juce::SmoothedValue<float> smoothFrequency;
-    bool bypass;
+    juce::SmoothedValue<float> smoothBypass;
     int order;
     int pendingOrder;
     int fadeSamples;

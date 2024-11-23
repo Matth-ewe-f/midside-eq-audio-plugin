@@ -4,8 +4,7 @@ using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 // === Lifecycle ==============================================================
 LowPassFilter::LowPassFilter()
-    : bypass(false), order(1), pendingOrder(-1), fadeSamples(-1),
-    sampleRate(48000)
+    : order(1), pendingOrder(-1), fadeSamples(-1), sampleRate(48000)
 {
     filterOne.coefficients
         = Coefficients::makeLowPass(sampleRate, 20000, 0.71f);
@@ -16,6 +15,7 @@ LowPassFilter::LowPassFilter()
     filterFour.coefficients
         = Coefficients::makeFirstOrderLowPass(sampleRate, 20000);
     smoothFrequency.setCurrentAndTargetValue(20000);
+    smoothBypass.setCurrentAndTargetValue(1);
 }
 
 LowPassFilter::~LowPassFilter() { }
@@ -28,12 +28,13 @@ void LowPassFilter::reset(double newSampleRate, int samplesPerBlock)
     filterThree.reset();
     filterFour.reset();
     smoothFrequency.reset(samplesPerBlock);
+    smoothBypass.reset(samplesPerBlock);
     sampleRate = newSampleRate;
 }
 
 void LowPassFilter::setBypass(bool isBypassed)
 {
-    bypass = isBypassed;
+    smoothBypass.setTargetValue(isBypassed ? 0 : 1);
 }
 
 void LowPassFilter::setFrequency(float newFrequency)
@@ -63,25 +64,26 @@ void LowPassFilter::prepare(const dsp::ProcessSpec& spec)
 
 float LowPassFilter::processSample(float sample)
 {
-    if (bypass)
+    if (smoothBypass.getCurrentValue() <= 0 && !smoothBypass.isSmoothing())
         return sample;
     if (smoothFrequency.isSmoothing())
         updateFilters(smoothFrequency.getNextValue());
+    float result = sample;
     if (filterOneEnabled())
-        sample = filterOne.processSample(sample);
+        result = filterOne.processSample(result);
     if (filterTwoEnabled())
-        sample = filterTwo.processSample(sample);
+        result = filterTwo.processSample(result);
     if (filterThreeEnabled())
-        sample = filterThree.processSample(sample);
+        result = filterThree.processSample(result);
     if (filterFourEnabled())
-        sample = filterFour.processSample(sample);
+        result = filterFour.processSample(result);
     if (pendingOrder != -1 || fadeSamples >= 0)
     {
         float gain = std::abs((float)fadeSamples++ - fadeLength) / fadeLength;
         gain = (gain * 1.2f) - 0.2f;
         if (gain < 0)
             gain = 0;
-        sample *= gain;
+        result *= gain;
         if (fadeSamples == fadeLength)
         {
             delayedUpdateOrder();
@@ -91,7 +93,12 @@ float LowPassFilter::processSample(float sample)
             fadeSamples = -1;
         }
     }
-    return sample;
+    if (smoothBypass.isSmoothing())
+    {
+        float p = smoothBypass.getNextValue();
+        result = (result * p) + (sample * (1 - p));
+    }
+    return result;
 }
 
 // === Private Helper =========================================================

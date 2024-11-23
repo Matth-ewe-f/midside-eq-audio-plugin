@@ -40,6 +40,12 @@ PluginProcessor::PluginProcessor()
 		std::make_unique<Parameter>(
 			"peak6-on", "Peak #3 On/Off (S/R)", onOffRange, 1
 		),
+		std::make_unique<Parameter>(
+			"hpf1-on", "High-Pass On/Off (M/L)", onOffRange, 1
+		),
+		std::make_unique<Parameter>(
+			"hpf2-on", "High-Pass On/Off (S/R)", onOffRange, 1
+		),
 		// frequency parameters
 		std::make_unique<Parameter>(
 			"hpf1-freq", "High-Pass Frequency (M/L)", freqRange, 20
@@ -187,6 +193,16 @@ PluginProcessor::PluginProcessor()
 	addParameterListener(new ParameterListener(
 		"peak6-on", [this](float value) {
 			peakSix.setBypass((int)value == 0);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"hpf1-on", [this](float value) {
+			highPassOne.setBypass((int)value == 0);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"hpf2-on", [this](float value) {
+			highPassTwo.setBypass((int)value == 0);
 		}
 	));
 	addParameterListener(new ParameterListener(
@@ -363,6 +379,18 @@ void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 	highPassOne.prepare(spec);
 	highPassTwo.reset(sampleRate, samplesPerBlock);
 	highPassTwo.prepare(spec);
+	peakOne.reset(sampleRate, samplesPerBlock);
+	peakOne.prepare(spec);
+	peakTwo.reset(sampleRate, samplesPerBlock);
+	peakTwo.prepare(spec);
+	peakThree.reset(sampleRate, samplesPerBlock);
+	peakThree.prepare(spec);
+	peakFour.reset(sampleRate, samplesPerBlock);
+	peakFour.prepare(spec);
+	peakFive.reset(sampleRate, samplesPerBlock);
+	peakFive.prepare(spec);
+	peakSix.reset(sampleRate, samplesPerBlock);
+	peakSix.prepare(spec);
 	lowPassOne.reset(sampleRate, samplesPerBlock);
 	lowPassOne.prepare(spec);
 	lowPassTwo.reset(sampleRate, samplesPerBlock);

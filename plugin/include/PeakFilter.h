@@ -25,7 +25,7 @@ public:
 private:
     dsp::IIR::Filter<float> filter;
     juce::SmoothedValue<float> smoothFrequency;
-    bool bypass;
+    juce::SmoothedValue<float> smoothBypass;
     float gain;
     float q;
     double sampleRate;

@@ -27,7 +27,7 @@ PluginEditor::PluginEditor (PluginProcessor &p)
         &processorRef.tree, "hpf1-freq", "hpf1-falloff", "hpf1-res", "hpf1-on"
     );
     highPassTwo.attachToHighPass(
-        &processorRef.tree, "hpf2-freq", "hpf2-falloff", "hpf2-res", "hpf1-on"
+        &processorRef.tree, "hpf2-freq", "hpf2-falloff", "hpf2-res", "hpf2-on"
     );
     peakOne.attachToPeakFilter(
         &processorRef.tree, "peak1-freq", "peak1-gain", "peak1-q", "peak1-on"
