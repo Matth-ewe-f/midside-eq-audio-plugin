@@ -71,6 +71,18 @@ PluginEditor::PluginEditor (PluginProcessor &p)
         repaint();
     };
     addAndMakeVisible(leftRightButton);
+    toggleTestOne.setColorOverride(midColor.withMultipliedSaturation(0.8f).withMultipliedBrightness(0.8f));
+    toggleTestOne.setText("1");
+    addAndMakeVisible(toggleTestOne);
+    toggleTestTwo.setColorOverride(sideColor.withMultipliedSaturation(0.8f).withMultipliedBrightness(0.8f));
+    toggleTestTwo.setText("ON", "OFF");
+    addAndMakeVisible(toggleTestTwo);
+    toggleTestThree.setColorOverride(leftColor.withMultipliedSaturation(0.8f).withMultipliedBrightness(0.8f));
+    toggleTestThree.setText("A", "B");
+    addAndMakeVisible(toggleTestThree);
+    toggleTestFour.setColorOverride(rightColor.withMultipliedSaturation(0.8f).withMultipliedBrightness(0.8f));
+    toggleTestFour.setText("a");
+    addAndMakeVisible(toggleTestFour);
 }
 
 PluginEditor::~PluginEditor() { }
@@ -108,6 +120,10 @@ void PluginEditor::resized()
     int middle = getWidth() / 2;
     midSideButton.setBounds(middle - 80, 10, 70, 30);
     leftRightButton.setBounds(middle + 10, 10, 70, 30);
+    toggleTestOne.setBounds(10, 8, 32, 24);
+    toggleTestTwo.setBounds(50, 8, 28, 21);
+    toggleTestThree.setBounds(90, 8, 24, 18);
+    toggleTestFour.setBounds(130, 8, 20, 15);
 }
 
 // === Functions for Custom Components ========================================

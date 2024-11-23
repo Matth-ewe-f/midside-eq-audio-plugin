@@ -16,6 +16,8 @@ CtmLookAndFeel::CtmLookAndFeel()
     setColour(CtmColourIds::darkOutlineColourId, darkOutlineColor);
     setColour(CtmColourIds::brightOutlineColourId, brightOutlineColor);
     setColour(CtmColourIds::meterFillColourId, meterFillColor);
+    setColour(CtmColourIds::toggledColourId, toggledColor);
+    setColour(CtmColourIds::untoggledColourId, untoggledColor);
 }
 
 void CtmLookAndFeel::drawRotarySlider

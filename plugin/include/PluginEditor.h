@@ -2,6 +2,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "PluginProcessor.h"
 #include "SliderLabel.h"
+#include "CtmToggle.h"
 #include "ParameterControls.h"
 #include "CtmLookAndFeel.h"
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
@@ -31,6 +32,10 @@ private:
     // buttons
     juce::TextButton midSideButton;
     juce::TextButton leftRightButton;
+    CtmToggle toggleTestOne;
+    CtmToggle toggleTestTwo;
+    CtmToggle toggleTestThree;
+    CtmToggle toggleTestFour;
     // filters
     HighPassControl highPassOne;
     HighPassControl highPassTwo;

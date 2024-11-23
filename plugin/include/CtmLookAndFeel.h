@@ -26,6 +26,9 @@ private:
     inline static const Colour rotaryColor { Colour::fromRGB(40, 80, 100) };
     inline static const Colour meterFillColor
         { Colour::fromRGB(57, 125, 227) };
+    inline static const Colour toggledColor { Colour::fromRGB(33, 81, 170) };
+    inline static const Colour untoggledColor
+        { Colour::fromRGB(150, 150, 150) };
 };
 
 enum CtmColourIds
@@ -36,4 +39,6 @@ enum CtmColourIds
     darkOutlineColourId,
     brightOutlineColourId,
     meterFillColourId,
+    toggledColourId,
+    untoggledColourId
 };
