@@ -13,6 +13,7 @@ public:
 
     // === Set Parameters =====================================================
     void reset(double newSampleRate, int samplesPerBlock);
+    void setBypass(bool);
     void setFrequency(float);
     void setOrder(int);
 
@@ -28,6 +29,7 @@ private:
     dsp::IIR::Filter<float> filterThree;
     dsp::IIR::Filter<float> filterFour;
     juce::SmoothedValue<float> smoothFrequency;
+    bool bypass;
     int order;
     int pendingOrder;
     int fadeSamples;

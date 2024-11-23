@@ -69,6 +69,7 @@ public:
     ParameterControl frequency;
     ParameterControl gain;
     ParameterControl qFactor;
+    ParameterToggle onOff;
 
     PeakFilterControl();
     ~PeakFilterControl();
@@ -76,8 +77,8 @@ public:
     void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
     void setAllColorOverrides(juce::Colour);
     void attachToPeakFilter
-    (juce::AudioProcessorValueTreeState*, std::string freq,
-    std::string gain, std::string res);
+    (juce::AudioProcessorValueTreeState*, std::string freqParam,
+    std::string gainParam, std::string resParam, std::string onOffParam);
 };
 
 // Group of parameters for controlling a high pass filter
@@ -87,6 +88,7 @@ public:
     ParameterControl frequency;
     ParameterControl falloff;
     ParameterControl resonance;
+    ParameterToggle onOff;
 
     HighPassControl();
     ~HighPassControl();
@@ -94,6 +96,6 @@ public:
     void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
     void setAllColorOverrides(juce::Colour);
     void attachToHighPass
-    (juce::AudioProcessorValueTreeState*, std::string freq,
-    std::string falloff, std::string res);
+    (juce::AudioProcessorValueTreeState*, std::string freqParam,
+    std::string falloffParam, std::string resParam, std::string onOffParam);
 };

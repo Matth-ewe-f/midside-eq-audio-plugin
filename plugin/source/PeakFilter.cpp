@@ -3,7 +3,8 @@
 using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 // === Lifecycle ==============================================================
-PeakFilter::PeakFilter(float frequency) : gain(1), q(0.707f), sampleRate(48000)
+PeakFilter::PeakFilter(float frequency)
+    : bypass(false), gain(1), q(0.707f), sampleRate(48000)
 {
     setFilterParameters(frequency, gain, q);
     smoothFrequency.setCurrentAndTargetValue(frequency);
@@ -17,6 +18,11 @@ void PeakFilter::reset(double newSampleRate, int samplesPerBlock)
     filter.reset();
     smoothFrequency.reset(samplesPerBlock);
     sampleRate = newSampleRate;
+}
+
+void PeakFilter::setBypass(bool isBypassed)
+{
+    bypass = isBypassed;
 }
 
 void PeakFilter::setFrequency(float frequency)
@@ -44,6 +50,8 @@ void PeakFilter::prepare(const dsp::ProcessSpec& spec)
 
 float PeakFilter::processSample(float sample)
 {
+    if (bypass)
+        return sample;
     if (smoothFrequency.isSmoothing())
         setFilterParameters(smoothFrequency.getNextValue(), gain, q);
     return filter.processSample(sample);

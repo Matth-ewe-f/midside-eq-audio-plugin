@@ -24,28 +24,28 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     addLowPassControl(&lowPassOne);
     addLowPassControl(&lowPassTwo);
     highPassOne.attachToHighPass(
-        &processorRef.tree, "hpf1-freq", "hpf1-falloff", "hpf1-res"
+        &processorRef.tree, "hpf1-freq", "hpf1-falloff", "hpf1-res", "hpf1-on"
     );
     highPassTwo.attachToHighPass(
-        &processorRef.tree, "hpf2-freq", "hpf2-falloff", "hpf2-res"
+        &processorRef.tree, "hpf2-freq", "hpf2-falloff", "hpf2-res", "hpf1-on"
     );
     peakOne.attachToPeakFilter(
-        &processorRef.tree, "peak1-freq", "peak1-gain", "peak1-q"
+        &processorRef.tree, "peak1-freq", "peak1-gain", "peak1-q", "peak1-on"
     );
     peakTwo.attachToPeakFilter(
-        &processorRef.tree, "peak2-freq", "peak2-gain", "peak2-q"
+        &processorRef.tree, "peak2-freq", "peak2-gain", "peak2-q", "peak2-on"
     );
     peakThree.attachToPeakFilter(
-        &processorRef.tree, "peak3-freq", "peak3-gain", "peak3-q"
+        &processorRef.tree, "peak3-freq", "peak3-gain", "peak3-q", "peak3-on"
     );
     peakFour.attachToPeakFilter(
-        &processorRef.tree, "peak4-freq", "peak4-gain", "peak4-q"
+        &processorRef.tree, "peak4-freq", "peak4-gain", "peak4-q", "peak4-on"
     );
     peakFive.attachToPeakFilter(
-        &processorRef.tree, "peak5-freq", "peak5-gain", "peak5-q"
+        &processorRef.tree, "peak5-freq", "peak5-gain", "peak5-q", "peak5-on"
     );
     peakSix.attachToPeakFilter(
-        &processorRef.tree, "peak6-freq", "peak6-gain", "peak6-q"
+        &processorRef.tree, "peak6-freq", "peak6-gain", "peak6-q", "peak6-on"
     );
     lowPassOne.attachToLowPass(
         &processorRef.tree, "lpf1-freq", "lpf1-falloff", "lpf1-res", "lpf1-on"
@@ -122,6 +122,7 @@ void PluginEditor::addHighPassControl(HighPassControl* control)
     addParameterControl(&control->frequency);
     addParameterControl(&control->falloff);
     addParameterControl(&control->resonance);
+    addAndMakeVisible(&control->onOff.toggle);
 }
 
 void PluginEditor::addPeakFilterControl(PeakFilterControl* control)
@@ -129,6 +130,7 @@ void PluginEditor::addPeakFilterControl(PeakFilterControl* control)
     addParameterControl(&control->frequency);
     addParameterControl(&control->gain);
     addParameterControl(&control->qFactor);
+    addAndMakeVisible(&control->onOff.toggle);
 }
 
 void PluginEditor::addLowPassControl(LowPassControl* control)

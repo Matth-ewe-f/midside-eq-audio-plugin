@@ -13,6 +13,7 @@ public:
 
     // === Set Parameters =====================================================
     void reset(double newSampleRate, int samplesPerBlock);
+    void setBypass(bool);
     void setFrequency(float);
     void setGain(float);
     void setQFactor(float);
@@ -24,8 +25,7 @@ public:
 private:
     dsp::IIR::Filter<float> filter;
     juce::SmoothedValue<float> smoothFrequency;
-    // juce::SmoothedValue<float> smoothGain;
-    // juce::SmoothedValue<float> smoothQ;
+    bool bypass;
     float gain;
     float q;
     double sampleRate;

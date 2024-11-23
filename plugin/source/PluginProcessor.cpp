@@ -22,6 +22,24 @@ PluginProcessor::PluginProcessor()
 		std::make_unique<Parameter>(
 			"lpf2-on", "Low-Pass On/Off (S/R)", onOffRange, 1
 		),
+		std::make_unique<Parameter>(
+			"peak1-on", "Peak #1 On/Off (M/L)", onOffRange, 1
+		),
+		std::make_unique<Parameter>(
+			"peak2-on", "Peak #1 On/Off (S/R)", onOffRange, 1
+		),
+		std::make_unique<Parameter>(
+			"peak3-on", "Peak #2 On/Off (M/L)", onOffRange, 1
+		),
+		std::make_unique<Parameter>(
+			"peak4-on", "Peak #2 On/Off (S/R)", onOffRange, 1
+		),
+		std::make_unique<Parameter>(
+			"peak5-on", "Peak #3 On/Off (M/L)", onOffRange, 1
+		),
+		std::make_unique<Parameter>(
+			"peak6-on", "Peak #3 On/Off (S/R)", onOffRange, 1
+		),
 		// frequency parameters
 		std::make_unique<Parameter>(
 			"hpf1-freq", "High-Pass Frequency (M/L)", freqRange, 20
@@ -30,22 +48,22 @@ PluginProcessor::PluginProcessor()
 			"hpf2-freq", "High-Pass Frequency (S/R)", freqRange, 20
 		),
 		std::make_unique<Parameter>(
-			"peak1-freq", "Parametric #1 Frequency (M/L)", freqRange, 200
+			"peak1-freq", "Peak #1 Frequency (M/L)", freqRange, 200
 		),
 		std::make_unique<Parameter>(
-			"peak2-freq", "Parametric #1 Frequency (S/R)", freqRange, 200
+			"peak2-freq", "Peak #1 Frequency (S/R)", freqRange, 200
 		),
 		std::make_unique<Parameter>(
-			"peak3-freq", "Parametric #2 Frequency (M/L)", freqRange, 1000
+			"peak3-freq", "Peak #2 Frequency (M/L)", freqRange, 1000
 		),
 		std::make_unique<Parameter>(
-			"peak4-freq", "Parametric #2 Frequency (S/R)", freqRange, 1000
+			"peak4-freq", "Peak #2 Frequency (S/R)", freqRange, 1000
 		),
 		std::make_unique<Parameter>(
-			"peak5-freq", "Parametric #3 Frequency (M/L)", freqRange, 6000
+			"peak5-freq", "Peak #3 Frequency (M/L)", freqRange, 6000
 		),
 		std::make_unique<Parameter>(
-			"peak6-freq", "Parametric #3 Frequency (S/R)", freqRange, 6000
+			"peak6-freq", "Peak #3 Frequency (S/R)", freqRange, 6000
 		),
 		std::make_unique<Parameter>(
 			"lpf1-freq", "Low-Pass Frequency (M/L)", freqRange, 20000
@@ -68,22 +86,22 @@ PluginProcessor::PluginProcessor()
 		),
 		// gain parameters (parametric EQ)
 		std::make_unique<Parameter>(
-			"peak1-gain", "Parametric #1 Gain (M/L)", gainRange, 0
+			"peak1-gain", "Peak #1 Gain (M/L)", gainRange, 0
 		),
 		std::make_unique<Parameter>(
-			"peak2-gain", "Parametric #1 Gain (S/R)", gainRange, 0
+			"peak2-gain", "Peak #1 Gain (S/R)", gainRange, 0
 		),
 		std::make_unique<Parameter>(
-			"peak3-gain", "Parametric #2 Gain (M/L)", gainRange, 0
+			"peak3-gain", "Peak #2 Gain (M/L)", gainRange, 0
 		),
 		std::make_unique<Parameter>(
-			"peak4-gain", "Parametric #2 Gain (S/R)", gainRange, 0
+			"peak4-gain", "Peak #2 Gain (S/R)", gainRange, 0
 		),
 		std::make_unique<Parameter>(
-			"peak5-gain", "Parametric #3 Gain (M/L)", gainRange, 0
+			"peak5-gain", "Peak #3 Gain (M/L)", gainRange, 0
 		),
 		std::make_unique<Parameter>(
-			"peak6-gain", "Parametric #3 Gain (S/R)", gainRange, 0
+			"peak6-gain", "Peak #3 Gain (S/R)", gainRange, 0
 		),
 		// resonance parameters
 		std::make_unique<Parameter>(
@@ -100,22 +118,22 @@ PluginProcessor::PluginProcessor()
 		),
 		// q-factor parameters
 		std::make_unique<Parameter>(
-			"peak1-q", "Parametric #1 Q (M/L)", qRange, 0.71
+			"peak1-q", "Peak #1 Q (M/L)", qRange, 0.71
 		),
 		std::make_unique<Parameter>(
-			"peak2-q", "Parametric #1 Q (S/R)", qRange, 0.71
+			"peak2-q", "Peak #1 Q (S/R)", qRange, 0.71
 		),
 		std::make_unique<Parameter>(
-			"peak3-q", "Parametric #2 Q (M/L)", qRange, 0.71
+			"peak3-q", "Peak #2 Q (M/L)", qRange, 0.71
 		),
 		std::make_unique<Parameter>(
-			"peak4-q", "Parametric #2 Q (S/R)", qRange, 0.71
+			"peak4-q", "Peak #2 Q (S/R)", qRange, 0.71
 		),
 		std::make_unique<Parameter>(
-			"peak5-q", "Parametric #3 Q (M/L)", qRange, 0.71
+			"peak5-q", "Peak #3 Q (M/L)", qRange, 0.71
 		),
 		std::make_unique<Parameter>(
-			"peak6-q", "Parametric #3 Q (S/R)", qRange, 0.71
+			"peak6-q", "Peak #3 Q (S/R)", qRange, 0.71
 		),
 		// configuration parameters
 		std::make_unique<Parameter>(
@@ -139,6 +157,36 @@ PluginProcessor::PluginProcessor()
 	addParameterListener(new ParameterListener(
 		"lpf2-on", [this](float value) {
 			lowPassTwo.setBypass((int)value == 0);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak1-on", [this](float value) {
+			peakOne.setBypass((int)value == 0);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak2-on", [this](float value) {
+			peakTwo.setBypass((int)value == 0);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak3-on", [this](float value) {
+			peakThree.setBypass((int)value == 0);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak4-on", [this](float value) {
+			peakFour.setBypass((int)value == 0);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak5-on", [this](float value) {
+			peakFive.setBypass((int)value == 0);
+		}
+	));
+	addParameterListener(new ParameterListener(
+		"peak6-on", [this](float value) {
+			peakSix.setBypass((int)value == 0);
 		}
 	));
 	addParameterListener(new ParameterListener(
