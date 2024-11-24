@@ -3,14 +3,46 @@
 using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 // === Lifecycle ==============================================================
-PeakFilter::PeakFilter(float frequency) : gain(1), q(0.707f), sampleRate(48000)
+PeakFilter::PeakFilter(float frequency)
+    : gain(1), q(0.707f), sampleRate(48000), listenTo(nullptr), name("")
 {
     setFilterParameters(frequency, gain, q);
     smoothFrequency.setCurrentAndTargetValue(frequency);
     smoothBypass.setCurrentAndTargetValue(1);
 }
 
-PeakFilter::~PeakFilter() { }
+// === State Tree Listener ====================================================
+void PeakFilter::setListenTo
+(juce::AudioProcessorValueTreeState* tree, std::string newName)
+{
+    // stop listening to the old tree
+    if (listenTo != nullptr)
+    {
+        listenTo->removeParameterListener(name + "-on", this);
+        listenTo->removeParameterListener(name + "-freq", this);
+        listenTo->removeParameterListener(name + "-gain", this);
+        listenTo->removeParameterListener(name + "-q", this);
+    }
+    // start listening to the provided tree
+    tree->addParameterListener(newName + "-on", this);
+    tree->addParameterListener(newName + "-freq", this);
+    tree->addParameterListener(newName + "-gain", this);
+    tree->addParameterListener(newName + "-q", this);
+    listenTo = tree;
+    name = newName;
+}
+
+void PeakFilter::parameterChanged(const juce::String& param, float value)
+{
+    if (param.compare(name + "-on") == 0)
+        smoothBypass.setTargetValue(value);
+    else if (param.compare(name + "-freq") == 0)
+        setFrequency(value);
+    else if (param.compare(name + "-gain") == 0)
+        setGain(pow(10.0f, value / 20));
+    else if (param.compare(name + "-q") == 0)
+        setQFactor(value);
+}
 
 // === Set Parameters =========================================================
 void PeakFilter::reset(double newSampleRate, int samplesPerBlock)

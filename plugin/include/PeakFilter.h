@@ -4,12 +4,15 @@
 
 namespace dsp = juce::dsp;
 
-class PeakFilter
+class PeakFilter : juce::AudioProcessorValueTreeState::Listener
 {
 public:
     // === Lifecycle ==========================================================
     PeakFilter(float frequency);
-    ~PeakFilter();
+
+    // === State Tree Listener ================================================
+    void setListenTo(juce::AudioProcessorValueTreeState*, std::string);
+    void parameterChanged(const juce::String&, float) override;
 
     // === Set Parameters =====================================================
     void reset(double newSampleRate, int samplesPerBlock);
@@ -29,6 +32,8 @@ private:
     float gain;
     float q;
     double sampleRate;
+    juce::AudioProcessorValueTreeState* listenTo;
+    std::string name;
 
     // === Private Helper =====================================================
     void setFilterParameters(float freq, float gain, float q);

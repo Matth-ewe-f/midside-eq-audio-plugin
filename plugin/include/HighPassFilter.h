@@ -4,12 +4,15 @@
 
 namespace dsp = juce::dsp;
 
-class HighPassFilter
+class HighPassFilter : public juce::AudioProcessorValueTreeState::Listener
 {
 public:
     // === Lifecycle ==========================================================
     HighPassFilter();
-    ~HighPassFilter();
+
+    // === State Tree Listener ================================================
+    void setListenTo(juce::AudioProcessorValueTreeState*, std::string);
+    void parameterChanged(const juce::String&, float) override;
 
     // === Set Parameters =====================================================
     void reset(double newSampleRate, int samplesPerBlock);
@@ -34,6 +37,8 @@ private:
     int pendingOrder;
     int fadeSamples;
     double sampleRate;
+    juce::AudioProcessorValueTreeState* listenTo;
+    std::string name;
 
     inline static const int fadeLength { 1000 };
 

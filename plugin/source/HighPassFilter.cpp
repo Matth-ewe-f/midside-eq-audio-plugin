@@ -4,7 +4,8 @@ using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 // === Lifecycle ==============================================================
 HighPassFilter::HighPassFilter()
-    : order(1), pendingOrder(-1), fadeSamples(-1), sampleRate(48000)
+    : order(1), pendingOrder(-1), fadeSamples(-1), sampleRate(48000),
+    listenTo(nullptr), name("")
 {
     filterOne.coefficients
         = Coefficients::makeHighPass(sampleRate, 20, 0.71f);
@@ -18,7 +19,36 @@ HighPassFilter::HighPassFilter()
     smoothBypass.setCurrentAndTargetValue(1);
 }
 
-HighPassFilter::~HighPassFilter() { }
+// === State Tree Listener ====================================================
+void HighPassFilter::setListenTo
+(juce::AudioProcessorValueTreeState* stateTree, std::string newName)
+{
+    // stop listening to the previous tree (if there is one)
+    if (listenTo != nullptr)
+    {
+        listenTo->removeParameterListener(name + "-on", this);
+        listenTo->removeParameterListener(name + "-freq", this);
+        listenTo->removeParameterListener(name + "-falloff", this);
+        listenTo->removeParameterListener(name + "-res", this);
+    }
+    // start listening to the new tree
+    stateTree->addParameterListener(newName + "-on", this);
+    stateTree->addParameterListener(newName + "-freq", this);
+    stateTree->addParameterListener(newName + "-falloff", this);
+    stateTree->addParameterListener(newName + "-res", this);
+    name = newName;
+    listenTo = stateTree;
+}
+
+void HighPassFilter::parameterChanged(const juce::String& param, float value)
+{
+    if (param.compare(name + "-on") == 0)
+        smoothBypass.setTargetValue(value);
+    else if (param.compare(name + "-freq") == 0)
+        setFrequency(value);
+    else if (param.compare(name + "-falloff") == 0)
+        setOrder((int) value / 6);
+}
 
 // === Set Parameters =========================================================
 void HighPassFilter::reset(double newSampleRate, int samplesPerBlock)
