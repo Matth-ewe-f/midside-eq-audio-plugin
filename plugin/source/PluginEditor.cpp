@@ -23,12 +23,9 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     addPeakFilterControl(&peakSix);
     addLowPassControl(&lowPassOne);
     addLowPassControl(&lowPassTwo);
-    highPassOne.attachToHighPass(
-        &processorRef.tree, "hpf1-freq", "hpf1-falloff", "hpf1-res", "hpf1-on"
-    );
-    highPassTwo.attachToHighPass(
-        &processorRef.tree, "hpf2-freq", "hpf2-falloff", "hpf2-res", "hpf2-on"
-    );
+    juce::AudioProcessorValueTreeState* stateTree = &processorRef.tree;
+    highPassOne.attachToHighPass(stateTree, &processorRef.highPassOne);
+    highPassTwo.attachToHighPass(stateTree, &processorRef.highPassTwo);
     peakOne.attachToPeakFilter(
         &processorRef.tree, "peak1-freq", "peak1-gain", "peak1-q", "peak1-on"
     );

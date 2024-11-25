@@ -1,12 +1,13 @@
 #include "HighPassFilter.h"
+#include <format>
 
 using Parameter = juce::AudioProcessorValueTreeState::Parameter;
 using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 // === Lifecycle ==============================================================
-HighPassFilter::HighPassFilter()
-    : order(1), pendingOrder(-1), fadeSamples(-1), sampleRate(48000),
-    listenTo(nullptr), name("")
+HighPassFilter::HighPassFilter(std::string nameArg, std::string parameterText)
+    : CtmFilter(nameArg, parameterText), order(1), pendingOrder(-1),
+    fadeSamples(-1), sampleRate(48000)
 {
     filterOne.coefficients
         = Coefficients::makeHighPass(sampleRate, 20, 0.71f);
@@ -20,27 +21,7 @@ HighPassFilter::HighPassFilter()
     smoothBypass.setCurrentAndTargetValue(1);
 }
 
-// === State Tree Listener ====================================================
-void HighPassFilter::setListenTo
-(juce::AudioProcessorValueTreeState* stateTree, std::string newName)
-{
-    // stop listening to the previous tree (if there is one)
-    if (listenTo != nullptr)
-    {
-        listenTo->removeParameterListener(name + "-on", this);
-        listenTo->removeParameterListener(name + "-freq", this);
-        listenTo->removeParameterListener(name + "-falloff", this);
-        listenTo->removeParameterListener(name + "-res", this);
-    }
-    // start listening to the new tree
-    stateTree->addParameterListener(newName + "-on", this);
-    stateTree->addParameterListener(newName + "-freq", this);
-    stateTree->addParameterListener(newName + "-falloff", this);
-    stateTree->addParameterListener(newName + "-res", this);
-    name = newName;
-    listenTo = stateTree;
-}
-
+// === Parameter Information ==================================================
 void HighPassFilter::parameterChanged(const juce::String& param, float value)
 {
     if (param.compare(name + "-on") == 0)
@@ -51,7 +32,7 @@ void HighPassFilter::parameterChanged(const juce::String& param, float value)
         setOrder((int) value / 6);
 }
 
-// === Set Parameters =========================================================
+// === Parameter Functions ====================================================
 void HighPassFilter::reset(double newSampleRate, int samplesPerBlock)
 {
     filterOne.reset();
@@ -132,22 +113,13 @@ float HighPassFilter::processSample(float sample)
     return result;
 }
 
-// === Static Functions =======================================================
-void HighPassFilter::addParameters
-(ParameterLayout* parameters, std::string prefix, std::string channels)
+// === Overriden from CtmFilter ===============================================
+void HighPassFilter::getParameters(std::vector<ParameterFields>& parameters)
 {
-    parameters->add(std::make_unique<Parameter>(
-        prefix + "-on", "High-Pass On/Off " + channels, onOffRange, 1
-    ));
-    parameters->add(std::make_unique<Parameter>(
-        prefix + "-freq", "High-Pass Frequency " + channels, freqRange, 20
-    ));
-    parameters->add(std::make_unique<Parameter>(
-        prefix + "-falloff", "High-Pass Falloff " + channels, falloffRange, 6
-    ));
-    parameters->add(std::make_unique<Parameter>(
-        prefix + "-res", "High-Pass Resonance " + channels, resRange, 0.71f
-    ));
+    parameters.push_back(onOffParam);
+    parameters.push_back(freqParam);
+    parameters.push_back(falloffParam);
+    parameters.push_back(resParam);
 }
 
 // === Private Helper =========================================================

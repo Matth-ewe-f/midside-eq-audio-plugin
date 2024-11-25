@@ -12,7 +12,17 @@ namespace dsp = juce::dsp;
 class PluginProcessor final : public juce::AudioProcessor
 {
 public:
-    // === Plugin Parameters ==================================================
+    // === Public Variables ===================================================
+    HighPassFilter highPassOne;
+    HighPassFilter highPassTwo;
+    PeakFilter peakOne;
+    PeakFilter peakTwo;
+    PeakFilter peakThree;
+    PeakFilter peakFour;
+    PeakFilter peakFive;
+    PeakFilter peakSix;
+    LowPassFilter lowPassOne;
+    LowPassFilter lowPassTwo;
     juce::AudioProcessorValueTreeState tree;
 
     // === Lifecycle ==========================================================
@@ -75,16 +85,6 @@ public:
     juce::AudioProcessorEditor* createEditor() override;
 
 private:
-    HighPassFilter highPassOne;
-    HighPassFilter highPassTwo;
-    PeakFilter peakOne;
-    PeakFilter peakTwo;
-    PeakFilter peakThree;
-    PeakFilter peakFour;
-    PeakFilter peakFive;
-    PeakFilter peakSix;
-    LowPassFilter lowPassOne;
-    LowPassFilter lowPassTwo;
     double lastSampleRate;
     std::list<ParameterListener*> paramListeners;
 

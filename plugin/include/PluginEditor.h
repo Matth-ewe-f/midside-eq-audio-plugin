@@ -1,9 +1,11 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "PluginProcessor.h"
-#include "SliderLabel.h"
-#include "CtmToggle.h"
-#include "ParameterControls.h"
+#include "ParameterControl.h"
+#include "FilterControl.h"
+#include "HighPassControl.h"
+#include "PeakFilterControl.h"
+#include "LowPassControl.h"
 #include "CtmLookAndFeel.h"
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using Colour = juce::Colour;

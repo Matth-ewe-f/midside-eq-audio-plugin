@@ -13,18 +13,20 @@ PluginProcessor::PluginProcessor()
 		.withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
 	),
-	tree(*this, nullptr, "PARAMETERS", createParameters()),
+	highPassOne("hpf1", "High-Pass {0} (M/L)"),
+	highPassTwo("hpf2", "High-Pass {0} (S/R)"),
 	peakOne(200),
 	peakTwo(200),
 	peakThree(1000),
 	peakFour(1000),
 	peakFive(6000),
 	peakSix(6000),
+	tree(*this, nullptr, "PARAMETERS", createParameters()),
 	lastSampleRate(48000) // default value
 {
 	// parameters
-	highPassOne.setListenTo(&tree, "hpf1");
-	highPassTwo.setListenTo(&tree, "hpf2");
+	highPassOne.setListenTo(&tree);
+	highPassTwo.setListenTo(&tree);
 	peakOne.setListenTo(&tree, "peak1");
 	peakTwo.setListenTo(&tree, "peak2");
 	peakThree.setListenTo(&tree, "peak3");
@@ -44,14 +46,16 @@ PluginProcessor::~PluginProcessor()
 		tree.removeParameterListener(listener->parameter, listener);
 		delete listener;
 	}
+	highPassOne.stopListeningTo(&tree);
+	highPassTwo.stopListeningTo(&tree);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout
 PluginProcessor::createParameters()
 {
 	juce::AudioProcessorValueTreeState::ParameterLayout parameters;
-	HighPassFilter::addParameters(&parameters, "hpf1", "(M/L)");
-	HighPassFilter::addParameters(&parameters, "hpf2", "(S/R)");
+	highPassOne.addParameters(&parameters);
+	highPassTwo.addParameters(&parameters);
 	PeakFilter::addParameters(&parameters, "peak1", "#1", "(M/L)", 200);
 	PeakFilter::addParameters(&parameters, "peak2", "#1", "(S/R)", 200);
 	PeakFilter::addParameters(&parameters, "peak3", "#2", "(M/L)", 1000);

@@ -17,22 +17,30 @@ target_sources(
     ${PROJECT_NAME}
     PRIVATE
         source/PluginProcessor.cpp
-        source/HighPassFilter.cpp
-        source/PeakFilter.cpp
-        source/LowPassFilter.cpp
+        source/filters/CtmFilter.cpp
+        source/filters/HighPassFilter.cpp
+        source/filters/PeakFilter.cpp
+        source/filters/LowPassFilter.cpp
         source/PluginEditor.cpp
-        source/ParameterListener.cpp
-        source/CtmSlider.cpp
-        source/CtmToggle.cpp
-        source/SliderLabel.cpp
-        source/ParameterControls.cpp
-        source/CtmLookAndFeel.cpp
+        source/ui/CtmSlider.cpp
+        source/ui/CtmToggle.cpp
+        source/ui/SliderLabel.cpp
+        source/ui/CtmLookAndFeel.cpp
+        source/parameterControls/ParameterListener.cpp
+        source/parameterControls/ParameterToggle.cpp
+        source/parameterControls/ParameterControl.cpp
+        source/parameterControls/HighPassControl.cpp
+        source/parameterControls/PeakFilterControl.cpp
+        source/parameterControls/LowPassControl.cpp
 )
 
 target_include_directories(
     ${PROJECT_NAME}
     PRIVATE
         include
+        include/filters
+        include/ui
+        include/parameterControls
 )
 
 target_link_libraries(
