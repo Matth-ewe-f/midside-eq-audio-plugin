@@ -37,11 +37,10 @@ void PeakFilterControl::setAllColorOverrides(juce::Colour color)
 }
 
 void PeakFilterControl::attachToPeakFilter
-(juce::AudioProcessorValueTreeState* stateTree, std::string freqParam,
-std::string gainParam, std::string qParam, std::string onOffParam)
+(juce::AudioProcessorValueTreeState* stateTree, PeakFilter* filter)
 {
-    frequency.attachToParameter(stateTree, freqParam);
-    gain.attachToParameter(stateTree, gainParam);
-    qFactor.attachToParameter(stateTree, qParam);
-    onOff.attachToParameter(stateTree, onOffParam);
+    frequency.attachToParameter(stateTree, filter->getFrequencyParameter());
+    gain.attachToParameter(stateTree, filter->getGainParameter());
+    qFactor.attachToParameter(stateTree, filter->getQFactorParameter());
+    onOff.attachToParameter(stateTree, filter->getOnOffParameter());
 }

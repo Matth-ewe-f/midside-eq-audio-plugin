@@ -36,11 +36,10 @@ void LowPassControl::setAllColorOverrides(juce::Colour color)
 }
 
 void LowPassControl::attachToLowPass
-(juce::AudioProcessorValueTreeState* stateTree, std::string freqParam,
-std::string falloffParam, std::string resParam, std::string onOffParam)
+(juce::AudioProcessorValueTreeState* stateTree, LowPassFilter* filter)
 {
-    frequency.attachToParameter(stateTree, freqParam);
-    falloff.attachToParameter(stateTree, falloffParam);
-    resonance.attachToParameter(stateTree, resParam);
-    onOff.attachToParameter(stateTree, onOffParam);
+    frequency.attachToParameter(stateTree, filter->getFrequencyParameter());
+    falloff.attachToParameter(stateTree, filter->getFalloffParameter());
+    resonance.attachToParameter(stateTree, filter->getResonanceParameter());
+    onOff.attachToParameter(stateTree, filter->getOnOffParameter());
 }

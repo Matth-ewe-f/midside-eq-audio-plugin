@@ -1,12 +1,11 @@
 #include "LowPassFilter.h"
 
-using Parameter = juce::AudioProcessorValueTreeState::Parameter;
 using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 // === Lifecycle ==============================================================
-LowPassFilter::LowPassFilter()
-    : order(1), pendingOrder(-1), fadeSamples(-1), sampleRate(48000),
-    listenTo(nullptr), name("")
+LowPassFilter::LowPassFilter(std::string nameArg, std::string parameterText)
+    : CtmFilter(nameArg, parameterText), order(1), pendingOrder(-1),
+    fadeSamples(-1), sampleRate(48000)
 {
     filterOne.coefficients
         = Coefficients::makeLowPass(sampleRate, 20000, 0.71f);
@@ -20,27 +19,7 @@ LowPassFilter::LowPassFilter()
     smoothBypass.setCurrentAndTargetValue(1);
 }
 
-// === State Tree Listener ====================================================
-void LowPassFilter::setListenTo
-(juce::AudioProcessorValueTreeState* tree, std::string newName)
-{
-    // stop listening to the old tree (if there is one)
-    if (listenTo != nullptr)
-    {
-        listenTo->removeParameterListener(name + "-on", this);
-        listenTo->removeParameterListener(name + "-freq", this);
-        listenTo->removeParameterListener(name + "-falloff", this);
-        listenTo->removeParameterListener(name + "-res", this);
-    }
-    // begin listening to the provided tree
-    tree->addParameterListener(newName + "-on", this);
-    tree->addParameterListener(newName + "-freq", this);
-    tree->addParameterListener(newName + "-falloff", this);
-    tree->addParameterListener(newName + "-res", this);
-    listenTo = tree;
-    name = newName;
-}
-
+// === Parameter Information ==================================================
 void LowPassFilter::parameterChanged(const juce::String& param, float value)
 {
     if (param.compare(name + "-on") == 0)
@@ -82,6 +61,15 @@ void LowPassFilter::setOrder(int newOrder)
     else
         pendingOrder = newOrder;
     fadeSamples = 0;
+}
+
+// === Overriden from CtmFilter ===============================================
+void LowPassFilter::getParameters(std::vector<ParameterFields>& parameters)
+{
+    parameters.push_back(onOffParam);
+    parameters.push_back(freqParam);
+    parameters.push_back(falloffParam);
+    parameters.push_back(resParam);
 }
 
 // === Process Audio ==========================================================
@@ -130,24 +118,6 @@ float LowPassFilter::processSample(float sample)
         result = (result * p) + (sample * (1 - p));
     }
     return result;
-}
-
-// === Static Functions ======================================================
-void LowPassFilter::addParameters
-(ParameterLayout* parameters, std::string prefix, std::string channels)
-{
-    parameters->add(std::make_unique<Parameter>(
-        prefix + "-on", "Low-Pass On/Off " + channels, onOffRange, 1
-    ));
-    parameters->add(std::make_unique<Parameter>(
-        prefix + "-freq", "Low-Pass Frequency " + channels, freqRange, 20000
-    ));
-    parameters->add(std::make_unique<Parameter>(
-        prefix + "-falloff", "Low-Pass Falloff " + channels, falloffRange, 6
-    ));
-    parameters->add(std::make_unique<Parameter>(
-        prefix + "-res", "Low-Pass Resonance " + channels, resRange, 0.71f
-    ));
 }
 
 // === Private Helper =========================================================

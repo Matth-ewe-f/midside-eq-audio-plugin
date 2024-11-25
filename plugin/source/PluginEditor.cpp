@@ -26,30 +26,14 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     juce::AudioProcessorValueTreeState* stateTree = &processorRef.tree;
     highPassOne.attachToHighPass(stateTree, &processorRef.highPassOne);
     highPassTwo.attachToHighPass(stateTree, &processorRef.highPassTwo);
-    peakOne.attachToPeakFilter(
-        &processorRef.tree, "peak1-freq", "peak1-gain", "peak1-q", "peak1-on"
-    );
-    peakTwo.attachToPeakFilter(
-        &processorRef.tree, "peak2-freq", "peak2-gain", "peak2-q", "peak2-on"
-    );
-    peakThree.attachToPeakFilter(
-        &processorRef.tree, "peak3-freq", "peak3-gain", "peak3-q", "peak3-on"
-    );
-    peakFour.attachToPeakFilter(
-        &processorRef.tree, "peak4-freq", "peak4-gain", "peak4-q", "peak4-on"
-    );
-    peakFive.attachToPeakFilter(
-        &processorRef.tree, "peak5-freq", "peak5-gain", "peak5-q", "peak5-on"
-    );
-    peakSix.attachToPeakFilter(
-        &processorRef.tree, "peak6-freq", "peak6-gain", "peak6-q", "peak6-on"
-    );
-    lowPassOne.attachToLowPass(
-        &processorRef.tree, "lpf1-freq", "lpf1-falloff", "lpf1-res", "lpf1-on"
-    );
-    lowPassTwo.attachToLowPass(
-        &processorRef.tree, "lpf2-freq", "lpf2-falloff", "lpf2-res", "lpf2-on"
-    );
+    peakOne.attachToPeakFilter(stateTree, &processorRef.peakOne);
+    peakTwo.attachToPeakFilter(stateTree, &processorRef.peakTwo);
+    peakThree.attachToPeakFilter(stateTree, &processorRef.peakThree);
+    peakFour.attachToPeakFilter(stateTree, &processorRef.peakFour);
+    peakFive.attachToPeakFilter(stateTree, &processorRef.peakFive);
+    peakSix.attachToPeakFilter(stateTree, &processorRef.peakSix);
+    lowPassOne.attachToLowPass(stateTree, &processorRef.lowPassOne);
+    lowPassTwo.attachToLowPass(stateTree, &processorRef.lowPassTwo);
     setColorOverrides();
     // setup buttons
     midSideButton.setButtonText("Mid-Side");

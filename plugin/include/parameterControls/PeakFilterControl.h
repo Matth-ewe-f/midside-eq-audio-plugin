@@ -3,6 +3,7 @@
 #include "FilterControl.h"
 #include "ParameterControl.h"
 #include "ParameterToggle.h"
+#include "PeakFilter.h"
 
 class PeakFilterControl : public FilterControl
 {
@@ -17,7 +18,5 @@ public:
 
     void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
     void setAllColorOverrides(juce::Colour) override;
-    void attachToPeakFilter
-    (juce::AudioProcessorValueTreeState*, std::string freqParam,
-    std::string gainParam, std::string resParam, std::string onOffParam);
+    void attachToPeakFilter(juce::AudioProcessorValueTreeState*, PeakFilter*);
 };

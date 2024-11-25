@@ -15,26 +15,28 @@ PluginProcessor::PluginProcessor()
 	),
 	highPassOne("hpf1", "High-Pass {0} (M/L)"),
 	highPassTwo("hpf2", "High-Pass {0} (S/R)"),
-	peakOne(200),
-	peakTwo(200),
-	peakThree(1000),
-	peakFour(1000),
-	peakFive(6000),
-	peakSix(6000),
+	peakOne("peak1", "Peak #1 {0} (M/L)", 200),
+	peakTwo("peak2", "Peak #1 {0} (S/R)", 200),
+	peakThree("peak3", "Peak #2 {0} (M/L)", 1000),
+	peakFour("peak4", "Peak #2 {0} (S/R)", 1000),
+	peakFive("peak5", "Peak #3 {0} (M/L)", 6000),
+	peakSix("peak6", "Peak #4 {0} (S/R)", 6000),
+	lowPassOne("lpf1", "Low-Pass {0} (M/L)"),
+	lowPassTwo("lpf2", "Low-Pass {0} (S/R)"),
 	tree(*this, nullptr, "PARAMETERS", createParameters()),
 	lastSampleRate(48000) // default value
 {
 	// parameters
 	highPassOne.setListenTo(&tree);
 	highPassTwo.setListenTo(&tree);
-	peakOne.setListenTo(&tree, "peak1");
-	peakTwo.setListenTo(&tree, "peak2");
-	peakThree.setListenTo(&tree, "peak3");
-	peakFour.setListenTo(&tree, "peak4");
-	peakFive.setListenTo(&tree, "peak5");
-	peakSix.setListenTo(&tree, "peak6");
-	lowPassOne.setListenTo(&tree, "lpf1");
-	lowPassTwo.setListenTo(&tree, "lpf2");
+	peakOne.setListenTo(&tree);
+	peakTwo.setListenTo(&tree);
+	peakThree.setListenTo(&tree);
+	peakFour.setListenTo(&tree);
+	peakFive.setListenTo(&tree);
+	peakSix.setListenTo(&tree);
+	lowPassOne.setListenTo(&tree);
+	lowPassTwo.setListenTo(&tree);
 }
 
 PluginProcessor::~PluginProcessor() 
@@ -56,14 +58,14 @@ PluginProcessor::createParameters()
 	juce::AudioProcessorValueTreeState::ParameterLayout parameters;
 	highPassOne.addParameters(&parameters);
 	highPassTwo.addParameters(&parameters);
-	PeakFilter::addParameters(&parameters, "peak1", "#1", "(M/L)", 200);
-	PeakFilter::addParameters(&parameters, "peak2", "#1", "(S/R)", 200);
-	PeakFilter::addParameters(&parameters, "peak3", "#2", "(M/L)", 1000);
-	PeakFilter::addParameters(&parameters, "peak4", "#2", "(S/R)", 1000);
-	PeakFilter::addParameters(&parameters, "peak5", "#3", "(M/L)", 6000);
-	PeakFilter::addParameters(&parameters, "peak6", "#3", "(S/R)", 6000);
-	LowPassFilter::addParameters(&parameters, "lpf1", "(M/L)");
-	LowPassFilter::addParameters(&parameters, "lpf2", "(S/R)");
+	peakOne.addParameters(&parameters);
+	peakTwo.addParameters(&parameters);
+	peakThree.addParameters(&parameters);
+	peakFour.addParameters(&parameters);
+	peakFive.addParameters(&parameters);
+	peakSix.addParameters(&parameters);
+	lowPassOne.addParameters(&parameters);
+	lowPassTwo.addParameters(&parameters);
 	parameters.add(std::make_unique<Parameter>(
 		"mode", "Mode", juce::NormalisableRange<float>(0, 1, 1), 0
 	));

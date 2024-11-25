@@ -1,19 +1,26 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
+#include "CtmFilter.h"
 
-using ParameterLayout = juce::AudioProcessorValueTreeState::ParameterLayout;
 namespace dsp = juce::dsp;
 
-class LowPassFilter : public juce::AudioProcessorValueTreeState::Listener
+class LowPassFilter : public CtmFilter
 {
 public:
     // === Lifecycle ==========================================================
-    LowPassFilter();
+    LowPassFilter(std::string name, std::string parameterText);
 
-    // === State Tree Listener ================================================
-    void setListenTo(juce::AudioProcessorValueTreeState*, std::string);
+    // === Parameter Information ==============================================
     void parameterChanged(const juce::String&, float) override;
+    inline std::string getOnOffParameter()
+        { return name + "-" + onOffParam.idPostfix; }
+    inline std::string getFrequencyParameter()
+        { return name + "-" + freqParam.idPostfix; }
+    inline std::string getFalloffParameter()
+        { return name + "-" + falloffParam.idPostfix; }
+    inline std::string getResonanceParameter()
+        { return name + "-" + resParam.idPostfix; }
 
     // === Set Parameters =====================================================
     void reset(double newSampleRate, int samplesPerBlock);
@@ -25,9 +32,9 @@ public:
     void prepare(const dsp::ProcessSpec&);
     float processSample(float);
 
-    // === Static Functions ===================================================
-    static void addParameters
-    (ParameterLayout*, std::string prefix, std::string channels);
+protected:
+    void getParameters(std::vector<ParameterFields>& container) override;
+
 private:
     // === Private Variables ==================================================
     // filters 1~3 are always second order, filter 4 is always first order
@@ -42,18 +49,20 @@ private:
     int pendingOrder;
     int fadeSamples;
     double sampleRate;
-    juce::AudioProcessorValueTreeState* listenTo;
-    std::string name;
     
     // === Static Constants ===================================================
-    inline static const juce::NormalisableRange<float> onOffRange
-        { juce::NormalisableRange<float>(0, 1, 1) };
-    inline static const juce::NormalisableRange<float> freqRange
-        { juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f) };
-    inline static const juce::NormalisableRange<float> falloffRange
-        { juce::NormalisableRange<float>(6, 36, 6, 1) };
-    inline static const juce::NormalisableRange<float> resRange
-        { juce::NormalisableRange<float>(0.5, 10, 0.01f, 0.7f) };
+    inline static const ParameterFields onOffParam {
+        makeParamFields("on", "On/Off", 0, 1, 1, 1, 1)
+    };
+    inline static const ParameterFields freqParam {
+        makeParamFields("freq", "Frequency", 20, 20000, 0.1f, 0.35f, 20000)
+    };
+    inline static const ParameterFields falloffParam {
+        makeParamFields("falloff", "Falloff", 6, 36, 6, 1, 6)
+    };
+    inline static const ParameterFields resParam {
+        makeParamFields("res", "Resonance", 0.5, 10, 0.01f, 0.7f, 0.71f)
+    };
     inline static const int fadeLength { 1000 };
 
     // === Private Helper =====================================================

@@ -4,35 +4,17 @@ using Parameter = juce::AudioProcessorValueTreeState::Parameter;
 using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 // === Lifecycle ==============================================================
-PeakFilter::PeakFilter(float frequency)
-    : gain(1), q(0.707f), sampleRate(48000), listenTo(nullptr), name("")
+PeakFilter::PeakFilter
+(std::string nameArg, std::string parameterText, float defaultFrequency)
+    : CtmFilter(nameArg, parameterText), defaultFreq(defaultFrequency),
+    gain(1), q(0.707f), sampleRate(48000)
 {
-    setFilterParameters(frequency, gain, q);
-    smoothFrequency.setCurrentAndTargetValue(frequency);
+    setFilterParameters(defaultFrequency, gain, q);
+    smoothFrequency.setCurrentAndTargetValue(defaultFrequency);
     smoothBypass.setCurrentAndTargetValue(1);
 }
 
-// === State Tree Listener ====================================================
-void PeakFilter::setListenTo
-(juce::AudioProcessorValueTreeState* tree, std::string newName)
-{
-    // stop listening to the old tree
-    if (listenTo != nullptr)
-    {
-        listenTo->removeParameterListener(name + "-on", this);
-        listenTo->removeParameterListener(name + "-freq", this);
-        listenTo->removeParameterListener(name + "-gain", this);
-        listenTo->removeParameterListener(name + "-q", this);
-    }
-    // start listening to the provided tree
-    tree->addParameterListener(newName + "-on", this);
-    tree->addParameterListener(newName + "-freq", this);
-    tree->addParameterListener(newName + "-gain", this);
-    tree->addParameterListener(newName + "-q", this);
-    listenTo = tree;
-    name = newName;
-}
-
+// === Parameter Information ==================================================
 void PeakFilter::parameterChanged(const juce::String& param, float value)
 {
     if (param.compare(name + "-on") == 0)
@@ -97,25 +79,13 @@ float PeakFilter::processSample(float sample)
     return result;
 }
 
-// === Static Functions =======================================================
-void PeakFilter::addParameters
-(ParameterLayout* parameters, std::string prefix, std::string number,
-std::string channels, float defaultFreq)
+// === Overriden from CtmFilter ===============================================
+void PeakFilter::getParameters(std::vector<ParameterFields>& parameters)
 {
-    std::string namePrefix = "Peak Filter " + number;
-    parameters->add(std::make_unique<Parameter>(
-        prefix + "-on", namePrefix + " On/Off " + channels, onOffRange, 1
-    ));
-    parameters->add(std::make_unique<Parameter>(
-        prefix + "-freq", namePrefix + " Frequency " + channels, freqRange,
-        defaultFreq
-    ));
-    parameters->add(std::make_unique<Parameter>(
-        prefix + "-gain", namePrefix + " Gain " + channels, gainRange, 0
-    ));
-    parameters->add(std::make_unique<Parameter>(
-        prefix + "-q", namePrefix + " Q Factor " + channels, qRange, 0.71f
-    ));
+    parameters.push_back(onOffParam);
+    parameters.push_back(gainParam);
+    parameters.push_back(qParam);
+    parameters.push_back(getFreqParameterFields());
 }
 
 // === Private Helper =========================================================

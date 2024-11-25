@@ -1,19 +1,27 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
+#include "CtmFilter.h"
 
-using ParameterLayout = juce::AudioProcessorValueTreeState::ParameterLayout;
 namespace dsp = juce::dsp;
 
-class PeakFilter : juce::AudioProcessorValueTreeState::Listener
+class PeakFilter : public CtmFilter
 {
 public:
     // === Lifecycle ==========================================================
-    PeakFilter(float frequency);
+    PeakFilter
+    (std::string nameArg, std::string parameterText, float defaultFrequency);
 
-    // === State Tree Listener ================================================
-    void setListenTo(juce::AudioProcessorValueTreeState*, std::string);
+    // === Parameter Information ==============================================
     void parameterChanged(const juce::String&, float) override;
+    inline std::string getOnOffParameter()
+        { return name + "-" + onOffParam.idPostfix; }
+    inline std::string getFrequencyParameter()
+        { return name + "-" + freqParamIdPostfix; }
+    inline std::string getGainParameter()
+        { return name + "-" + gainParam.idPostfix; }
+    inline std::string getQFactorParameter()
+        { return name + "-" + qParam.idPostfix; }
 
     // === Set Parameters =====================================================
     void reset(double newSampleRate, int samplesPerBlock);
@@ -26,30 +34,35 @@ public:
     void prepare(const dsp::ProcessSpec&);
     float processSample(float);
 
-    // === Static Functions ===================================================
-    static void addParameters
-    (ParameterLayout*, std::string prefix, std::string number,
-    std::string channels, float defaultFreq);
+protected:
+    void getParameters(std::vector<ParameterFields>&) override;
 
 private:
     dsp::IIR::Filter<float> filter;
     juce::SmoothedValue<float> smoothFrequency;
+    const float defaultFreq;
     juce::SmoothedValue<float> smoothBypass;
     float gain;
     float q;
     double sampleRate;
-    juce::AudioProcessorValueTreeState* listenTo;
-    std::string name;
     
     // === Parameter Settings =================================================
-    inline static const juce::NormalisableRange<float> onOffRange
-        { juce::NormalisableRange<float>(0, 1, 1) };
-    inline static const juce::NormalisableRange<float> freqRange
-        { juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f) };
-    inline static const juce::NormalisableRange<float> gainRange
-        { juce::NormalisableRange<float>(-18, 18, 0.1f) };
-    inline static const juce::NormalisableRange<float> qRange
-        { juce::NormalisableRange<float>(0.25, 10, 0.01f, 0.7f) };
+    inline static const ParameterFields onOffParam {
+        makeParamFields("on", "On/Off", 0, 1, 1, 1, 1)
+    };
+    inline static const ParameterFields gainParam {
+        makeParamFields("gain", "Gain", -18, 18, 0.1f, 1, 0)
+    };
+    inline static const ParameterFields qParam {
+        makeParamFields("q", "Q Factor", 0.25f, 10, 0.01f, 0.7f, 0.71f)
+    };
+    inline static const std::string freqParamIdPostfix { "freq" };
+    inline ParameterFields getFreqParameterFields()
+    {
+        return makeParamFields(
+            freqParamIdPostfix, "Frequency", 20, 20000, 0.1f, 0.35f, defaultFreq
+        );
+    }
 
     // === Private Helper =====================================================
     void setFilterParameters(float freq, float gain, float q);
