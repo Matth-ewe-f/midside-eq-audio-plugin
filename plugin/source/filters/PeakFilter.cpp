@@ -17,13 +17,13 @@ PeakFilter::PeakFilter
 // === Parameter Information ==================================================
 void PeakFilter::parameterChanged(const juce::String& param, float value)
 {
-    if (param.compare(name + "-on") == 0)
+    if (param.compare(name + "-" + onOffParam.idPostfix) == 0)
         smoothBypass.setTargetValue(value);
-    else if (param.compare(name + "-freq") == 0)
+    else if (param.compare(name + "-" + freqParamIdPostfix) == 0)
         setFrequency(value);
-    else if (param.compare(name + "-gain") == 0)
+    else if (param.compare(name + "-" + gainParam.idPostfix) == 0)
         setGain(pow(10.0f, value / 20));
-    else if (param.compare(name + "-q") == 0)
+    else if (param.compare(name + "-" + qParam.idPostfix) == 0)
         setQFactor(value);
 }
 

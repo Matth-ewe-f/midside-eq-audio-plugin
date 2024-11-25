@@ -24,11 +24,11 @@ HighPassFilter::HighPassFilter(std::string nameArg, std::string parameterText)
 // === Parameter Information ==================================================
 void HighPassFilter::parameterChanged(const juce::String& param, float value)
 {
-    if (param.compare(name + "-on") == 0)
+    if (param.compare(name + "-" + onOffParam.idPostfix) == 0)
         smoothBypass.setTargetValue(value);
-    else if (param.compare(name + "-freq") == 0)
+    else if (param.compare(name + "-" + freqParam.idPostfix) == 0)
         setFrequency(value);
-    else if (param.compare(name + "-falloff") == 0)
+    else if (param.compare(name + "-" + falloffParam.idPostfix) == 0)
         setOrder((int) value / 6);
 }
 
