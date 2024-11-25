@@ -1,5 +1,6 @@
 #include "PeakFilter.h"
 
+using Parameter = juce::AudioProcessorValueTreeState::Parameter;
 using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 // === Lifecycle ==============================================================
@@ -94,6 +95,27 @@ float PeakFilter::processSample(float sample)
         result = (result * p) + (sample * (1 - p));
     }
     return result;
+}
+
+// === Static Functions =======================================================
+void PeakFilter::addParameters
+(ParameterLayout* parameters, std::string prefix, std::string number,
+std::string channels, float defaultFreq)
+{
+    std::string namePrefix = "Peak Filter " + number;
+    parameters->add(std::make_unique<Parameter>(
+        prefix + "-on", namePrefix + " On/Off " + channels, onOffRange, 1
+    ));
+    parameters->add(std::make_unique<Parameter>(
+        prefix + "-freq", namePrefix + " Frequency " + channels, freqRange,
+        defaultFreq
+    ));
+    parameters->add(std::make_unique<Parameter>(
+        prefix + "-gain", namePrefix + " Gain " + channels, gainRange, 0
+    ));
+    parameters->add(std::make_unique<Parameter>(
+        prefix + "-q", namePrefix + " Q Factor " + channels, qRange, 0.71f
+    ));
 }
 
 // === Private Helper =========================================================

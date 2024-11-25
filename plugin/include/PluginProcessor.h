@@ -18,6 +18,7 @@ public:
     // === Lifecycle ==========================================================
     PluginProcessor();
     ~PluginProcessor() override;
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
 
     // === Plugin Information =================================================
     inline const juce::String getName() const override

@@ -1,7 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-namespace dsp = juce::dsp;
 using Parameter = juce::AudioProcessorValueTreeState::Parameter;
 
 // === Lifecycle ==============================================================
@@ -14,138 +13,7 @@ PluginProcessor::PluginProcessor()
 		.withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
 	),
-	tree(*this, nullptr, "PARAMETERS", {
-		// on-off parameters
-		std::make_unique<Parameter>(
-			"lpf1-on", "Low-Pass On/Off (M/L)", onOffRange, 1
-		),
-		std::make_unique<Parameter>(
-			"lpf2-on", "Low-Pass On/Off (S/R)", onOffRange, 1
-		),
-		std::make_unique<Parameter>(
-			"peak1-on", "Peak #1 On/Off (M/L)", onOffRange, 1
-		),
-		std::make_unique<Parameter>(
-			"peak2-on", "Peak #1 On/Off (S/R)", onOffRange, 1
-		),
-		std::make_unique<Parameter>(
-			"peak3-on", "Peak #2 On/Off (M/L)", onOffRange, 1
-		),
-		std::make_unique<Parameter>(
-			"peak4-on", "Peak #2 On/Off (S/R)", onOffRange, 1
-		),
-		std::make_unique<Parameter>(
-			"peak5-on", "Peak #3 On/Off (M/L)", onOffRange, 1
-		),
-		std::make_unique<Parameter>(
-			"peak6-on", "Peak #3 On/Off (S/R)", onOffRange, 1
-		),
-		std::make_unique<Parameter>(
-			"hpf1-on", "High-Pass On/Off (M/L)", onOffRange, 1
-		),
-		std::make_unique<Parameter>(
-			"hpf2-on", "High-Pass On/Off (S/R)", onOffRange, 1
-		),
-		// frequency parameters
-		std::make_unique<Parameter>(
-			"hpf1-freq", "High-Pass Frequency (M/L)", freqRange, 20
-		),
-		std::make_unique<Parameter>(
-			"hpf2-freq", "High-Pass Frequency (S/R)", freqRange, 20
-		),
-		std::make_unique<Parameter>(
-			"peak1-freq", "Peak #1 Frequency (M/L)", freqRange, 200
-		),
-		std::make_unique<Parameter>(
-			"peak2-freq", "Peak #1 Frequency (S/R)", freqRange, 200
-		),
-		std::make_unique<Parameter>(
-			"peak3-freq", "Peak #2 Frequency (M/L)", freqRange, 1000
-		),
-		std::make_unique<Parameter>(
-			"peak4-freq", "Peak #2 Frequency (S/R)", freqRange, 1000
-		),
-		std::make_unique<Parameter>(
-			"peak5-freq", "Peak #3 Frequency (M/L)", freqRange, 6000
-		),
-		std::make_unique<Parameter>(
-			"peak6-freq", "Peak #3 Frequency (S/R)", freqRange, 6000
-		),
-		std::make_unique<Parameter>(
-			"lpf1-freq", "Low-Pass Frequency (M/L)", freqRange, 20000
-		),
-		std::make_unique<Parameter>(
-			"lpf2-freq", "Low-Pass Frequency (S/R)", freqRange, 20000
-		),
-		// falloff (filter order) parameters
-		std::make_unique<Parameter>(
-			"hpf1-falloff", "High-Pass Falloff (M/L)", falloffRange, 6
-		),
-		std::make_unique<Parameter>(
-			"hpf2-falloff", "High-Pass Falloff (S/R)", falloffRange, 6
-		),
-		std::make_unique<Parameter>(
-			"lpf1-falloff", "Low-Pass Falloff (M/L)", falloffRange, 6
-		),
-		std::make_unique<Parameter>(
-			"lpf2-falloff", "Low-Pass Falloff (S/R)", falloffRange, 6
-		),
-		// gain parameters (parametric EQ)
-		std::make_unique<Parameter>(
-			"peak1-gain", "Peak #1 Gain (M/L)", gainRange, 0
-		),
-		std::make_unique<Parameter>(
-			"peak2-gain", "Peak #1 Gain (S/R)", gainRange, 0
-		),
-		std::make_unique<Parameter>(
-			"peak3-gain", "Peak #2 Gain (M/L)", gainRange, 0
-		),
-		std::make_unique<Parameter>(
-			"peak4-gain", "Peak #2 Gain (S/R)", gainRange, 0
-		),
-		std::make_unique<Parameter>(
-			"peak5-gain", "Peak #3 Gain (M/L)", gainRange, 0
-		),
-		std::make_unique<Parameter>(
-			"peak6-gain", "Peak #3 Gain (S/R)", gainRange, 0
-		),
-		// resonance parameters
-		std::make_unique<Parameter>(
-			"hpf1-res", "High-Pass Resonance (M/L)", resRange, 0.71
-		),
-		std::make_unique<Parameter>(
-			"hpf2-res", "High-Pass Resonance (S/R)", resRange, 0.71
-		),
-		std::make_unique<Parameter>(
-			"lpf1-res", "Low-Pass Resonance (M/L)", resRange, 0.71
-		),
-		std::make_unique<Parameter>(
-			"lpf2-res", "Low-Pass Resonance (S/R)", resRange, 0.71
-		),
-		// q-factor parameters
-		std::make_unique<Parameter>(
-			"peak1-q", "Peak #1 Q (M/L)", qRange, 0.71
-		),
-		std::make_unique<Parameter>(
-			"peak2-q", "Peak #1 Q (S/R)", qRange, 0.71
-		),
-		std::make_unique<Parameter>(
-			"peak3-q", "Peak #2 Q (M/L)", qRange, 0.71
-		),
-		std::make_unique<Parameter>(
-			"peak4-q", "Peak #2 Q (S/R)", qRange, 0.71
-		),
-		std::make_unique<Parameter>(
-			"peak5-q", "Peak #3 Q (M/L)", qRange, 0.71
-		),
-		std::make_unique<Parameter>(
-			"peak6-q", "Peak #3 Q (S/R)", qRange, 0.71
-		),
-		// configuration parameters
-		std::make_unique<Parameter>(
-			"mode", "Mode", juce::NormalisableRange<float>(0, 1, 1), 0
-		)
-	}),
+	tree(*this, nullptr, "PARAMETERS", createParameters()),
 	peakOne(200),
 	peakTwo(200),
 	peakThree(1000),
@@ -176,6 +44,26 @@ PluginProcessor::~PluginProcessor()
 		tree.removeParameterListener(listener->parameter, listener);
 		delete listener;
 	}
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout
+PluginProcessor::createParameters()
+{
+	juce::AudioProcessorValueTreeState::ParameterLayout parameters;
+	HighPassFilter::addParameters(&parameters, "hpf1", "(M/L)");
+	HighPassFilter::addParameters(&parameters, "hpf2", "(S/R)");
+	PeakFilter::addParameters(&parameters, "peak1", "#1", "(M/L)", 200);
+	PeakFilter::addParameters(&parameters, "peak2", "#1", "(S/R)", 200);
+	PeakFilter::addParameters(&parameters, "peak3", "#2", "(M/L)", 1000);
+	PeakFilter::addParameters(&parameters, "peak4", "#2", "(S/R)", 1000);
+	PeakFilter::addParameters(&parameters, "peak5", "#3", "(M/L)", 6000);
+	PeakFilter::addParameters(&parameters, "peak6", "#3", "(S/R)", 6000);
+	LowPassFilter::addParameters(&parameters, "lpf1", "(M/L)");
+	LowPassFilter::addParameters(&parameters, "lpf2", "(S/R)");
+	parameters.add(std::make_unique<Parameter>(
+		"mode", "Mode", juce::NormalisableRange<float>(0, 1, 1), 0
+	));
+	return parameters;
 }
 
 // === Plugin Information =====================================================

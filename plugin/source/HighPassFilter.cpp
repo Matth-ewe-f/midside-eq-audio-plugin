@@ -1,5 +1,6 @@
 #include "HighPassFilter.h"
 
+using Parameter = juce::AudioProcessorValueTreeState::Parameter;
 using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 // === Lifecycle ==============================================================
@@ -129,6 +130,24 @@ float HighPassFilter::processSample(float sample)
         result = (result * p) + (sample * (1 - p));
     }
     return result;
+}
+
+// === Static Functions =======================================================
+void HighPassFilter::addParameters
+(ParameterLayout* parameters, std::string prefix, std::string channels)
+{
+    parameters->add(std::make_unique<Parameter>(
+        prefix + "-on", "High-Pass On/Off " + channels, onOffRange, 1
+    ));
+    parameters->add(std::make_unique<Parameter>(
+        prefix + "-freq", "High-Pass Frequency " + channels, freqRange, 20
+    ));
+    parameters->add(std::make_unique<Parameter>(
+        prefix + "-falloff", "High-Pass Falloff " + channels, falloffRange, 6
+    ));
+    parameters->add(std::make_unique<Parameter>(
+        prefix + "-res", "High-Pass Resonance " + channels, resRange, 0.71f
+    ));
 }
 
 // === Private Helper =========================================================

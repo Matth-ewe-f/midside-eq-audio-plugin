@@ -1,5 +1,6 @@
 #include "LowPassFilter.h"
 
+using Parameter = juce::AudioProcessorValueTreeState::Parameter;
 using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 // === Lifecycle ==============================================================
@@ -129,6 +130,24 @@ float LowPassFilter::processSample(float sample)
         result = (result * p) + (sample * (1 - p));
     }
     return result;
+}
+
+// === Static Functions ======================================================
+void LowPassFilter::addParameters
+(ParameterLayout* parameters, std::string prefix, std::string channels)
+{
+    parameters->add(std::make_unique<Parameter>(
+        prefix + "-on", "Low-Pass On/Off " + channels, onOffRange, 1
+    ));
+    parameters->add(std::make_unique<Parameter>(
+        prefix + "-freq", "Low-Pass Frequency " + channels, freqRange, 20000
+    ));
+    parameters->add(std::make_unique<Parameter>(
+        prefix + "-falloff", "Low-Pass Falloff " + channels, falloffRange, 6
+    ));
+    parameters->add(std::make_unique<Parameter>(
+        prefix + "-res", "Low-Pass Resonance " + channels, resRange, 0.71f
+    ));
 }
 
 // === Private Helper =========================================================

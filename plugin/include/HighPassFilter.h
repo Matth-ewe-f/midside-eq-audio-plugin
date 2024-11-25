@@ -2,6 +2,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
 
+using ParameterLayout = juce::AudioProcessorValueTreeState::ParameterLayout;
 namespace dsp = juce::dsp;
 
 class HighPassFilter : public juce::AudioProcessorValueTreeState::Listener
@@ -10,7 +11,7 @@ public:
     // === Lifecycle ==========================================================
     HighPassFilter();
 
-    // === State Tree Listener ================================================
+    // === State Tree-Related =================================================
     void setListenTo(juce::AudioProcessorValueTreeState*, std::string);
     void parameterChanged(const juce::String&, float) override;
 
@@ -23,6 +24,10 @@ public:
     // === Process Audio ======================================================
     void prepare(const dsp::ProcessSpec&);
     float processSample(float);
+
+    // === Static Functions ===================================================
+    static void addParameters
+    (ParameterLayout*, std::string prefix, std::string channels);
 private:
     // === Private Variables ==================================================
     // filters 1~3 are always second order, filter 4 is always first order
@@ -39,7 +44,16 @@ private:
     double sampleRate;
     juce::AudioProcessorValueTreeState* listenTo;
     std::string name;
-
+    
+    // === Static Constants ===================================================
+    inline static const juce::NormalisableRange<float> onOffRange
+        { juce::NormalisableRange<float>(0, 1, 1) };
+    inline static const juce::NormalisableRange<float> freqRange
+        { juce::NormalisableRange<float>(20, 20000, 0.1f, 0.35f) };
+    inline static const juce::NormalisableRange<float> falloffRange
+        { juce::NormalisableRange<float>(6, 36, 6, 1) };
+    inline static const juce::NormalisableRange<float> resRange
+        { juce::NormalisableRange<float>(0.5, 10, 0.01f, 0.7f) };
     inline static const int fadeLength { 1000 };
 
     // === Private Helper =====================================================
