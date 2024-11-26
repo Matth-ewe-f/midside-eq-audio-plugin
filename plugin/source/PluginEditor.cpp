@@ -35,16 +35,17 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     lowPassOne.attachToLowPass(stateTree, &processorRef.lowPassOne);
     lowPassTwo.attachToLowPass(stateTree, &processorRef.lowPassTwo);
     // setup link buttons
-    addAndMakeVisible(highPassLink);
-    highPassLink.setText("LINK");
-    addAndMakeVisible(peakOneTwoLink);
-    peakOneTwoLink.setText("LINK");
-    addAndMakeVisible(peakThreeFourLink);
-    peakThreeFourLink.setText("LINK");
-    addAndMakeVisible(peakFiveSixLink);
-    peakFiveSixLink.setText("LINK");
-    addAndMakeVisible(lowPassLink);
-    lowPassLink.setText("LINK");
+    addAndMakeVisible(highPassLink.toggle);
+    highPassLink.toggle.setText("LINK");
+    highPassLink.attachToParameter(stateTree, "hpf-linked");
+    addAndMakeVisible(peakOneTwoLink.toggle);
+    peakOneTwoLink.toggle.setText("LINK");
+    addAndMakeVisible(peakThreeFourLink.toggle);
+    peakThreeFourLink.toggle.setText("LINK");
+    addAndMakeVisible(peakFiveSixLink.toggle);
+    peakFiveSixLink.toggle.setText("LINK");
+    addAndMakeVisible(lowPassLink.toggle);
+    lowPassLink.toggle.setText("LINK");
     // setup mode buttons
     midSideButton.setButtonText("Mid-Side");
     midSideButton.setRadioGroupId(0, juce::dontSendNotification);
@@ -98,11 +99,11 @@ void PluginEditor::resized()
     layoutFilter(&peakSix, 3, 1);
     layoutFilter(&lowPassOne, 4, 0);
     layoutFilter(&lowPassTwo, 4, 1);
-    layoutLinkButton(&highPassLink, 0);
-    layoutLinkButton(&peakOneTwoLink, 1);
-    layoutLinkButton(&peakThreeFourLink, 2);
-    layoutLinkButton(&peakFiveSixLink, 3);
-    layoutLinkButton(&lowPassLink, 4);
+    layoutLinkButton(&highPassLink.toggle, 0);
+    layoutLinkButton(&peakOneTwoLink.toggle, 1);
+    layoutLinkButton(&peakThreeFourLink.toggle, 2);
+    layoutLinkButton(&peakFiveSixLink.toggle, 3);
+    layoutLinkButton(&lowPassLink.toggle, 4);
     int middle = getWidth() / 2;
     midSideButton.setBounds(middle - 80, 10, 70, 30);
     leftRightButton.setBounds(middle + 10, 10, 70, 30);
@@ -253,11 +254,11 @@ void PluginEditor::setColorOverrides()
     peakFour.setAllColorOverrides(getColorTwo());
     peakSix.setAllColorOverrides(getColorTwo());
     lowPassTwo.setAllColorOverrides(getColorTwo());
-    highPassLink.setColorGradient(getColorOne(), getColorTwo());
-    peakOneTwoLink.setColorGradient(getColorOne(), getColorTwo());
-    peakThreeFourLink.setColorGradient(getColorOne(), getColorTwo());
-    peakFiveSixLink.setColorGradient(getColorOne(), getColorTwo());
-    lowPassLink.setColorGradient(getColorOne(), getColorTwo());
+    highPassLink.toggle.setColorGradient(getColorOne(), getColorTwo());
+    peakOneTwoLink.toggle.setColorGradient(getColorOne(), getColorTwo());
+    peakThreeFourLink.toggle.setColorGradient(getColorOne(), getColorTwo());
+    peakFiveSixLink.toggle.setColorGradient(getColorOne(), getColorTwo());
+    lowPassLink.toggle.setColorGradient(getColorOne(), getColorTwo());
 }
 
 juce::Colour PluginEditor::getColorOne()

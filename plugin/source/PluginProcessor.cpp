@@ -26,9 +26,9 @@ PluginProcessor::PluginProcessor()
 	tree(*this, nullptr, "PARAMETERS", createParameters()),
 	lastSampleRate(48000) // default value
 {
-	// parameters
 	highPassOne.setListenTo(&tree);
 	highPassTwo.setListenTo(&tree);
+	linkHighPassFilters(&highPassOne, &highPassTwo, "hpf-linked");
 	peakOne.setListenTo(&tree);
 	peakTwo.setListenTo(&tree);
 	peakThree.setListenTo(&tree);
@@ -68,6 +68,36 @@ PluginProcessor::createParameters()
 	lowPassTwo.addParameters(&parameters);
 	parameters.add(std::make_unique<Parameter>(
 		"mode", "Mode", juce::NormalisableRange<float>(0, 1, 1), 0
+	));
+	parameters.add(std::make_unique<Parameter>(
+		"hpf-linked",
+		"High-Pass Channels Linked",
+		juce::NormalisableRange<float>(0, 1, 1),
+		0
+	));
+	parameters.add(std::make_unique<Parameter>(
+		"peak12-linked",
+		"Peak Filter #1 Channels Linked",
+		juce::NormalisableRange<float>(0, 1, 1),
+		0
+	));
+	parameters.add(std::make_unique<Parameter>(
+		"peak34-linked",
+		"Peak Filter #2 Channels Linked",
+		juce::NormalisableRange<float>(0, 1, 1),
+		0
+	));
+	parameters.add(std::make_unique<Parameter>(
+		"peak56-linked",
+		"Peak Filter #3 Channels Linked",
+		juce::NormalisableRange<float>(0, 1, 1),
+		0
+	));
+	parameters.add(std::make_unique<Parameter>(
+		"lpf-linked",
+		"Low-Pass Channels Linked",
+		juce::NormalisableRange<float>(0, 1, 1),
+		0
 	));
 	return parameters;
 }
@@ -205,7 +235,51 @@ void PluginProcessor::setStateInformation(const void *data, int sizeInBytes)
 		tree.replaceState(juce::ValueTree::fromXml(*xml));
 }
 
-// === Private Helper =========================================================
+// === Parameter Linking Helper Functions =================================
+// warning can safely be ignored - float comparison involving no arithmetic
+// is perfectly safe
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+void PluginProcessor::linkHighPassFilters
+(HighPassFilter* filterOne, HighPassFilter* filterTwo, std::string link)
+{
+	linkParameters(filterOne->getOnOffParameter(), filterTwo->getOnOffParameter(), link);
+	linkParameters(filterOne->getFrequencyParameter(), filterTwo->getFrequencyParameter(), link);
+	linkParameters(filterOne->getFalloffParameter(), filterTwo->getFalloffParameter(), link);
+	linkParameters(filterOne->getResonanceParameter(), filterTwo->getResonanceParameter(), link);
+}
+
+void PluginProcessor::linkParameters
+(std::string param1, std::string param2, std::string linkParam)
+{
+	addParameterListener(new ParameterListener(
+		param1, [this, param1, param2, linkParam](float value) {
+			if (*tree.getRawParameterValue(linkParam) == 0)
+				return;
+			if (abs(*tree.getRawParameterValue(param2) - value) >= 0.1f)
+			{
+				juce::RangedAudioParameter* p = tree.getParameter(param2);
+				float v = p->getNormalisableRange().convertTo0to1(value);
+				p->setValueNotifyingHost(v);
+			}
+		})
+	);
+	addParameterListener(new ParameterListener(
+		param2, [this, param1, param2, linkParam](float value) {
+			if (*tree.getRawParameterValue(linkParam) == 0)
+				return;
+			if (abs(*tree.getRawParameterValue(param1) - value) >= 0.1f)
+			{
+				juce::RangedAudioParameter* p = tree.getParameter(param1);
+				float v = p->getNormalisableRange().convertTo0to1(value);
+				p->setValueNotifyingHost(v);
+			}
+		})
+	);
+}
+#pragma GCC diagnostic pop
+
+// === Other Private Helper ===============================================
 float PluginProcessor::processSampleChannelOne(float sample)
 {
 	sample = highPassOne.processSample(sample);

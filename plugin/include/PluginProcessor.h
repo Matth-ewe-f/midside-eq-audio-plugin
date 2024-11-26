@@ -103,7 +103,12 @@ private:
         { juce::NormalisableRange<float>(0.25, 10, 0.01f, 0.7f) };
     
 
-    // === Private Helper Functions ===========================================
+    // === Parameter Linking Helper Functions =================================
+    void linkHighPassFilters(HighPassFilter*, HighPassFilter*, std::string);
+    void linkParameters
+    (std::string param1, std::string param2, std::string linkParam);
+
+    // === Other Helper Functions =============================================
     float processSampleChannelOne(float sample);
     float processSampleChannelTwo(float sample);
     void addParameterListener(ParameterListener*);

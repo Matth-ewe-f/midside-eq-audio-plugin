@@ -36,11 +36,11 @@ private:
     // buttons
     juce::TextButton midSideButton;
     juce::TextButton leftRightButton;
-    CtmToggle highPassLink;
-    CtmToggle peakOneTwoLink;
-    CtmToggle peakThreeFourLink;
-    CtmToggle peakFiveSixLink;
-    CtmToggle lowPassLink;
+    ParameterToggle highPassLink;
+    ParameterToggle peakOneTwoLink;
+    ParameterToggle peakThreeFourLink;
+    ParameterToggle peakFiveSixLink;
+    ParameterToggle lowPassLink;
     // filters
     HighPassControl highPassOne;
     HighPassControl highPassTwo;
