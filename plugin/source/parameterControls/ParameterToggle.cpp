@@ -1,7 +1,10 @@
 #include "ParameterToggle.h"
 
 // === Lifecycle ==============================================================
-ParameterToggle::ParameterToggle() : parameterName(""), tree(nullptr) { }
+ParameterToggle::ParameterToggle()
+    : parameterName(""), onToggle( [](bool b){ juce::ignoreUnused(b); } ),
+    tree(nullptr)
+{ }
 
 // === Settings ===============================================================
 void ParameterToggle::setBounds(int x, int y, int width, int height)
@@ -14,15 +17,25 @@ void ParameterToggle::attachToParameter
 {
     tree = stateTree;
     parameterName = parameter;
+    tree->addParameterListener(parameterName, this);
     attachment.reset(new ButtonAttachment(*stateTree, parameter, toggle));
+}
+
+// === ValueTreeState Listener ================================================
+void ParameterToggle::parameterChanged(const juce::String& param, float value)
+{
+    juce::ignoreUnused(param);
+    onToggle(value >= 1);
+    for (std::string otherName : linkedToggles)
+    {
+        copyValueToParameter(otherName, value);
+    }
 }
 
 // === Linking ================================================================
 void ParameterToggle::link(const ParameterToggle* other)
 {
     // setup mirroring of parameter values
-    if (linkedToggles.size() == 0)
-        tree->addParameterListener(parameterName, this);
     linkedToggles.push_back(other->parameterName);
     // copy current parameter value
     float value = *tree->getRawParameterValue(parameterName);
@@ -37,8 +50,6 @@ void ParameterToggle::unlink(const ParameterToggle* other)
     if (removal != end)
     {
         linkedToggles.erase(removal);
-        if (linkedToggles.size() == 0)
-            tree->removeParameterListener(parameterName, this);
     }
 }
 
@@ -52,15 +63,6 @@ void ParameterToggle::unlinkToggleBidirectional(ParameterToggle* other)
 {
     unlink(other);
     other->unlink(this);
-}
-
-void ParameterToggle::parameterChanged(const juce::String& param, float value)
-{
-    juce::ignoreUnused(param);
-    for (std::string otherName : linkedToggles)
-    {
-        copyValueToParameter(otherName, value);
-    }
 }
 
 // === Private Functions ======================================================

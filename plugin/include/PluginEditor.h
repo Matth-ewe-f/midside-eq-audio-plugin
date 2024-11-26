@@ -37,8 +37,8 @@ private:
     PluginProcessor& processorRef;
     CtmLookAndFeel lookAndFeel;
     // buttons
-    juce::TextButton midSideButton;
-    juce::TextButton leftRightButton;
+    ParameterToggle midSideButton;
+    ParameterToggle leftRightButton;
     ParameterToggle highPassLink;
     ParameterToggle peakOneTwoLink;
     ParameterToggle peakThreeFourLink;

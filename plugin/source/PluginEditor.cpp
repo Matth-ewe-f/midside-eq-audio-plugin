@@ -38,30 +38,28 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     setupLinkButton(&highPassLink, &highPassOne, &highPassTwo);
     highPassLink.attachToParameter(stateTree, "hpf-linked");
     setupLinkButton(&peakOneTwoLink, &peakOne, &peakTwo);
-    highPassLink.attachToParameter(stateTree, "peak12-linked");
+    peakOneTwoLink.attachToParameter(stateTree, "peak12-linked");
     setupLinkButton(&peakThreeFourLink, &peakThree, &peakFour);
-    highPassLink.attachToParameter(stateTree, "peak34-linked");
+    peakThreeFourLink.attachToParameter(stateTree, "peak34-linked");
     setupLinkButton(&peakFiveSixLink, &peakFive, &peakSix);
-    highPassLink.attachToParameter(stateTree, "peak56-linked");
+    peakFiveSixLink.attachToParameter(stateTree, "peak56-linked");
     setupLinkButton(&lowPassLink, &lowPassOne, &lowPassTwo);
-    highPassLink.attachToParameter(stateTree, "lpf-linked");
+    lowPassLink.attachToParameter(stateTree, "lpf-linked");
     // setup mode buttons
-    midSideButton.setButtonText("Mid-Side");
-    midSideButton.setRadioGroupId(0, juce::dontSendNotification);
-    midSideButton.onClick = [this] { 
+    midSideButton.toggle.setText("Mid-Side");
+    midSideButton.onToggle = [this] (bool b) { 
         processorRef.tree.getParameter("mode")->setValue(0);
         setColorOverrides();
         repaint(); 
     };
-    addAndMakeVisible(midSideButton);
-    leftRightButton.setButtonText("Left-Right");
-    leftRightButton.setRadioGroupId(0, juce::dontSendNotification);
-    leftRightButton.onClick = [this] { 
+    addAndMakeVisible(midSideButton.toggle);
+    leftRightButton.toggle.setText("Left-Right");
+    leftRightButton.onToggle = [this] (bool b) { 
         processorRef.tree.getParameter("mode")->setValue(1);
         setColorOverrides();
         repaint();
     };
-    addAndMakeVisible(leftRightButton);
+    addAndMakeVisible(leftRightButton.toggle);
     // setup colors
     setColorOverrides();
 }
@@ -104,8 +102,8 @@ void PluginEditor::resized()
     layoutLinkButton(&peakFiveSixLink.toggle, 3);
     layoutLinkButton(&lowPassLink.toggle, 4);
     int middle = getWidth() / 2;
-    midSideButton.setBounds(middle - 80, 10, 70, 30);
-    leftRightButton.setBounds(middle + 10, 10, 70, 30);
+    midSideButton.setBounds(middle - 110, 5, 100, 40);
+    leftRightButton.setBounds(middle + 10, 5, 100, 40);
 }
 
 // === Functions for Custom Components ========================================
@@ -114,9 +112,9 @@ void PluginEditor::setupLinkButton
 (ParameterToggle* linkButton, T* item1, T* item2)
 {
     linkButton->toggle.setText("LINK");
-    linkButton->toggle.onClick = [linkButton, item1, item2]
+    linkButton->onToggle = [item1, item2] (bool toggled)
     {
-        if (linkButton->toggle.getToggleState())
+        if (toggled)
         {
             item1->link(item2);
             item2->link(item1);
