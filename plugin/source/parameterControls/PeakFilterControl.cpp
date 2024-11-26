@@ -1,5 +1,6 @@
 #include "PeakFilterControl.h"
 
+// === Lifecycle ==============================================================
 PeakFilterControl::PeakFilterControl()
 {
     frequency.label.setPostfix(" Hz");
@@ -13,6 +14,7 @@ PeakFilterControl::PeakFilterControl()
 
 PeakFilterControl::~PeakFilterControl() { }
 
+// === Settings ===============================================================
 void PeakFilterControl::setBounds
 (int x, int y, int w, int h, int xPad, int yPad)
 {
@@ -43,4 +45,21 @@ void PeakFilterControl::attachToPeakFilter
     gain.attachToParameter(stateTree, filter->getGainParameter());
     qFactor.attachToParameter(stateTree, filter->getQFactorParameter());
     onOff.attachToParameter(stateTree, filter->getOnOffParameter());
+}
+
+// === Linking ================================================================
+void PeakFilterControl::link(const PeakFilterControl* other)
+{
+    frequency.link(&other->frequency);
+    gain.link(&other->gain);
+    qFactor.link(&other->qFactor);
+    onOff.link(&other->onOff);
+}
+
+void PeakFilterControl::unlink(const PeakFilterControl* other)
+{
+    frequency.unlink(&other->frequency);
+    gain.unlink(&other->gain);
+    qFactor.unlink(&other->qFactor);
+    onOff.unlink(&other->onOff);
 }

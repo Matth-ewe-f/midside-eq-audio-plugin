@@ -1,5 +1,6 @@
 #include "LowPassControl.h"
 
+// === Lifecycle ==============================================================
 LowPassControl::LowPassControl()
 {
     frequency.label.setPostfix(" Hz");
@@ -13,6 +14,7 @@ LowPassControl::LowPassControl()
 
 LowPassControl::~LowPassControl() { }
 
+// === Settings ===============================================================
 void LowPassControl::setBounds(int x, int y, int w, int h, int xPad, int yPad)
 {
     int itemW = (w - xPad) / 2;
@@ -42,4 +44,21 @@ void LowPassControl::attachToLowPass
     falloff.attachToParameter(stateTree, filter->getFalloffParameter());
     resonance.attachToParameter(stateTree, filter->getResonanceParameter());
     onOff.attachToParameter(stateTree, filter->getOnOffParameter());
+}
+
+// === Linking ================================================================
+void LowPassControl::link(const LowPassControl* other)
+{
+    frequency.link(&other->frequency);
+    falloff.link(&other->falloff);
+    resonance.link(&other->resonance);
+    onOff.link(&other->onOff);
+}
+
+void LowPassControl::unlink(const LowPassControl* other)
+{
+    frequency.unlink(&other->frequency);
+    falloff.unlink(&other->falloff);
+    resonance.unlink(&other->resonance);
+    onOff.unlink(&other->onOff);
 }

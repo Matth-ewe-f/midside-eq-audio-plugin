@@ -18,7 +18,7 @@ void ParameterToggle::attachToParameter
 }
 
 // === Linking ================================================================
-void ParameterToggle::linkToggle(const ParameterToggle* other)
+void ParameterToggle::link(const ParameterToggle* other)
 {
     // setup mirroring of parameter values
     if (linkedToggles.size() == 0)
@@ -29,7 +29,7 @@ void ParameterToggle::linkToggle(const ParameterToggle* other)
     copyValueToParameter(other->parameterName, value);
 }
 
-void ParameterToggle::unlinkToggle(const ParameterToggle* other)
+void ParameterToggle::unlink(const ParameterToggle* other)
 {
     auto begin = linkedToggles.begin();
     auto end = linkedToggles.end();
@@ -44,14 +44,14 @@ void ParameterToggle::unlinkToggle(const ParameterToggle* other)
 
 void ParameterToggle::linkToggleBidirectional(ParameterToggle* other)
 {
-    linkToggle(other);
-    other->linkToggle(this);
+    link(other);
+    other->link(this);
 }
 
 void ParameterToggle::unlinkToggleBidirectional(ParameterToggle* other)
 {
-    unlinkToggle(other);
-    other->unlinkToggle(this);
+    unlink(other);
+    other->unlink(this);
 }
 
 void ParameterToggle::parameterChanged(const juce::String& param, float value)

@@ -31,7 +31,7 @@ void ParameterControl::attachToParameter
 }
 
 // === Parameter Linking ======================================================
-void ParameterControl::linkParameter(const ParameterControl* other)
+void ParameterControl::link(const ParameterControl* other)
 {
     // setup modification of other parameter on changes to this parameter
     if (linkedParameters.size() == 0)
@@ -42,7 +42,7 @@ void ParameterControl::linkParameter(const ParameterControl* other)
     copyValueToParameter(other->parameterName, value);
 }
 
-void ParameterControl::unlinkParameter(const ParameterControl* other)
+void ParameterControl::unlink(const ParameterControl* other)
 {
     auto begin = linkedParameters.begin();
     auto end = linkedParameters.end();
@@ -57,14 +57,14 @@ void ParameterControl::unlinkParameter(const ParameterControl* other)
 
 void ParameterControl::linkParameterBidirectional(ParameterControl* other)
 {
-    linkParameter(other);
-    other->linkParameter(this);
+    link(other);
+    other->link(this);
 }
 
 void ParameterControl::unlinkParameterBidirectional(ParameterControl* other)
 {
-    unlinkParameter(other);
-    other->unlinkParameter(this);
+    unlink(other);
+    other->unlink(this);
 }
 
 void ParameterControl::parameterChanged(const juce::String& param, float value)

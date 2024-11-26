@@ -37,15 +37,14 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     // setup link buttons
     setupLinkButton(&highPassLink, &highPassOne, &highPassTwo);
     highPassLink.attachToParameter(stateTree, "hpf-linked");
-    addAndMakeVisible(peakOneTwoLink.toggle);
-    peakOneTwoLink.toggle.setText("LINK");
-    addAndMakeVisible(peakThreeFourLink.toggle);
-    peakThreeFourLink.toggle.setText("LINK");
-    addAndMakeVisible(peakFiveSixLink.toggle);
-    peakFiveSixLink.toggle.setText("LINK");
-    addAndMakeVisible(lowPassLink.toggle);
-    lowPassLink.toggle.setText("LINK");
-    stateTree->addParameterListener("hpf-linked", this);
+    setupLinkButton(&peakOneTwoLink, &peakOne, &peakTwo);
+    highPassLink.attachToParameter(stateTree, "peak12-linked");
+    setupLinkButton(&peakThreeFourLink, &peakThree, &peakFour);
+    highPassLink.attachToParameter(stateTree, "peak34-linked");
+    setupLinkButton(&peakFiveSixLink, &peakFive, &peakSix);
+    highPassLink.attachToParameter(stateTree, "peak56-linked");
+    setupLinkButton(&lowPassLink, &lowPassOne, &lowPassTwo);
+    highPassLink.attachToParameter(stateTree, "lpf-linked");
     // setup mode buttons
     midSideButton.setButtonText("Mid-Side");
     midSideButton.setRadioGroupId(0, juce::dontSendNotification);
@@ -159,24 +158,6 @@ void PluginEditor::addLowPassControl(LowPassControl* control)
     addParameterControl(&control->falloff);
     addParameterControl(&control->resonance);
     addAndMakeVisible(&control->onOff.toggle);
-}
-
-// === ValueTreeState Listener ================================================
-void PluginEditor::parameterChanged(const juce::String& param, float value)
-{
-    // if (param.compare("hpf-linked") == 0)
-    // {
-    //     if (value >= 1)
-    //     {
-    //         highPassOne.link(&highPassTwo);
-    //         highPassTwo.link(&highPassOne);
-    //     }
-    //     else
-    //     {
-    //         highPassOne.unlink(&highPassTwo);
-    //         highPassTwo.unlink(&highPassOne);
-    //     }
-    // }
 }
 
 // === Drawing and Layout Helper Functions ====================================

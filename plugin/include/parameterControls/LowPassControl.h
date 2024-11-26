@@ -4,8 +4,9 @@
 #include "ParameterControl.h"
 #include "ParameterToggle.h"
 #include "LowPassFilter.h"
+#include "Linkable.h"
 
-class LowPassControl : public FilterControl
+class LowPassControl : public FilterControl, public Linkable<LowPassControl>
 {
 public:
     ParameterControl frequency;
@@ -13,10 +14,16 @@ public:
     ParameterControl resonance;
     ParameterToggle onOff;
 
+    // === Lifecycle ==========================================================
     LowPassControl();
     ~LowPassControl();
 
+    // === Settings ===========================================================
     void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
     void setAllColorOverrides(juce::Colour) override;
     void attachToLowPass(juce::AudioProcessorValueTreeState*, LowPassFilter*);
+
+    // === Linking ============================================================
+    void link(const LowPassControl*) override;
+    void unlink(const LowPassControl*) override;
 };

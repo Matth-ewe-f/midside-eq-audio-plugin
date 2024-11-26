@@ -49,16 +49,16 @@ void HighPassControl::attachToHighPass
 // === Linking ================================================================
 void HighPassControl::link(const HighPassControl* other)
 {
-    frequency.linkParameter(&other->frequency);
-    falloff.linkParameter(&other->falloff);
-    resonance.linkParameter(&other->resonance);
-    onOff.linkToggle(&other->onOff);
+    frequency.link(&other->frequency);
+    falloff.link(&other->falloff);
+    resonance.link(&other->resonance);
+    onOff.link(&other->onOff);
 }
 
 void HighPassControl::unlink(const HighPassControl* other)
 {
-    frequency.unlinkParameter(&other->frequency);
-    falloff.unlinkParameter(&other->falloff);
-    resonance.unlinkParameter(&other->resonance);
-    onOff.unlinkToggle(&other->onOff);
+    frequency.unlink(&other->frequency);
+    falloff.unlink(&other->falloff);
+    resonance.unlink(&other->resonance);
+    onOff.unlink(&other->onOff);
 }

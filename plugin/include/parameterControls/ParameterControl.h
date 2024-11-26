@@ -2,10 +2,13 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "CtmSlider.h"
 #include "SliderLabel.h"
+#include "Linkable.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 
-class ParameterControl : juce::AudioProcessorValueTreeState::Listener
+class ParameterControl :
+    juce::AudioProcessorValueTreeState::Listener,
+    Linkable<ParameterControl>
 {
 public:
     std::string parameterName;
@@ -21,8 +24,8 @@ public:
     void attachToParameter(juce::AudioProcessorValueTreeState*, std::string);
 
     // === Parameter Linking ==================================================
-    void linkParameter(const ParameterControl*);
-    void unlinkParameter(const ParameterControl*);
+    void link(const ParameterControl*) override;
+    void unlink(const ParameterControl*) override;
     void linkParameterBidirectional(ParameterControl*);
     void unlinkParameterBidirectional(ParameterControl*);
     void parameterChanged(const juce::String&, float) override;
