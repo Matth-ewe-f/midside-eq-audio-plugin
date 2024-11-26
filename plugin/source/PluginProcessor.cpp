@@ -28,7 +28,6 @@ PluginProcessor::PluginProcessor()
 {
 	highPassOne.setListenTo(&tree);
 	highPassTwo.setListenTo(&tree);
-	linkHighPassFilters(&highPassOne, &highPassTwo, "hpf-linked");
 	peakOne.setListenTo(&tree);
 	peakTwo.setListenTo(&tree);
 	peakThree.setListenTo(&tree);
@@ -234,50 +233,6 @@ void PluginProcessor::setStateInformation(const void *data, int sizeInBytes)
 	if (xml.get() != nullptr && xml->hasTagName(tree.state.getType()))
 		tree.replaceState(juce::ValueTree::fromXml(*xml));
 }
-
-// === Parameter Linking Helper Functions =================================
-// warning can safely be ignored - float comparison involving no arithmetic
-// is perfectly safe
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-void PluginProcessor::linkHighPassFilters
-(HighPassFilter* filterOne, HighPassFilter* filterTwo, std::string link)
-{
-	linkParameters(filterOne->getOnOffParameter(), filterTwo->getOnOffParameter(), link);
-	linkParameters(filterOne->getFrequencyParameter(), filterTwo->getFrequencyParameter(), link);
-	linkParameters(filterOne->getFalloffParameter(), filterTwo->getFalloffParameter(), link);
-	linkParameters(filterOne->getResonanceParameter(), filterTwo->getResonanceParameter(), link);
-}
-
-void PluginProcessor::linkParameters
-(std::string param1, std::string param2, std::string linkParam)
-{
-	addParameterListener(new ParameterListener(
-		param1, [this, param1, param2, linkParam](float value) {
-			if (*tree.getRawParameterValue(linkParam) == 0)
-				return;
-			if (abs(*tree.getRawParameterValue(param2) - value) >= 0.1f)
-			{
-				juce::RangedAudioParameter* p = tree.getParameter(param2);
-				float v = p->getNormalisableRange().convertTo0to1(value);
-				p->setValueNotifyingHost(v);
-			}
-		})
-	);
-	addParameterListener(new ParameterListener(
-		param2, [this, param1, param2, linkParam](float value) {
-			if (*tree.getRawParameterValue(linkParam) == 0)
-				return;
-			if (abs(*tree.getRawParameterValue(param1) - value) >= 0.1f)
-			{
-				juce::RangedAudioParameter* p = tree.getParameter(param1);
-				float v = p->getNormalisableRange().convertTo0to1(value);
-				p->setValueNotifyingHost(v);
-			}
-		})
-	);
-}
-#pragma GCC diagnostic pop
 
 // === Other Private Helper ===============================================
 float PluginProcessor::processSampleChannelOne(float sample)

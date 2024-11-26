@@ -13,11 +13,17 @@ public:
     ParameterControl resonance;
     ParameterToggle onOff;
 
+    // === Lifecycle ==========================================================
     HighPassControl();
     ~HighPassControl();
 
+    // === Settings ===========================================================
     void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
     void setAllColorOverrides(juce::Colour) override;
     void attachToHighPass
     (juce::AudioProcessorValueTreeState*, HighPassFilter*);
+
+    // === Linking ============================================================
+    void link(HighPassControl*);
+    void unlink(HighPassControl*);
 };

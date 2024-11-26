@@ -1,5 +1,6 @@
 #include "HighPassControl.h"
 
+// === Lifecycle ==============================================================
 HighPassControl::HighPassControl()
 {
     frequency.label.setPostfix(" Hz");
@@ -13,6 +14,7 @@ HighPassControl::HighPassControl()
 
 HighPassControl::~HighPassControl() { }
 
+// === Settings ===============================================================
 void HighPassControl::setBounds(int x, int y, int w, int h, int xPad, int yPad)
 {
     int itemW = (w - xPad) / 2;
@@ -42,4 +44,21 @@ void HighPassControl::attachToHighPass
     falloff.attachToParameter(tree, filter->getFalloffParameter());
     resonance.attachToParameter(tree, filter->getResonanceParameter());
     onOff.attachToParameter(tree, filter->getOnOffParameter());
+}
+
+// === Linking ================================================================
+void HighPassControl::link(HighPassControl* other)
+{
+    frequency.linkParameter(&other->frequency);
+    falloff.linkParameter(&other->falloff);
+    resonance.linkParameter(&other->resonance);
+    onOff.linkToggle(&other->onOff);
+}
+
+void HighPassControl::unlink(HighPassControl* other)
+{
+    frequency.unlinkParameter(&other->frequency);
+    falloff.unlinkParameter(&other->falloff);
+    resonance.unlinkParameter(&other->resonance);
+    onOff.unlinkToggle(&other->onOff);
 }

@@ -12,7 +12,9 @@
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using Colour = juce::Colour;
 
-class PluginEditor final : public juce::AudioProcessorEditor
+class PluginEditor final :
+    public juce::AudioProcessorEditor,
+    public juce::AudioProcessorValueTreeState::Listener
 {
 public:
     // === Lifecycle ==========================================================
@@ -28,6 +30,9 @@ public:
     void addHighPassControl(HighPassControl*);
     void addPeakFilterControl(PeakFilterControl*);
     void addLowPassControl(LowPassControl*);
+
+    // === ValueTreeState Listener ============================================
+    void parameterChanged(const juce::String&, float) override;
 
 private:
     /// === Private Variables =================================================
