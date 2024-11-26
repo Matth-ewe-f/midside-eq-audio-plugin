@@ -2,11 +2,13 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "PluginProcessor.h"
 #include "ParameterControl.h"
+#include "CtmToggle.h"
 #include "FilterControl.h"
 #include "HighPassControl.h"
 #include "PeakFilterControl.h"
 #include "LowPassControl.h"
 #include "CtmLookAndFeel.h"
+
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using Colour = juce::Colour;
 
@@ -34,6 +36,11 @@ private:
     // buttons
     juce::TextButton midSideButton;
     juce::TextButton leftRightButton;
+    CtmToggle highPassLink;
+    CtmToggle peakOneTwoLink;
+    CtmToggle peakThreeFourLink;
+    CtmToggle peakFiveSixLink;
+    CtmToggle lowPassLink;
     // filters
     HighPassControl highPassOne;
     HighPassControl highPassTwo;
@@ -55,7 +62,7 @@ private:
     inline static const int cellWidth { 104 };
     inline static const int cellHeight { 102 };
     inline static const int cellMarginX { 12 };
-    inline static const int cellMarginY { 40 };
+    inline static const int cellMarginY { 48 };
     inline static const int cellPaddingX { 6 };
     inline static const int columnPaddingY { 12 };
     inline static const int columnBgCurvature { 24 };
@@ -65,13 +72,14 @@ private:
     inline static const int maxCols { 5 };
 
     // === Color Constants ====================================================
-    inline static const Colour midColor{ Colour::fromRGB(252, 32, 250) };
+    inline static const Colour midColor { Colour::fromRGB(252, 32, 250) };
     inline static const Colour sideColor { Colour::fromRGB(12, 208, 255) };
     inline static const Colour leftColor { Colour::fromRGB(250, 50, 40) };
     inline static const Colour rightColor { Colour::fromRGB(60, 230, 10) };
 
     // === Drawing and Layout Helper Functions ================================
     void layoutFilter(FilterControl*, int xIndex, int yIndex);
+    void layoutLinkButton(CtmToggle*, int);
     void layoutTest(juce::Graphics&, int, int);
     void drawSectionLabels(juce::Graphics&);
     void drawFilterIcons(juce::Graphics&);

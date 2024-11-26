@@ -2,9 +2,15 @@
 #include "CtmLookAndFeel.h"
 
 // === Lifecycle ==============================================================
-CtmToggle::CtmToggle() : toggledText(""), untoggledText(""), fontSize(-1)
+CtmToggle::CtmToggle()
+    : colorOverriden(false), colorGradient(false), toggledText(""),
+    untoggledText(""), fontSize(-1)
+ { }
+
+void CtmToggle::parentHierarchyChanged()
 {
-    fillColor = findColour(CtmColourIds::toggledColourId);
+    if (!colorOverriden && !colorGradient)
+        fillColor = findColour(CtmColourIds::toggledColourId);
 }
 
 // === Setters ================================================================
@@ -28,7 +34,17 @@ void CtmToggle::setFixedFontSize(float size)
 void CtmToggle::setColorOverride(juce::Colour color)
 {
     fillColor = color;
+    colorOverriden = true;
+    colorGradient = false;
     repaint();
+}
+
+void CtmToggle::setColorGradient(juce::Colour color1, juce::Colour color2)
+{
+    fillColor = color1;
+    gradColor = color2;
+    colorOverriden = false;
+    colorGradient = true;
 }
 
 // === Graphics ===============================================================
@@ -46,13 +62,20 @@ void CtmToggle::paintButton(juce::Graphics& g, bool hover, bool click)
     int y = bounds.getY() + 1;
     int w = bounds.getWidth() - 2;
     int h = bounds.getHeight() - 2;
-    // draw the button itself
-    juce::Colour fill;
+    // draw the button background
     if (toggle)
-        fill = fillColor;
+    {
+        if (colorGradient)
+        {
+            g.setGradientFill(juce::ColourGradient(
+                fillColor, x, y, gradColor, x, y + h, false
+            ));
+        }
+        else
+            g.setColour(fillColor);
+    }
     else
-        fill = findColour(CtmColourIds::untoggledColourId);
-    g.setColour(fill);
+        g.setColour(findColour(CtmColourIds::untoggledColourId));
     g.fillRoundedRectangle(x, y, w, h, 4);
     // draw the highlights on the top of the button
     juce::Colour light;
@@ -73,7 +96,7 @@ void CtmToggle::paintButton(juce::Graphics& g, bool hover, bool click)
     g.setFont(fontSize == -1 ? (h / 2) + 2 : fontSize);
     auto justify = juce::Justification::centred;
     std::string s = toggle ? toggledText : untoggledText;
-    g.drawText(s, x + 2, y + 4, w - 4, h - 8, justify, false);
+    g.drawText(s, x + 2, toggle ? y + 3 : y + 4, w - 4, h - 8, justify, false);
     // darken the button it it's been clicked
     if (click)
     {
@@ -93,5 +116,5 @@ juce::Colour CtmToggle::getHighlightColor()
 juce::Colour CtmToggle::getShadowColor()
 {
     juce::Colour outline = findColour(CtmColourIds::darkOutlineColourId);
-    return outline.withAlpha(0.1f);
+    return outline.withAlpha(0.15f);
 }

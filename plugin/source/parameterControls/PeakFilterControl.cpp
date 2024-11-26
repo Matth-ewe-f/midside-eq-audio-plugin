@@ -23,7 +23,7 @@ void PeakFilterControl::setBounds
     qFactor.setBounds(x + itemW + xPad, y + itemH + yPad, itemW, itemH);
     int toggleW = 28;
     int toggleX = x + itemW + xPad + ((itemW - toggleW) / 2);
-    onOff.setBounds(toggleX, y + 6, toggleW, 20);
+    onOff.setBounds(toggleX, y + 6, toggleW, 21);
 }
 
 void PeakFilterControl::setAllColorOverrides(juce::Colour color)

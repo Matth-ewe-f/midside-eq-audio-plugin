@@ -34,8 +34,18 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     peakSix.attachToPeakFilter(stateTree, &processorRef.peakSix);
     lowPassOne.attachToLowPass(stateTree, &processorRef.lowPassOne);
     lowPassTwo.attachToLowPass(stateTree, &processorRef.lowPassTwo);
-    setColorOverrides();
-    // setup buttons
+    // setup link buttons
+    addAndMakeVisible(highPassLink);
+    highPassLink.setText("LINK");
+    addAndMakeVisible(peakOneTwoLink);
+    peakOneTwoLink.setText("LINK");
+    addAndMakeVisible(peakThreeFourLink);
+    peakThreeFourLink.setText("LINK");
+    addAndMakeVisible(peakFiveSixLink);
+    peakFiveSixLink.setText("LINK");
+    addAndMakeVisible(lowPassLink);
+    lowPassLink.setText("LINK");
+    // setup mode buttons
     midSideButton.setButtonText("Mid-Side");
     midSideButton.setRadioGroupId(0, juce::dontSendNotification);
     midSideButton.onClick = [this] { 
@@ -52,6 +62,8 @@ PluginEditor::PluginEditor (PluginProcessor &p)
         repaint();
     };
     addAndMakeVisible(leftRightButton);
+    // setup colors
+    setColorOverrides();
 }
 
 PluginEditor::~PluginEditor() { }
@@ -86,6 +98,11 @@ void PluginEditor::resized()
     layoutFilter(&peakSix, 3, 1);
     layoutFilter(&lowPassOne, 4, 0);
     layoutFilter(&lowPassTwo, 4, 1);
+    layoutLinkButton(&highPassLink, 0);
+    layoutLinkButton(&peakOneTwoLink, 1);
+    layoutLinkButton(&peakThreeFourLink, 2);
+    layoutLinkButton(&peakFiveSixLink, 3);
+    layoutLinkButton(&lowPassLink, 4);
     int middle = getWidth() / 2;
     midSideButton.setBounds(middle - 80, 10, 70, 30);
     leftRightButton.setBounds(middle + 10, 10, 70, 30);
@@ -133,6 +150,15 @@ void PluginEditor::layoutFilter
     lowPass->setBounds(
         x, y, cellWidth, cellHeight, intraCellPaddingX, intraCellPaddingY
     );
+}
+
+void PluginEditor::layoutLinkButton(CtmToggle* linkButton, int index)
+{
+    int x = xStart + ((cellMarginX + cellWidth) * index)
+        + (cellPaddingX * ((index * 2) + 1)) + (cellWidth / 2);
+    int cy = headerHeight + yStart + columnPaddingY + cellHeight
+        + (cellMarginY / 2);
+    linkButton->setBounds(x - 32, cy - 10, 30, 21);
 }
 
 void PluginEditor::layoutTest(juce::Graphics& g, int xIndex, int yIndex)
@@ -188,14 +214,14 @@ void PluginEditor::drawFilterIcons(juce::Graphics& g)
         int cx = xStart + ((cellMarginX + cellWidth) * i)
             + (cellPaddingX * ((i * 2) + 1)) + (cellWidth / 2);
         g.setColour(findColour(CtmColourIds::darkBgColourId));
-        g.fillRect(cx - 22, cy - 16, 44, 32);
+        g.fillRect(cx - 40, cy - 16, 80, 32);
         juce::Path icon;
         if (i == 0)
-            icon = getHighPassFilterIcon(cx - 12, cy - 8, 24, 16);
+            icon = getHighPassFilterIcon(cx + 6, cy - 8, 24, 16);
         else if (i == maxCols - 1)
-            icon = getLowPassFilterIcon(cx - 12, cy - 8, 24, 16);
+            icon = getLowPassFilterIcon(cx + 6, cy - 8, 24, 16);
         else
-            icon = getPeakFilterIcon(cx - 14, cy - 11, 28, 22);
+            icon = getPeakFilterIcon(cx + 4, cy - 11, 28, 22);
         g.setColour(juce::Colours::white);
         g.fillPath(icon);
     }
@@ -227,6 +253,11 @@ void PluginEditor::setColorOverrides()
     peakFour.setAllColorOverrides(getColorTwo());
     peakSix.setAllColorOverrides(getColorTwo());
     lowPassTwo.setAllColorOverrides(getColorTwo());
+    highPassLink.setColorGradient(getColorOne(), getColorTwo());
+    peakOneTwoLink.setColorGradient(getColorOne(), getColorTwo());
+    peakThreeFourLink.setColorGradient(getColorOne(), getColorTwo());
+    peakFiveSixLink.setColorGradient(getColorOne(), getColorTwo());
+    lowPassLink.setColorGradient(getColorOne(), getColorTwo());
 }
 
 juce::Colour PluginEditor::getColorOne()
