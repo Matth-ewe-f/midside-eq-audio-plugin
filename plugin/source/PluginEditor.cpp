@@ -35,8 +35,7 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     lowPassOne.attachToLowPass(stateTree, &processorRef.lowPassOne);
     lowPassTwo.attachToLowPass(stateTree, &processorRef.lowPassTwo);
     // setup link buttons
-    addAndMakeVisible(highPassLink.toggle);
-    highPassLink.toggle.setText("LINK");
+    setupLinkButton(&highPassLink, &highPassOne, &highPassTwo);
     highPassLink.attachToParameter(stateTree, "hpf-linked");
     addAndMakeVisible(peakOneTwoLink.toggle);
     peakOneTwoLink.toggle.setText("LINK");
@@ -111,6 +110,27 @@ void PluginEditor::resized()
 }
 
 // === Functions for Custom Components ========================================
+template <linkable T>
+void PluginEditor::setupLinkButton
+(ParameterToggle* linkButton, T* item1, T* item2)
+{
+    linkButton->toggle.setText("LINK");
+    linkButton->toggle.onClick = [linkButton, item1, item2]
+    {
+        if (linkButton->toggle.getToggleState())
+        {
+            item1->link(item2);
+            item2->link(item1);
+        }
+        else
+        {
+            item1->unlink(item2);
+            item2->unlink(item1);
+        }
+    };
+    addAndMakeVisible(&linkButton->toggle);
+}
+
 void PluginEditor::addParameterControl(ParameterControl* control)
 {
     addAndMakeVisible(control->slider);
@@ -144,19 +164,19 @@ void PluginEditor::addLowPassControl(LowPassControl* control)
 // === ValueTreeState Listener ================================================
 void PluginEditor::parameterChanged(const juce::String& param, float value)
 {
-    if (param.compare("hpf-linked") == 0)
-    {
-        if (value >= 1)
-        {
-            highPassOne.link(&highPassTwo);
-            highPassTwo.link(&highPassOne);
-        }
-        else
-        {
-            highPassOne.unlink(&highPassTwo);
-            highPassTwo.unlink(&highPassOne);
-        }
-    }
+    // if (param.compare("hpf-linked") == 0)
+    // {
+    //     if (value >= 1)
+    //     {
+    //         highPassOne.link(&highPassTwo);
+    //         highPassTwo.link(&highPassOne);
+    //     }
+    //     else
+    //     {
+    //         highPassOne.unlink(&highPassTwo);
+    //         highPassTwo.unlink(&highPassOne);
+    //     }
+    // }
 }
 
 // === Drawing and Layout Helper Functions ====================================

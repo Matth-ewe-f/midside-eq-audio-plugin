@@ -18,7 +18,7 @@ void ParameterToggle::attachToParameter
 }
 
 // === Linking ================================================================
-void ParameterToggle::linkToggle(ParameterToggle* other)
+void ParameterToggle::linkToggle(const ParameterToggle* other)
 {
     // setup mirroring of parameter values
     if (linkedToggles.size() == 0)
@@ -29,7 +29,7 @@ void ParameterToggle::linkToggle(ParameterToggle* other)
     copyValueToParameter(other->parameterName, value);
 }
 
-void ParameterToggle::unlinkToggle(ParameterToggle* other)
+void ParameterToggle::unlinkToggle(const ParameterToggle* other)
 {
     auto begin = linkedToggles.begin();
     auto end = linkedToggles.end();

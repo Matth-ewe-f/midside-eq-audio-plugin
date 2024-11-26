@@ -31,7 +31,7 @@ void ParameterControl::attachToParameter
 }
 
 // === Parameter Linking ======================================================
-void ParameterControl::linkParameter(ParameterControl* other)
+void ParameterControl::linkParameter(const ParameterControl* other)
 {
     // setup modification of other parameter on changes to this parameter
     if (linkedParameters.size() == 0)
@@ -42,7 +42,7 @@ void ParameterControl::linkParameter(ParameterControl* other)
     copyValueToParameter(other->parameterName, value);
 }
 
-void ParameterControl::unlinkParameter(ParameterControl* other)
+void ParameterControl::unlinkParameter(const ParameterControl* other)
 {
     auto begin = linkedParameters.begin();
     auto end = linkedParameters.end();

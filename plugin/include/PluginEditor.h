@@ -7,6 +7,7 @@
 #include "HighPassControl.h"
 #include "PeakFilterControl.h"
 #include "LowPassControl.h"
+#include "Linkable.h"
 #include "CtmLookAndFeel.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
@@ -30,6 +31,8 @@ public:
     void addHighPassControl(HighPassControl*);
     void addPeakFilterControl(PeakFilterControl*);
     void addLowPassControl(LowPassControl*);
+    template<linkable T>
+    void setupLinkButton(ParameterToggle*, T*, T*);
 
     // === ValueTreeState Listener ============================================
     void parameterChanged(const juce::String&, float) override;

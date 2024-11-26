@@ -4,8 +4,9 @@
 #include "ParameterControl.h"
 #include "ParameterToggle.h"
 #include "HighPassFilter.h"
+#include "Linkable.h"
 
-class HighPassControl : public FilterControl
+class HighPassControl : public FilterControl, public Linkable<HighPassControl>
 {
 public:
     ParameterControl frequency;
@@ -24,6 +25,6 @@ public:
     (juce::AudioProcessorValueTreeState*, HighPassFilter*);
 
     // === Linking ============================================================
-    void link(HighPassControl*);
-    void unlink(HighPassControl*);
+    void link(const HighPassControl*) override;
+    void unlink(const HighPassControl*) override;
 };

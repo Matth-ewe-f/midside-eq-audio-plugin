@@ -47,7 +47,7 @@ void HighPassControl::attachToHighPass
 }
 
 // === Linking ================================================================
-void HighPassControl::link(HighPassControl* other)
+void HighPassControl::link(const HighPassControl* other)
 {
     frequency.linkParameter(&other->frequency);
     falloff.linkParameter(&other->falloff);
@@ -55,7 +55,7 @@ void HighPassControl::link(HighPassControl* other)
     onOff.linkToggle(&other->onOff);
 }
 
-void HighPassControl::unlink(HighPassControl* other)
+void HighPassControl::unlink(const HighPassControl* other)
 {
     frequency.unlinkParameter(&other->frequency);
     falloff.unlinkParameter(&other->falloff);

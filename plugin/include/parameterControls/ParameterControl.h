@@ -21,9 +21,9 @@ public:
     void attachToParameter(juce::AudioProcessorValueTreeState*, std::string);
 
     // === Parameter Linking ==================================================
-    void linkParameter(ParameterControl*);
+    void linkParameter(const ParameterControl*);
+    void unlinkParameter(const ParameterControl*);
     void linkParameterBidirectional(ParameterControl*);
-    void unlinkParameter(ParameterControl*);
     void unlinkParameterBidirectional(ParameterControl*);
     void parameterChanged(const juce::String&, float) override;
 private:
