@@ -14,7 +14,7 @@ public:
 
     // === Parameter Information ==============================================
     void parameterChanged(const juce::String&, float) override;
-    inline std::string getOnOffParameter()
+    inline std::string getOnOffParameter() override
         { return name + "-" + onOffParam.idPostfix; }
     inline std::string getFrequencyParameter()
         { return name + "-" + freqParamIdPostfix; }

@@ -43,6 +43,12 @@ void LowPassControl::attachToLowPass
     frequency.attachToParameter(stateTree, filter->getFrequencyParameter());
     falloff.attachToParameter(stateTree, filter->getFalloffParameter());
     resonance.attachToParameter(stateTree, filter->getResonanceParameter());
+    onOff.onToggle = [this] (bool toggled)
+    {
+        frequency.slider.setEnabled(toggled);
+        falloff.slider.setEnabled(toggled);
+        resonance.slider.setEnabled(toggled);
+    };
     onOff.attachToParameter(stateTree, filter->getOnOffParameter());
 }
 

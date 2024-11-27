@@ -34,6 +34,27 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     peakSix.attachToPeakFilter(stateTree, &processorRef.peakSix);
     lowPassOne.attachToLowPass(stateTree, &processorRef.lowPassOne);
     lowPassTwo.attachToLowPass(stateTree, &processorRef.lowPassTwo);
+    // setup icons
+    setupFilterIcon(&hpfOneIcon, Icon::Type::HighPass);
+    hpfOneIcon.attachToFilter(stateTree, &processorRef.highPassOne);
+    setupFilterIcon(&hpfTwoIcon, Icon::Type::HighPass);
+    hpfTwoIcon.attachToFilter(stateTree, &processorRef.highPassTwo);
+    setupFilterIcon(&peakOneIcon, Icon::Type::Peak);
+    peakOneIcon.attachToFilter(stateTree, &processorRef.peakOne);
+    setupFilterIcon(&peakTwoIcon, Icon::Type::Peak);
+    peakTwoIcon.attachToFilter(stateTree, &processorRef.peakTwo);
+    setupFilterIcon(&peakThreeIcon, Icon::Type::Peak);
+    peakThreeIcon.attachToFilter(stateTree, &processorRef.peakThree);
+    setupFilterIcon(&peakFourIcon, Icon::Type::Peak);
+    peakFourIcon.attachToFilter(stateTree, &processorRef.peakFour);
+    setupFilterIcon(&peakFiveIcon, Icon::Type::Peak);
+    peakFiveIcon.attachToFilter(stateTree, &processorRef.peakFive);
+    setupFilterIcon(&peakSixIcon, Icon::Type::Peak);
+    peakSixIcon.attachToFilter(stateTree, &processorRef.peakSix);
+    setupFilterIcon(&lpfOneIcon, Icon::Type::LowPass);
+    lpfOneIcon.attachToFilter(stateTree, &processorRef.lowPassOne);
+    setupFilterIcon(&lpfTwoIcon, Icon::Type::LowPass);
+    lpfTwoIcon.attachToFilter(stateTree, &processorRef.lowPassTwo);
     // setup link buttons
     setupLinkButton(&highPassLink, &highPassOne, &highPassTwo);
     highPassLink.attachToParameter(stateTree, "hpf-linked");
@@ -85,8 +106,6 @@ void PluginEditor::paint(juce::Graphics &g)
     g.drawRect(0, 0, getWidth(), getHeight(), 1);
     g.drawLine(0, headerHeight, getWidth(), headerHeight);
     g.drawLine(0, secondSectionStart(), getWidth(), secondSectionStart());
-    // draw the icons for the filters
-    drawFilterIcons(g);
 }
 
 void PluginEditor::resized()
@@ -106,33 +125,22 @@ void PluginEditor::resized()
     layoutLinkButton(&peakThreeFourLink.toggle, 2);
     layoutLinkButton(&peakFiveSixLink.toggle, 3);
     layoutLinkButton(&lowPassLink.toggle, 4);
+    layoutFilterIcon(&hpfOneIcon, 0, 0);
+    layoutFilterIcon(&hpfTwoIcon, 0, 1);
+    layoutFilterIcon(&peakOneIcon, 1, 0);
+    layoutFilterIcon(&peakTwoIcon, 1, 1);
+    layoutFilterIcon(&peakThreeIcon, 2, 0);
+    layoutFilterIcon(&peakFourIcon, 2, 1);
+    layoutFilterIcon(&peakFiveIcon, 3, 0);
+    layoutFilterIcon(&peakSixIcon, 3, 1);
+    layoutFilterIcon(&lpfOneIcon, 4, 0);
+    layoutFilterIcon(&lpfTwoIcon, 4, 1);
     int middle = getWidth() / 2;
     midSideButton.setBounds(middle - 110, 5, 100, 40);
     leftRightButton.setBounds(middle + 10, 5, 100, 40);
 }
 
 // === Functions for Custom Components ========================================
-template <linkable T>
-void PluginEditor::setupLinkButton
-(ParameterToggle* linkButton, T* item1, T* item2)
-{
-    linkButton->toggle.setText("LINK");
-    linkButton->onToggle = [item1, item2] (bool toggled)
-    {
-        if (toggled)
-        {
-            item1->link(item2);
-            item2->link(item1);
-        }
-        else
-        {
-            item1->unlink(item2);
-            item2->unlink(item1);
-        }
-    };
-    addAndMakeVisible(&linkButton->toggle);
-}
-
 void PluginEditor::addParameterControl(ParameterControl* control)
 {
     addAndMakeVisible(control->slider);
@@ -163,6 +171,37 @@ void PluginEditor::addLowPassControl(LowPassControl* control)
     addAndMakeVisible(&control->onOff.toggle);
 }
 
+template <linkable T>
+void PluginEditor::setupLinkButton
+(ParameterToggle* linkButton, T* item1, T* item2)
+{
+    linkButton->toggle.setText("LINK");
+    linkButton->onToggle = [item1, item2] (bool toggled)
+    {
+        if (toggled)
+        {
+            item1->link(item2);
+            item2->link(item1);
+        }
+        else
+        {
+            item1->unlink(item2);
+            item2->unlink(item1);
+        }
+    };
+    addAndMakeVisible(&linkButton->toggle);
+}
+
+void PluginEditor::setupFilterIcon(Icon* icon, Icon::Type type)
+{
+    int cx = cellWidth / 2;
+    int cy = columnPaddingY / 2;
+    int w = type == Icon::Type::Peak ? 28 : 24;
+    int h = type == Icon::Type::Peak ? 22 : 16;
+    icon->setType(type, cx - (w / 2), cy - (h / 2), w, h);
+    addAndMakeVisible(icon);
+}
+
 // === Drawing and Layout Helper Functions ====================================
 void PluginEditor::layoutFilter
 (FilterControl* lowPass, int xIndex, int yIndex)
@@ -178,11 +217,22 @@ void PluginEditor::layoutFilter
 
 void PluginEditor::layoutLinkButton(CtmToggle* linkButton, int index)
 {
-    int x = xStart + ((cellMarginX + cellWidth) * index)
+    int cx = xStart + ((cellMarginX + cellWidth) * index)
         + (cellPaddingX * ((index * 2) + 1)) + (cellWidth / 2);
     int cy = headerHeight + yStart + columnPaddingY + cellHeight
         + (cellMarginY / 2);
-    linkButton->setBounds(x - 32, cy - 10, 30, 21);
+    linkButton->setBounds(cx - 15, cy - 10, 30, 21);
+}
+
+void PluginEditor::layoutFilterIcon(Icon* icon, int xIndex, int yIndex)
+{
+    int x = xStart + ((cellMarginX + cellWidth) * xIndex)
+        + (cellPaddingX * ((xIndex * 2) + 1));
+    int y = headerHeight + yStart;
+    if (yIndex > 0)
+        y += (cellHeight * maxRows) + (cellMarginY * (maxRows - 1))
+            + columnPaddingY;
+    icon->setBounds(x, y, cellWidth, columnPaddingY);
 }
 
 void PluginEditor::layoutTest(juce::Graphics& g, int xIndex, int yIndex)
@@ -228,29 +278,6 @@ void PluginEditor::drawSectionLabels(juce::Graphics& g)
     g.drawText(ms ? "Side" : "Right", 4, secondSectionY + 1, 40, 18, false);
 }
 
-void PluginEditor::drawFilterIcons(juce::Graphics& g)
-{
-    int cy = headerHeight + yStart + columnPaddingY + cellHeight
-        + (cellMarginY / 2);
-    g.setFont(14);
-    for (int i = 0;i < maxCols;i++)
-    {
-        int cx = xStart + ((cellMarginX + cellWidth) * i)
-            + (cellPaddingX * ((i * 2) + 1)) + (cellWidth / 2);
-        g.setColour(findColour(CtmColourIds::darkBgColourId));
-        g.fillRect(cx - 40, cy - 16, 80, 32);
-        juce::Path icon;
-        if (i == 0)
-            icon = getHighPassFilterIcon(cx + 6, cy - 8, 24, 16);
-        else if (i == maxCols - 1)
-            icon = getLowPassFilterIcon(cx + 6, cy - 8, 24, 16);
-        else
-            icon = getPeakFilterIcon(cx + 4, cy - 11, 28, 22);
-        g.setColour(juce::Colours::white);
-        g.fillPath(icon);
-    }
-}
-
 void PluginEditor::drawFilterBackground(juce::Graphics& g, int index)
 {
     juce::Path p;
@@ -282,6 +309,16 @@ void PluginEditor::setColorOverrides()
     peakThreeFourLink.toggle.setColorGradient(getColorOne(), getColorTwo());
     peakFiveSixLink.toggle.setColorGradient(getColorOne(), getColorTwo());
     lowPassLink.toggle.setColorGradient(getColorOne(), getColorTwo());
+    hpfOneIcon.setColor(getColorOne());
+    hpfTwoIcon.setColor(getColorTwo());
+    peakOneIcon.setColor(getColorOne());
+    peakTwoIcon.setColor(getColorTwo());
+    peakThreeIcon.setColor(getColorOne());
+    peakFourIcon.setColor(getColorTwo());
+    peakFiveIcon.setColor(getColorOne());
+    peakSixIcon.setColor(getColorTwo());
+    lpfOneIcon.setColor(getColorOne());
+    lpfTwoIcon.setColor(getColorTwo());
 }
 
 juce::Colour PluginEditor::getColorOne()
@@ -292,57 +329,6 @@ juce::Colour PluginEditor::getColorOne()
 juce::Colour PluginEditor::getColorTwo()
 {
     return processorRef.isMidSide() ? sideColor : rightColor;
-}
-
-juce::Path PluginEditor::getHighPassFilterIcon(int x, int y, int w, int h)
-{
-    juce::Path path;
-    juce::Line<float> lines[2];
-    lines[0] = juce::Line<float>(0, 1, 0.33f, 0.17f);
-    lines[1] = juce::Line<float>(0.33f, 0.17f, 1, 0.17f);
-    for (int i = 0;i < 2;i++)
-    {
-        lines[i].applyTransform(juce::AffineTransform::scale(w, h));
-        lines[i].applyTransform(juce::AffineTransform::translation(x, y));
-        path.addLineSegment(lines[i], 1);
-    }
-    return path;
-}
-
-juce::Path PluginEditor::getLowPassFilterIcon(int x, int y, int w, int h)
-{
-    juce::Path path;
-    juce::Line<float> lines[2];
-    lines[0] = juce::Line<float>(0, 0.17f, 0.67f, 0.17f);
-    lines[1] = juce::Line<float>(0.67f, 0.17f, 1, 1);
-    for (int i = 0;i < 2;i++)
-    {
-        lines[i].applyTransform(juce::AffineTransform::scale(w, h));
-        lines[i].applyTransform(juce::AffineTransform::translation(x, y));
-        path.addLineSegment(lines[i], 1);
-    }
-    return path;
-}
-
-juce::Path PluginEditor::getPeakFilterIcon(int x, int y, int w, int h)
-{
-    juce::Path path;
-    juce::Line<float> lines[8];
-    lines[0] = juce::Line<float>(0, 0.5f, 0.17f, 0.5f);
-    lines[1] = juce::Line<float>(0.17f, 0.5f, 0.37f, 0.17f);
-    lines[2] = juce::Line<float>(0.17f, 0.5f, 0.37f, 0.83f);
-    lines[3] = juce::Line<float>(0.37f, 0.17f, 0.63f, 0.17f);
-    lines[4] = juce::Line<float>(0.37f, 0.83f, 0.63f, 0.83f);
-    lines[5] = juce::Line<float>(0.63f, 0.17f, 0.83f, 0.5f);
-    lines[6] = juce::Line<float>(0.63f, 0.83f, 0.83f, 0.5f);
-    lines[7] = juce::Line<float>(0.8f, 0.5f, 1, 0.5f);
-    for (int i = 0;i < 8;i++)
-    {
-        lines[i].applyTransform(juce::AffineTransform::scale(w, h));
-        lines[i].applyTransform(juce::AffineTransform::translation(x, y));
-        path.addLineSegment(lines[i], 1);
-    }
-    return path;
 }
 
 int PluginEditor::secondSectionStart()

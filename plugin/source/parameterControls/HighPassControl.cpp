@@ -43,6 +43,12 @@ void HighPassControl::attachToHighPass
     frequency.attachToParameter(tree, filter->getFrequencyParameter());
     falloff.attachToParameter(tree, filter->getFalloffParameter());
     resonance.attachToParameter(tree, filter->getResonanceParameter());
+    onOff.onToggle = [this] (bool toggled)
+    {
+        frequency.slider.setEnabled(toggled);
+        falloff.slider.setEnabled(toggled);
+        resonance.slider.setEnabled(toggled);
+    };
     onOff.attachToParameter(tree, filter->getOnOffParameter());
 }
 

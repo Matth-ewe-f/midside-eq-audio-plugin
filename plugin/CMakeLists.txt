@@ -22,6 +22,7 @@ target_sources(
         source/filters/PeakFilter.cpp
         source/filters/LowPassFilter.cpp
         source/PluginEditor.cpp
+        source/ui/Icon.cpp
         source/ui/CtmSlider.cpp
         source/ui/CtmToggle.cpp
         source/ui/SliderLabel.cpp

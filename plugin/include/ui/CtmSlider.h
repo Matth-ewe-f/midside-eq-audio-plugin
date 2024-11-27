@@ -8,7 +8,9 @@ public:
 
     void paint(juce::Graphics&) override;
     void setColorOverride(juce::Colour);
+    void setEnabled(bool);
 private:
     juce::Colour colorOverride;
     bool useColorOverride;
+    bool enabled;
 };

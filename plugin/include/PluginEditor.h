@@ -8,6 +8,7 @@
 #include "PeakFilterControl.h"
 #include "LowPassControl.h"
 #include "Linkable.h"
+#include "Icon.h"
 #include "CtmLookAndFeel.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
@@ -31,6 +32,7 @@ public:
     void addLowPassControl(LowPassControl*);
     template<linkable T>
     void setupLinkButton(ParameterToggle*, T*, T*);
+    void setupFilterIcon(Icon*, Icon::Type);
 
 private:
     /// === Private Variables =================================================
@@ -55,6 +57,17 @@ private:
     PeakFilterControl peakSix;
     LowPassControl lowPassOne;
     LowPassControl lowPassTwo;
+    // filter icons
+    Icon hpfOneIcon;
+    Icon hpfTwoIcon;
+    Icon peakOneIcon;
+    Icon peakTwoIcon;
+    Icon peakThreeIcon;
+    Icon peakFourIcon;
+    Icon peakFiveIcon;
+    Icon peakSixIcon;
+    Icon lpfOneIcon;
+    Icon lpfTwoIcon;
     
     // === Layout constants ===================================================
     inline static const int headerHeight { 50 };
@@ -67,7 +80,7 @@ private:
     inline static const int cellMarginX { 12 };
     inline static const int cellMarginY { 48 };
     inline static const int cellPaddingX { 6 };
-    inline static const int columnPaddingY { 12 };
+    inline static const int columnPaddingY { 40 };
     inline static const int columnBgCurvature { 24 };
     inline static const int intraCellPaddingX { 0 };
     inline static const int intraCellPaddingY { 8 };
@@ -83,18 +96,15 @@ private:
     // === Drawing and Layout Helper Functions ================================
     void layoutFilter(FilterControl*, int xIndex, int yIndex);
     void layoutLinkButton(CtmToggle*, int);
+    void layoutFilterIcon(Icon*, int xIndex, int yIndex);
     void layoutTest(juce::Graphics&, int, int);
     void drawSectionLabels(juce::Graphics&);
-    void drawFilterIcons(juce::Graphics&);
     void drawFilterBackground(juce::Graphics&, int);
 
     // === Other Helper Functions =============================================
     void setColorOverrides();
     juce::Colour getColorOne();
     juce::Colour getColorTwo();
-    juce::Path getHighPassFilterIcon(int x, int y, int w, int h);
-    juce::Path getPeakFilterIcon(int x, int y, int w, int h);
-    juce::Path getLowPassFilterIcon(int x, int y, int w, int h);
     int secondSectionStart();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)

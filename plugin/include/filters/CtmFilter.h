@@ -36,6 +36,7 @@ public:
 
     // === Parameters =========================================================
     void addParameters(ParameterLayout*);
+    virtual std::string getOnOffParameter() = 0;
 
 protected:
     const std::string name;

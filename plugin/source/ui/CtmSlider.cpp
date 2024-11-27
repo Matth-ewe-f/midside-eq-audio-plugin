@@ -1,16 +1,21 @@
 #include "CtmSlider.h"
 #include "CtmLookAndFeel.h"
 
-CtmSlider::CtmSlider() : useColorOverride(false) { }
+CtmSlider::CtmSlider() : useColorOverride(false), enabled(true) { }
 
 void CtmSlider::paint(juce::Graphics& g)
 {
-    if (useColorOverride)
+    if (useColorOverride || !enabled)
     {
         // temporarily set the look and feel color to the override color
         auto id = CtmColourIds::meterFillColourId;
         juce::Colour oldColour = getLookAndFeel().findColour(id);
-        getLookAndFeel().setColour(id, colorOverride);
+        juce::Colour newColor;
+        if (enabled)
+            newColor = colorOverride;
+        else
+            newColor = findColour(CtmColourIds::untoggledColourId);
+        getLookAndFeel().setColour(id, newColor);
         // paint the component
         Slider::paint(g);
         // reset the look and feel colour
@@ -26,4 +31,10 @@ void CtmSlider::setColorOverride(juce::Colour color)
 {
     useColorOverride = true;
     colorOverride = color;
+}
+
+void CtmSlider::setEnabled(bool isEnabled)
+{
+    enabled = isEnabled;
+    repaint();
 }
