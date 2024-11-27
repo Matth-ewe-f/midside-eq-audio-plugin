@@ -19,6 +19,7 @@ void ParameterToggle::attachToParameter
     parameterName = parameter;
     tree->addParameterListener(parameterName, this);
     attachment.reset(new ButtonAttachment(*stateTree, parameter, toggle));
+    onToggle(*stateTree->getRawParameterValue(parameter) >= 1);
 }
 
 // === ValueTreeState Listener ================================================

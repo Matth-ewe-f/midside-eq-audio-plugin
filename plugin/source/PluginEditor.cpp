@@ -47,19 +47,24 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     lowPassLink.attachToParameter(stateTree, "lpf-linked");
     // setup mode buttons
     midSideButton.toggle.setText("Mid-Side");
-    midSideButton.onToggle = [this] (bool b) { 
+    midSideButton.toggle.setRadioGroupId(1, juce::dontSendNotification);
+    midSideButton.toggle.onClick = [this] { 
         processorRef.tree.getParameter("mode")->setValue(0);
         setColorOverrides();
         repaint(); 
     };
     addAndMakeVisible(midSideButton.toggle);
     leftRightButton.toggle.setText("Left-Right");
-    leftRightButton.onToggle = [this] (bool b) { 
+    leftRightButton.toggle.setRadioGroupId(1, juce::dontSendNotification);
+    leftRightButton.toggle.onClick = [this] { 
         processorRef.tree.getParameter("mode")->setValue(1);
         setColorOverrides();
         repaint();
     };
     addAndMakeVisible(leftRightButton.toggle);
+    auto notif = juce::sendNotification;
+    midSideButton.toggle.setToggleState(processorRef.isMidSide(), notif);
+    leftRightButton.toggle.setToggleState(!processorRef.isMidSide(), notif);
     // setup colors
     setColorOverrides();
 }
