@@ -30,6 +30,8 @@ public:
     void addHighPassControl(HighPassControl*);
     void addPeakFilterControl(PeakFilterControl*);
     void addLowPassControl(LowPassControl*);
+    void setupGain
+    (ParameterControl*, juce::AudioProcessorValueTreeState*, std::string);
     template<linkable T>
     void setupLinkButton(ParameterToggle*, T*, T*);
     void setupFilterIcon(Icon*, Icon::Type);
@@ -46,6 +48,9 @@ private:
     ParameterToggle peakThreeFourLink;
     ParameterToggle peakFiveSixLink;
     ParameterToggle lowPassLink;
+    // channel gains
+    ParameterControl gainOne;
+    ParameterControl gainTwo;
     // filters
     HighPassControl highPassOne;
     HighPassControl highPassTwo;
@@ -71,10 +76,11 @@ private:
     
     // === Layout constants ===================================================
     inline static const int headerHeight { 50 };
-    inline static const int xStart { 48 };
+    inline static const int xStart { 16 };
     inline static const int xEnd { 16 };
     inline static const int yStart { 10 };
     inline static const int yEnd { 10 };
+    inline static const int gainWidth { 64 };
     inline static const int cellWidth { 104 };
     inline static const int cellHeight { 102 };
     inline static const int cellMarginX { 12 };
@@ -95,11 +101,14 @@ private:
 
     // === Drawing and Layout Helper Functions ================================
     void layoutFilter(FilterControl*, int xIndex, int yIndex);
+    void layoutGain(ParameterControl*, int yIndex);
     void layoutLinkButton(CtmToggle*, int);
     void layoutFilterIcon(Icon*, int xIndex, int yIndex);
     void layoutTest(juce::Graphics&, int, int);
     void drawSectionLabels(juce::Graphics&);
     void drawFilterBackground(juce::Graphics&, int);
+    void drawGainBackground(juce::Graphics&);
+    void drawGainLabels(juce::Graphics&);
 
     // === Other Helper Functions =============================================
     void setColorOverrides();

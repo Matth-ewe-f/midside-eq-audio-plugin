@@ -22,6 +22,7 @@ public:
     // === Settings ===========================================================
     void setBounds(int x, int y, int width, int height);
     void attachToParameter(juce::AudioProcessorValueTreeState*, std::string);
+    void setSliderStyle(juce::Slider::SliderStyle);
 
     // === Parameter Linking ==================================================
     void link(const ParameterControl*) override;

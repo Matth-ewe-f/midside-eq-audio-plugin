@@ -55,6 +55,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout
 PluginProcessor::createParameters()
 {
 	juce::AudioProcessorValueTreeState::ParameterLayout parameters;
+	parameters.add(std::make_unique<Parameter>(
+		"gain1", "Gain (M/L)", juce::NormalisableRange<float>(-12, 12, 0.1f), 0
+	));
+	parameters.add(std::make_unique<Parameter>(
+		"gain2", "Gain (S/R)", juce::NormalisableRange<float>(-12, 12, 0.1f), 0
+	));
 	highPassOne.addParameters(&parameters);
 	highPassTwo.addParameters(&parameters);
 	peakOne.addParameters(&parameters);

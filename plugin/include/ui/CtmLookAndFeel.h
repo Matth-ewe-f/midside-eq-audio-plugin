@@ -8,10 +8,15 @@ public:
     // === Lifecycle ==========================================================
     CtmLookAndFeel();
 
+    // === Component Layout Overrides =========================================
+    juce::Slider::SliderLayout getSliderLayout(juce::Slider&) override;
     // === Component Drawer Overrides =========================================
     void drawRotarySlider
     (juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
     const float startAngle, const float endAngle, juce::Slider&) override;
+    void drawLinearSlider
+    (juce::Graphics&, int x, int y, int w, int h, float pos, float min,
+    float max, juce::Slider::SliderStyle, juce::Slider&) override;
 
 private:
     // === Internal Layout Constants ==========================================

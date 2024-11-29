@@ -18,6 +18,7 @@ public:
     void updateText(juce::Slider*);
     void setTypeNegativeValues(bool);
     void setMaxDecimals(int);
+    void setShowPlusForPositive(bool);
 
     // === Focus Functions ====================================================
     void focusGained(juce::Component::FocusChangeType) override;
@@ -33,6 +34,7 @@ private:
     juce::FontOptions postfixFont;
     juce::Slider* attachedSlider;
     int maxDecimals;
+    bool showPlus;
     bool typeNegative;
 
     // === Private Helper =====================================================

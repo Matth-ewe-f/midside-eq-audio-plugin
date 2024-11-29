@@ -6,13 +6,7 @@ PluginEditor::PluginEditor (PluginProcessor &p)
 {
     setLookAndFeel(&lookAndFeel);
     setWantsKeyboardFocus(true);
-    // calculate size
-    int w = xStart + (cellWidth * maxCols) + (cellMarginX * (maxCols - 1))
-        + (cellPaddingX * (maxCols * 2)) + xEnd;
-    int h = headerHeight + yStart + (cellHeight * maxRows)
-        + (cellMarginY * (maxRows - 1)) + (columnPaddingY * 2) + yEnd;
-    setSize(w, h);
-    // setup sliders
+    // setup filter
     addHighPassControl(&highPassOne);
     addHighPassControl(&highPassTwo);
     addPeakFilterControl(&peakOne);
@@ -34,6 +28,20 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     peakSix.attachToPeakFilter(stateTree, &processorRef.peakSix);
     lowPassOne.attachToLowPass(stateTree, &processorRef.lowPassOne);
     lowPassTwo.attachToLowPass(stateTree, &processorRef.lowPassTwo);
+    // setup gain
+    setupGain(&gainOne, stateTree, "gain1");
+    setupGain(&gainTwo, stateTree, "gain2");
+    // setup link buttons
+    setupLinkButton(&highPassLink, &highPassOne, &highPassTwo);
+    highPassLink.attachToParameter(stateTree, "hpf-linked");
+    setupLinkButton(&peakOneTwoLink, &peakOne, &peakTwo);
+    peakOneTwoLink.attachToParameter(stateTree, "peak12-linked");
+    setupLinkButton(&peakThreeFourLink, &peakThree, &peakFour);
+    peakThreeFourLink.attachToParameter(stateTree, "peak34-linked");
+    setupLinkButton(&peakFiveSixLink, &peakFive, &peakSix);
+    peakFiveSixLink.attachToParameter(stateTree, "peak56-linked");
+    setupLinkButton(&lowPassLink, &lowPassOne, &lowPassTwo);
+    lowPassLink.attachToParameter(stateTree, "lpf-linked");
     // setup icons
     setupFilterIcon(&hpfOneIcon, Icon::Type::HighPass);
     hpfOneIcon.attachToFilter(stateTree, &processorRef.highPassOne);
@@ -55,17 +63,6 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     lpfOneIcon.attachToFilter(stateTree, &processorRef.lowPassOne);
     setupFilterIcon(&lpfTwoIcon, Icon::Type::LowPass);
     lpfTwoIcon.attachToFilter(stateTree, &processorRef.lowPassTwo);
-    // setup link buttons
-    setupLinkButton(&highPassLink, &highPassOne, &highPassTwo);
-    highPassLink.attachToParameter(stateTree, "hpf-linked");
-    setupLinkButton(&peakOneTwoLink, &peakOne, &peakTwo);
-    peakOneTwoLink.attachToParameter(stateTree, "peak12-linked");
-    setupLinkButton(&peakThreeFourLink, &peakThree, &peakFour);
-    peakThreeFourLink.attachToParameter(stateTree, "peak34-linked");
-    setupLinkButton(&peakFiveSixLink, &peakFive, &peakSix);
-    peakFiveSixLink.attachToParameter(stateTree, "peak56-linked");
-    setupLinkButton(&lowPassLink, &lowPassOne, &lowPassTwo);
-    lowPassLink.attachToParameter(stateTree, "lpf-linked");
     // setup mode buttons
     midSideButton.toggle.setText("Mid-Side");
     midSideButton.toggle.setRadioGroupId(1, juce::dontSendNotification);
@@ -88,6 +85,12 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     leftRightButton.toggle.setToggleState(!processorRef.isMidSide(), notif);
     // setup colors
     setColorOverrides();
+    // calculate size
+    int w = xStart + gainWidth + ((cellWidth + cellMarginX) * maxCols)
+        + (cellPaddingX * (maxCols * 2)) + xEnd;
+    int h = headerHeight + yStart + (cellHeight * maxRows)
+        + (cellMarginY * (maxRows - 1)) + (columnPaddingY * 2) + yEnd;
+    setSize(w, h);
 }
 
 PluginEditor::~PluginEditor() { }
@@ -97,6 +100,8 @@ void PluginEditor::paint(juce::Graphics &g)
 {
     g.fillAll(findColour(juce::ResizableWindow::backgroundColourId));
     // draw backgrounds behind each filter's contollers
+    drawGainBackground(g);
+    drawGainLabels(g);
     for (int i = 0;i < maxCols;i++)
         drawFilterBackground(g, i);
     // draw lines seperating the mid and side sections
@@ -120,6 +125,8 @@ void PluginEditor::resized()
     layoutFilter(&peakSix, 3, 1);
     layoutFilter(&lowPassOne, 4, 0);
     layoutFilter(&lowPassTwo, 4, 1);
+    layoutGain(&gainOne, 0);
+    layoutGain(&gainTwo, 1);
     layoutLinkButton(&highPassLink.toggle, 0);
     layoutLinkButton(&peakOneTwoLink.toggle, 1);
     layoutLinkButton(&peakThreeFourLink.toggle, 2);
@@ -171,6 +178,19 @@ void PluginEditor::addLowPassControl(LowPassControl* control)
     addAndMakeVisible(&control->onOff.toggle);
 }
 
+void PluginEditor::setupGain
+(ParameterControl* gain, juce::AudioProcessorValueTreeState* tree,
+std::string parameter)
+{
+    gain->setSliderStyle(juce::Slider::LinearVertical);
+    gain->label.setPostfix(" dB");
+    gain->label.setMaxDecimals(1);
+    gain->label.setShowPlusForPositive(true);
+    gain->attachToParameter(tree, parameter);
+    addAndMakeVisible(gain->slider);
+    addAndMakeVisible(gain->label);
+}
+
 template <linkable T>
 void PluginEditor::setupLinkButton
 (ParameterToggle* linkButton, T* item1, T* item2)
@@ -206,8 +226,8 @@ void PluginEditor::setupFilterIcon(Icon* icon, Icon::Type type)
 void PluginEditor::layoutFilter
 (FilterControl* lowPass, int xIndex, int yIndex)
 {
-    int x = xStart + ((cellWidth + cellMarginX) * xIndex)
-        + (cellPaddingX * ((2 * xIndex) + 1));
+    int x = xStart + gainWidth + (cellWidth * xIndex)
+        + (cellMarginX * (xIndex + 1)) + (cellPaddingX * ((2 * xIndex) + 1));
     int y = headerHeight + yStart + columnPaddingY 
         + ((cellHeight + cellMarginY) * yIndex);
     lowPass->setBounds(
@@ -215,10 +235,18 @@ void PluginEditor::layoutFilter
     );
 }
 
+void PluginEditor::layoutGain(ParameterControl* gain, int yIndex)
+{
+    int y = headerHeight + yStart + columnPaddingY;
+    y += yIndex * (cellHeight + cellMarginY);
+    gain->setBounds(xStart, y, gainWidth, cellHeight);
+}
+
 void PluginEditor::layoutLinkButton(CtmToggle* linkButton, int index)
 {
-    int cx = xStart + ((cellMarginX + cellWidth) * index)
-        + (cellPaddingX * ((index * 2) + 1)) + (cellWidth / 2);
+    int cx = xStart + gainWidth + (cellWidth * index)
+        + (cellMarginX * (index + 1)) + (cellPaddingX * ((index * 2) + 1))
+        + (cellWidth / 2);
     int cy = headerHeight + yStart + columnPaddingY + cellHeight
         + (cellMarginY / 2);
     linkButton->setBounds(cx - 15, cy - 10, 30, 21);
@@ -226,8 +254,8 @@ void PluginEditor::layoutLinkButton(CtmToggle* linkButton, int index)
 
 void PluginEditor::layoutFilterIcon(Icon* icon, int xIndex, int yIndex)
 {
-    int x = xStart + ((cellMarginX + cellWidth) * xIndex)
-        + (cellPaddingX * ((xIndex * 2) + 1));
+    int x = xStart + gainWidth + (cellWidth * xIndex)
+        + (cellMarginX * (xIndex + 1)) + (cellPaddingX * ((xIndex * 2) + 1));
     int y = headerHeight + yStart;
     if (yIndex > 0)
         y += (cellHeight * maxRows) + (cellMarginY * (maxRows - 1))
@@ -237,8 +265,8 @@ void PluginEditor::layoutFilterIcon(Icon* icon, int xIndex, int yIndex)
 
 void PluginEditor::layoutTest(juce::Graphics& g, int xIndex, int yIndex)
 {
-    int x = xStart + ((cellWidth + cellMarginX) * xIndex)
-        + (cellPaddingX * ((2 * xIndex) - 1));
+    int x = xStart + gainWidth + (cellWidth * xIndex)
+        + (cellMarginX * (xIndex + 1)) + (cellPaddingX * ((xIndex * 2) + 1));
     int y = headerHeight + yStart + columnPaddingY 
         + ((cellHeight + cellMarginY) * yIndex);
     g.setColour(juce::Colours::red);
@@ -281,7 +309,8 @@ void PluginEditor::drawSectionLabels(juce::Graphics& g)
 void PluginEditor::drawFilterBackground(juce::Graphics& g, int index)
 {
     juce::Path p;
-    float x = xStart + ((cellWidth + (cellPaddingX*2) + cellMarginX) * index);
+    float x = xStart + gainWidth + ((cellWidth + (cellPaddingX*2)) * index)
+        + (cellMarginX * (index + 1));
     float y = headerHeight + yStart;
     float w = cellWidth + (cellPaddingX * 2);
     float h = (cellHeight * maxRows) + (cellMarginY * (maxRows - 1))
@@ -289,6 +318,29 @@ void PluginEditor::drawFilterBackground(juce::Graphics& g, int index)
     p.addRoundedRectangle(x, y, w, h, columnBgCurvature);
     g.setColour(findColour(CtmColourIds::darkBgColourId));
     g.fillPath(p);
+}
+
+void PluginEditor::drawGainBackground(juce::Graphics& g)
+{
+    juce::Path p;
+    float y = headerHeight + yStart;
+    float h = (cellHeight * maxRows) + (cellMarginY * (maxRows - 1))
+        + (columnPaddingY * 2);
+    p.addRoundedRectangle(xStart, y, gainWidth, h, columnBgCurvature);
+    g.setColour(findColour(CtmColourIds::darkBgColourId));
+    g.fillPath(p);
+}
+
+void PluginEditor::drawGainLabels(juce::Graphics& g)
+{
+    auto centered = juce::Justification::centred;
+    int y1 = headerHeight + yStart + columnPaddingY - 24;
+    g.setColour(getColorOne());
+    g.drawText("Gain", xStart, y1, gainWidth, 12, centered, false);
+    int y2 = headerHeight + yStart + columnPaddingY + cellMarginY
+        + (cellHeight * 2) + 12;
+    g.setColour(getColorTwo());
+    g.drawText("Gain", xStart, y2, gainWidth, 12, centered, false);
 }
 
 // === Other Helper Functions =================================================
@@ -319,6 +371,8 @@ void PluginEditor::setColorOverrides()
     peakSixIcon.setColor(getColorTwo());
     lpfOneIcon.setColor(getColorOne());
     lpfTwoIcon.setColor(getColorTwo());
+    gainOne.slider.setColorOverride(getColorOne());
+    gainTwo.slider.setColorOverride(getColorTwo());
 }
 
 juce::Colour PluginEditor::getColorOne()

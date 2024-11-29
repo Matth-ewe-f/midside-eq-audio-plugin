@@ -4,7 +4,7 @@
 ParameterControl::ParameterControl()
     : parameterName(""), tree(nullptr)
 {
-    slider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    setSliderStyle(juce::Slider::RotaryVerticalDrag);
     slider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     label.listenTo(&slider);
     juce::FontOptions mainFont(12);
@@ -28,6 +28,11 @@ void ParameterControl::attachToParameter
     parameterName = parameter;
     attachment.reset(new SliderAttachment(*stateTree, parameter, slider));
     label.updateText(&slider);
+}
+
+void ParameterControl::setSliderStyle(juce::Slider::SliderStyle style)
+{
+    slider.setSliderStyle(style);
 }
 
 // === Parameter Linking ======================================================

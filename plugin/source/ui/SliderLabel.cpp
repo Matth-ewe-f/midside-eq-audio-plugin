@@ -32,6 +32,10 @@ void SliderLabel::setPostfix(std::string s)
 void SliderLabel::updateText(juce::Slider* slider)
 {
     std::string value = getSliderValueAsString(slider);
+    if (value[0] != '0' && value[0] != '-' && showPlus)
+    {
+        value = '+' + value;
+    }
     setFont(mainFont);
     setText(prefix + value, juce::dontSendNotification);
     moveCaretToEnd();
@@ -47,6 +51,11 @@ void SliderLabel::setTypeNegativeValues(bool typeNegativeValues)
 void SliderLabel::setMaxDecimals(int decimals)
 {
     maxDecimals = decimals;
+}
+
+void SliderLabel::setShowPlusForPositive(bool show)
+{
+    showPlus = show;
 }
 
 // === Font Setters ===========================================================
@@ -66,6 +75,7 @@ void SliderLabel::focusGained(juce::Component::FocusChangeType changeType)
     juce::ignoreUnused(changeType);
     setFont(mainFont);
     setText(getSliderValueAsString(attachedSlider));
+    selectAll();
 }
 
 void SliderLabel::focusLost(juce::Component::FocusChangeType changeType)
@@ -118,11 +128,11 @@ double SliderLabel::convertToSliderValue(std::string text)
 
 std::string SliderLabel::getSliderValueAsString(juce::Slider* slider)
 {
-    double valueAsBbl = slider->getValue();
+    double valueAsDbl = slider->getValue();
     std::string value;
-    if (maxDecimals >= 2 && valueAsBbl < 10)
+    if (maxDecimals >= 2 && valueAsDbl < 10)
         value = std::format("{:.2f}", slider->getValue());
-    else if (maxDecimals >= 1 && valueAsBbl < 1000)
+    else if (maxDecimals >= 1 && valueAsDbl < 1000)
         value = std::format("{:.1f}", slider->getValue());
     else
         value = std::format("{:.0f}", slider->getValue());
