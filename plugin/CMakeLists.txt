@@ -31,6 +31,7 @@ target_sources(
         source/parameterControls/ParameterListener.cpp
         source/parameterControls/ParameterToggle.cpp
         source/parameterControls/ParameterControl.cpp
+        source/parameterControls/GainControl.cpp
         source/parameterControls/HighPassControl.cpp
         source/parameterControls/PeakFilterControl.cpp
         source/parameterControls/LowPassControl.cpp

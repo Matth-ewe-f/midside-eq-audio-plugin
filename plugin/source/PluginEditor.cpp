@@ -29,8 +29,10 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     lowPassOne.attachToLowPass(stateTree, &processorRef.lowPassOne);
     lowPassTwo.attachToLowPass(stateTree, &processorRef.lowPassTwo);
     // setup gain
-    setupGain(&gainOne, stateTree, &processorRef.gainOne);
-    setupGain(&gainTwo, stateTree, &processorRef.gainTwo);
+    addGainControl(&gainOne);
+    addGainControl(&gainTwo);
+    gainOne.attachToGain(stateTree, &processorRef.gainOne);
+    gainTwo.attachToGain(stateTree, &processorRef.gainTwo);
     // setup link buttons
     setupLinkButton(&highPassLink, &highPassOne, &highPassTwo);
     highPassLink.attachToParameter(stateTree, "hpf-linked");
@@ -101,7 +103,6 @@ void PluginEditor::paint(juce::Graphics &g)
     g.fillAll(findColour(juce::ResizableWindow::backgroundColourId));
     // draw backgrounds behind each filter's contollers
     drawGainBackground(g);
-    drawGainLabels(g);
     for (int i = 0;i < maxCols;i++)
         drawFilterBackground(g, i);
     // draw lines seperating the mid and side sections
@@ -154,6 +155,12 @@ void PluginEditor::addParameterControl(ParameterControl* control)
     addAndMakeVisible(control->label);
 }
 
+void PluginEditor::addGainControl(GainControl* gain)
+{
+    addParameterControl(&gain->gain);
+    addAndMakeVisible(&gain->onOff.toggle);
+}
+
 void PluginEditor::addHighPassControl(HighPassControl* control)
 {
     addParameterControl(&control->frequency);
@@ -176,19 +183,6 @@ void PluginEditor::addLowPassControl(LowPassControl* control)
     addParameterControl(&control->falloff);
     addParameterControl(&control->resonance);
     addAndMakeVisible(&control->onOff.toggle);
-}
-
-void PluginEditor::setupGain
-(ParameterControl* gain, juce::AudioProcessorValueTreeState* tree,
-GainFilter* filter)
-{
-    gain->setSliderStyle(juce::Slider::LinearVertical);
-    gain->label.setPostfix(" dB");
-    gain->label.setMaxDecimals(1);
-    gain->label.setShowPlusForPositive(true);
-    gain->attachToParameter(tree, filter->parameterName);
-    addAndMakeVisible(gain->slider);
-    addAndMakeVisible(gain->label);
 }
 
 template <linkable T>
@@ -235,11 +229,13 @@ void PluginEditor::layoutFilter
     );
 }
 
-void PluginEditor::layoutGain(ParameterControl* gain, int yIndex)
+void PluginEditor::layoutGain(GainControl* gain, int yIndex)
 {
-    int y = headerHeight + yStart + columnPaddingY;
-    y += yIndex * (cellHeight + cellMarginY);
-    gain->setBounds(xStart, y, gainWidth, cellHeight);
+    int y = headerHeight + yStart + (int)(columnPaddingY * 0.33f);
+    y += yIndex * (cellHeight + cellMarginY + (int)(columnPaddingY * 0.67f));
+    gain->setToggleAboveSlider(yIndex == 0);
+    int h = cellHeight + (int)(columnPaddingY * 0.67f);
+    gain->setBounds(xStart, y, gainWidth, h, 0, 0);
 }
 
 void PluginEditor::layoutLinkButton(CtmToggle* linkButton, int index)
@@ -346,6 +342,8 @@ void PluginEditor::drawGainLabels(juce::Graphics& g)
 // === Other Helper Functions =================================================
 void PluginEditor::setColorOverrides()
 {
+    gainOne.setAllColorOverrides(getColorOne());
+    gainTwo.setAllColorOverrides(getColorTwo());
     highPassOne.setAllColorOverrides(getColorOne());
     peakOne.setAllColorOverrides(getColorOne());
     peakThree.setAllColorOverrides(getColorOne());
@@ -371,8 +369,6 @@ void PluginEditor::setColorOverrides()
     peakSixIcon.setColor(getColorTwo());
     lpfOneIcon.setColor(getColorOne());
     lpfTwoIcon.setColor(getColorTwo());
-    gainOne.slider.setColorOverride(getColorOne());
-    gainTwo.slider.setColorOverride(getColorTwo());
 }
 
 juce::Colour PluginEditor::getColorOne()

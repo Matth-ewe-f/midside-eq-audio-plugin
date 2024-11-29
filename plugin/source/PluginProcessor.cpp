@@ -13,8 +13,8 @@ PluginProcessor::PluginProcessor()
 		.withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
 	),
-	gainOne("1", "Channel Gain (M/L)", -12, 12, 0),
-	gainTwo("2", "Channel Gain (S/R)", -12, 12, 0),
+	gainOne("gain1", "Channel Gain {0} (M/L)"),
+	gainTwo("gain2", "Channel Gain {0} (S/R)"),
 	highPassOne("hpf1", "High-Pass {0} (M/L)"),
 	highPassTwo("hpf2", "High-Pass {0} (S/R)"),
 	peakOne("peak1", "Peak #1 {0} (M/L)", 200),
@@ -28,8 +28,8 @@ PluginProcessor::PluginProcessor()
 	tree(*this, nullptr, "PARAMETERS", createParameters()),
 	lastSampleRate(48000) // default value
 {
-	gainOne.listenTo(&tree);
-	gainTwo.listenTo(&tree);
+	gainOne.setListenTo(&tree);
+	gainTwo.setListenTo(&tree);
 	highPassOne.setListenTo(&tree);
 	highPassTwo.setListenTo(&tree);
 	peakOne.setListenTo(&tree);

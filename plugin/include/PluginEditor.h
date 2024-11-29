@@ -4,6 +4,7 @@
 #include "GainFilter.h"
 #include "ParameterControl.h"
 #include "CtmToggle.h"
+#include "GainControl.h"
 #include "FilterControl.h"
 #include "HighPassControl.h"
 #include "PeakFilterControl.h"
@@ -28,11 +29,10 @@ public:
 
     // === Functions for Custom Components ====================================
     void addParameterControl(ParameterControl*);
+    void addGainControl(GainControl*);
     void addHighPassControl(HighPassControl*);
     void addPeakFilterControl(PeakFilterControl*);
     void addLowPassControl(LowPassControl*);
-    void setupGain
-    (ParameterControl*, juce::AudioProcessorValueTreeState*, GainFilter*);
     template<linkable T>
     void setupLinkButton(ParameterToggle*, T*, T*);
     void setupFilterIcon(Icon*, Icon::Type);
@@ -50,8 +50,8 @@ private:
     ParameterToggle peakFiveSixLink;
     ParameterToggle lowPassLink;
     // channel gains
-    ParameterControl gainOne;
-    ParameterControl gainTwo;
+    GainControl gainOne;
+    GainControl gainTwo;
     // filters
     HighPassControl highPassOne;
     HighPassControl highPassTwo;
@@ -102,7 +102,7 @@ private:
 
     // === Drawing and Layout Helper Functions ================================
     void layoutFilter(FilterControl*, int xIndex, int yIndex);
-    void layoutGain(ParameterControl*, int yIndex);
+    void layoutGain(GainControl*, int yIndex);
     void layoutLinkButton(CtmToggle*, int);
     void layoutFilterIcon(Icon*, int xIndex, int yIndex);
     void layoutTest(juce::Graphics&, int, int);

@@ -1,36 +1,43 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
+#include "CtmFilter.h"
 
 using ParameterLayout = juce::AudioProcessorValueTreeState::ParameterLayout;
 using Parameter = juce::AudioProcessorValueTreeState::Parameter;
 namespace dsp = juce::dsp;
 
-class GainFilter : juce::AudioProcessorValueTreeState::Listener
+class GainFilter : public CtmFilter
 {
 public:
-    std::string parameterName;
-
     // === Lifecycle ==========================================================
-    GainFilter
-    (std::string idPostfix, std::string displayName, float min, float max,
-    float defaultValue);
+    GainFilter(std::string nameArg, std::string displayName);
 
-    // === Parameter Listener =================================================
-    void listenTo(juce::AudioProcessorValueTreeState*);
-    void parameterChanged(const juce::String&, float);
-
-    // === Set Parameters =====================================================
-    void addParameters(ParameterLayout*);
+    // === Parameters =========================================================
+    void parameterChanged(const juce::String&, float) override;
+    inline std::string getOnOffParameter() override
+        { return name + "-" + onOffParam.idPostfix; }
+    inline std::string getGainParameter()
+        { return name + "-" + gainParam.idPostfix; }
     void setGain(float);
+    void setBypass(bool);
 
     // === Process Audio ======================================================
     void reset(int blockSize);
     float processSample(float);
+
+protected:
+    void getParameters(std::vector<ParameterFields>&) override;
+
 private:
-    std::string displayName;
-    float minimum;
-    float maximum;
-    float defaultVal;
     juce::SmoothedValue<float> smoothGain;
+    juce::SmoothedValue<float> smoothBypass;
+
+    // === Static Constants ===================================================
+    inline static const ParameterFields onOffParam {
+        makeParamFields("on", "On/Off", 0, 1, 1, 1, 1)
+    };
+    inline static const ParameterFields gainParam {
+        makeParamFields("gain", "", -12, 12, 0.1f, 1, 0)
+    };
 };

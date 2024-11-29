@@ -1,37 +1,20 @@
 #include "GainFilter.h"
 
 // === Lifecycle ==============================================================
-GainFilter::GainFilter
-(std::string idPostfix, std::string display, float min, float max,
-float defaultValue)
-    : parameterName("gain-" + idPostfix), displayName(display), minimum(min),
-    maximum(max), defaultVal(defaultValue)
+GainFilter::GainFilter(std::string nameArg, std::string parameterText)
+    : CtmFilter(nameArg, parameterText)
 {
     smoothGain.setCurrentAndTargetValue(0);
+    smoothBypass.setCurrentAndTargetValue(1);
 }
 
-// === Parameter Listener =====================================================
-void GainFilter::listenTo(juce::AudioProcessorValueTreeState* tree)
-{
-    tree->addParameterListener(parameterName, this);
-    setGain(*tree->getRawParameterValue(parameterName));
-}
-
+// === Parameters =============================================================
 void GainFilter::parameterChanged(const juce::String& parameter, float value)
 {
-    juce::ignoreUnused(parameter);
-    setGain(value);
-}
-
-// === Set Parameters =========================================================
-void GainFilter::addParameters(ParameterLayout* parameters)
-{
-    parameters->add(std::make_unique<Parameter>(
-        parameterName,
-        displayName,
-        juce::NormalisableRange<float>(minimum, maximum, 0.1f),
-        defaultVal
-    ));
+    if (parameter.compare(name + "-" + gainParam.idPostfix) == 0)
+        setGain(value);
+    else if (parameter.compare(name + "-" + onOffParam.idPostfix) == 0)
+        setBypass(value <= 0);
 }
 
 void GainFilter::setGain(float value)
@@ -39,16 +22,38 @@ void GainFilter::setGain(float value)
     smoothGain.setTargetValue(value);
 }
 
+void GainFilter::setBypass(bool b)
+{
+    smoothBypass.setTargetValue(b ? 0 : 1);
+}
+
 // === Process Audio ==========================================================
 void GainFilter::reset(int blockSize)
 {
     smoothGain.reset(blockSize);
+    smoothBypass.reset(blockSize);
 }
 
 float GainFilter::processSample(float sample)
 {
+    if (!smoothBypass.isSmoothing() && smoothBypass.getCurrentValue() <= 0)
+        return sample;
+    float result;
     if (smoothGain.isSmoothing())
-        return sample * pow(10.0f, smoothGain.getNextValue() / 20.0f);
+        result = sample * pow(10.0f, smoothGain.getNextValue() / 20.0f);
     else
-        return sample * pow(10.0f, smoothGain.getCurrentValue() / 20.0f);
+        result = sample * pow(10.0f, smoothGain.getCurrentValue() / 20.0f);
+    if (smoothBypass.isSmoothing())
+    {
+        float p = smoothBypass.getNextValue();
+        result = (result * p) + (sample * (1 - p));
+    }
+    return result;
+}
+
+// === Inherited from CtmFilter ===============================================
+void GainFilter::getParameters(std::vector<ParameterFields>& params)
+{
+    params.push_back(onOffParam);
+    params.push_back(gainParam);
 }
