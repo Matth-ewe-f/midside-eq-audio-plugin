@@ -1,6 +1,7 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "PluginProcessor.h"
+#include "GainFilter.h"
 #include "ParameterControl.h"
 #include "CtmToggle.h"
 #include "FilterControl.h"
@@ -31,7 +32,7 @@ public:
     void addPeakFilterControl(PeakFilterControl*);
     void addLowPassControl(LowPassControl*);
     void setupGain
-    (ParameterControl*, juce::AudioProcessorValueTreeState*, std::string);
+    (ParameterControl*, juce::AudioProcessorValueTreeState*, GainFilter*);
     template<linkable T>
     void setupLinkButton(ParameterToggle*, T*, T*);
     void setupFilterIcon(Icon*, Icon::Type);

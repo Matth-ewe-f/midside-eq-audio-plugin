@@ -13,6 +13,8 @@ PluginProcessor::PluginProcessor()
 		.withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
 	),
+	gainOne("1", "Channel Gain (M/L)", -12, 12, 0),
+	gainTwo("2", "Channel Gain (S/R)", -12, 12, 0),
 	highPassOne("hpf1", "High-Pass {0} (M/L)"),
 	highPassTwo("hpf2", "High-Pass {0} (S/R)"),
 	peakOne("peak1", "Peak #1 {0} (M/L)", 200),
@@ -26,6 +28,8 @@ PluginProcessor::PluginProcessor()
 	tree(*this, nullptr, "PARAMETERS", createParameters()),
 	lastSampleRate(48000) // default value
 {
+	gainOne.listenTo(&tree);
+	gainTwo.listenTo(&tree);
 	highPassOne.setListenTo(&tree);
 	highPassTwo.setListenTo(&tree);
 	peakOne.setListenTo(&tree);
@@ -55,12 +59,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout
 PluginProcessor::createParameters()
 {
 	juce::AudioProcessorValueTreeState::ParameterLayout parameters;
-	parameters.add(std::make_unique<Parameter>(
-		"gain1", "Gain (M/L)", juce::NormalisableRange<float>(-12, 12, 0.1f), 0
-	));
-	parameters.add(std::make_unique<Parameter>(
-		"gain2", "Gain (S/R)", juce::NormalisableRange<float>(-12, 12, 0.1f), 0
-	));
+	gainOne.addParameters(&parameters);
+	gainTwo.addParameters(&parameters);
 	highPassOne.addParameters(&parameters);
 	highPassTwo.addParameters(&parameters);
 	peakOne.addParameters(&parameters);
@@ -134,6 +134,8 @@ void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 	spec.sampleRate = sampleRate;
 	spec.maximumBlockSize = (unsigned) samplesPerBlock;
 	spec.numChannels = (unsigned) getTotalNumOutputChannels();
+	gainOne.reset(samplesPerBlock);
+	gainTwo.reset(samplesPerBlock);
 	highPassOne.reset(sampleRate, samplesPerBlock);
 	highPassOne.prepare(spec);
 	highPassTwo.reset(sampleRate, samplesPerBlock);
@@ -243,6 +245,7 @@ void PluginProcessor::setStateInformation(const void *data, int sizeInBytes)
 // === Other Private Helper ===============================================
 float PluginProcessor::processSampleChannelOne(float sample)
 {
+	sample = gainOne.processSample(sample);
 	sample = highPassOne.processSample(sample);
 	sample = peakOne.processSample(sample);
 	sample = peakThree.processSample(sample);
@@ -253,6 +256,7 @@ float PluginProcessor::processSampleChannelOne(float sample)
 
 float PluginProcessor::processSampleChannelTwo(float sample)
 {
+	sample = gainTwo.processSample(sample);
 	sample = highPassTwo.processSample(sample);
 	sample = peakTwo.processSample(sample);
 	sample = peakFour.processSample(sample);

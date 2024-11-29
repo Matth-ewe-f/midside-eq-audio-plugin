@@ -4,7 +4,8 @@
 
 // === Lifecycle ==============================================================
 SliderLabel::SliderLabel() :
-    prefix(""), postfix(""), maxDecimals(0), typeNegative(false)
+    prefix(""), postfix(""), maxDecimals(0), showPlus(false),
+    typeNegative(false)
 {
     setJustification(juce::Justification::centred);
     setSelectAllWhenFocused(true);

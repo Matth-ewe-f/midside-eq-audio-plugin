@@ -27,8 +27,8 @@ juce::Slider::SliderLayout CtmLookAndFeel::getSliderLayout
     juce::Slider::SliderLayout layout;
     if (slider.getSliderStyle() == juce::Slider::LinearVertical)
     {
-        b.setY(b.getY() + 4);
-        b.setHeight(b.getHeight() - 8);   
+        b.setY(b.getY() + 6);
+        b.setHeight(b.getHeight() - 12);
     }
     layout.sliderBounds = b;
     return layout;

@@ -6,6 +6,7 @@
 #include "HighPassFilter.h"
 #include "PeakFilter.h"
 #include "LowPassFilter.h"
+#include "GainFilter.h"
 
 namespace dsp = juce::dsp;
 
@@ -13,6 +14,8 @@ class PluginProcessor final : public juce::AudioProcessor
 {
 public:
     // === Public Variables ===================================================
+    GainFilter gainOne;
+    GainFilter gainTwo;
     HighPassFilter highPassOne;
     HighPassFilter highPassTwo;
     PeakFilter peakOne;

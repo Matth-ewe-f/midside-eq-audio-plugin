@@ -17,6 +17,7 @@ target_sources(
     ${PROJECT_NAME}
     PRIVATE
         source/PluginProcessor.cpp
+        source/filters/GainFilter.cpp
         source/filters/CtmFilter.cpp
         source/filters/HighPassFilter.cpp
         source/filters/PeakFilter.cpp

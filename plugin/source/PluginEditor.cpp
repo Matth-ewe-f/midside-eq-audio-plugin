@@ -29,8 +29,8 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     lowPassOne.attachToLowPass(stateTree, &processorRef.lowPassOne);
     lowPassTwo.attachToLowPass(stateTree, &processorRef.lowPassTwo);
     // setup gain
-    setupGain(&gainOne, stateTree, "gain1");
-    setupGain(&gainTwo, stateTree, "gain2");
+    setupGain(&gainOne, stateTree, &processorRef.gainOne);
+    setupGain(&gainTwo, stateTree, &processorRef.gainTwo);
     // setup link buttons
     setupLinkButton(&highPassLink, &highPassOne, &highPassTwo);
     highPassLink.attachToParameter(stateTree, "hpf-linked");
@@ -180,13 +180,13 @@ void PluginEditor::addLowPassControl(LowPassControl* control)
 
 void PluginEditor::setupGain
 (ParameterControl* gain, juce::AudioProcessorValueTreeState* tree,
-std::string parameter)
+GainFilter* filter)
 {
     gain->setSliderStyle(juce::Slider::LinearVertical);
     gain->label.setPostfix(" dB");
     gain->label.setMaxDecimals(1);
     gain->label.setShowPlusForPositive(true);
-    gain->attachToParameter(tree, parameter);
+    gain->attachToParameter(tree, filter->parameterName);
     addAndMakeVisible(gain->slider);
     addAndMakeVisible(gain->label);
 }
