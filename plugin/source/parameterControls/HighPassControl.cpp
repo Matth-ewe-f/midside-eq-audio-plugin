@@ -64,6 +64,7 @@ void HighPassControl::attachToHighPass
     {
         frequency.slider.setEnabled(toggled);
         falloff.slider.setEnabled(toggled);
+        shelfGain.slider.setEnabled(toggled);
         resonance.slider.setEnabled(toggled);
         shelfToggle.toggle.setColorAsUntoggled(!toggled);
     });
