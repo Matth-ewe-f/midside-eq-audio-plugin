@@ -33,7 +33,7 @@ void SliderLabel::setPostfix(std::string s)
 void SliderLabel::updateText(juce::Slider* slider)
 {
     std::string value = getSliderValueAsString(slider);
-    if (value[0] != '0' && value[0] != '-' && showPlus)
+    if (slider->getValue() > 0 && showPlus)
     {
         value = '+' + value;
     }
