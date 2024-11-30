@@ -7,7 +7,7 @@ using Coefficients = juce::dsp::IIR::Coefficients<float>;
 // === Lifecycle ==============================================================
 HighPassFilter::HighPassFilter(std::string nameArg, std::string parameterText)
     : CtmFilter(nameArg, parameterText), order(1), pendingOrder(-1),
-    fadeSamples(-1), sampleRate(48000)
+    fadeSamples(-1), isShelf(false), sampleRate(48000)
 {
     filterOne.coefficients
         = Coefficients::makeHighPass(sampleRate, 20, 0.71f);
@@ -30,6 +30,8 @@ void HighPassFilter::parameterChanged(const juce::String& param, float value)
         setFrequency(value);
     else if (param.compare(name + "-" + falloffParam.idPostfix) == 0)
         setOrder((int) value / 6);
+    else if (param.compare(name + "-" + shelfModeParam.idPostfix) == 0)
+        setIsShelf(value >= 1);
 }
 
 // === Parameter Functions ====================================================
@@ -63,6 +65,11 @@ void HighPassFilter::setOrder(int newOrder)
     else
         pendingOrder = newOrder;
     fadeSamples = 0;
+}
+
+void HighPassFilter::setIsShelf(bool shelf)
+{
+    isShelf = shelf;
 }
 
 // === Process Audio ==========================================================
@@ -117,6 +124,7 @@ float HighPassFilter::processSample(float sample)
 void HighPassFilter::getParameters(std::vector<ParameterFields>& parameters)
 {
     parameters.push_back(onOffParam);
+    parameters.push_back(shelfModeParam);
     parameters.push_back(freqParam);
     parameters.push_back(falloffParam);
     parameters.push_back(resParam);

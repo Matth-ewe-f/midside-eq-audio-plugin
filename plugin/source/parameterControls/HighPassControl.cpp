@@ -10,6 +10,8 @@ HighPassControl::HighPassControl()
     resonance.label.setPostfix(" res");
     resonance.label.setMaxDecimals(2);
     onOff.toggle.setText("ON", "OFF");
+    shelfToggle.toggle.setText("SHELF", "FILTER");
+    shelfToggle.toggle.setDisplayAlwaysUp(true);
 }
 
 HighPassControl::~HighPassControl() { }
@@ -22,9 +24,10 @@ void HighPassControl::setBounds(int x, int y, int w, int h, int xPad, int yPad)
     frequency.setBounds(x, y, itemW, itemH);
     falloff.setBounds(x, y + itemH + yPad, itemW, itemH);
     resonance.setBounds(x + itemW + xPad, y + itemH + yPad, itemW, itemH);
-    int toggleW = 28;
+    int toggleW = 37;
     int toggleX = x + itemW + xPad + ((itemW - toggleW) / 2);
-    onOff.setBounds(toggleX, y + 6, toggleW, 21);
+    onOff.setBounds(toggleX, y - 2, toggleW, 21);
+    shelfToggle.setBounds(toggleX, y + 24, toggleW, 21);
 }
 
 void HighPassControl::setAllColorOverrides(juce::Colour color)
@@ -35,6 +38,7 @@ void HighPassControl::setAllColorOverrides(juce::Colour color)
     color = color.withMultipliedSaturation(0.8f);
     color = color.withMultipliedBrightness(0.8f);
     onOff.toggle.setColorOverride(color);
+    shelfToggle.toggle.setColorOverride(color);
 }
 
 void HighPassControl::attachToHighPass
@@ -43,11 +47,13 @@ void HighPassControl::attachToHighPass
     frequency.attachToParameter(tree, filter->getFrequencyParameter());
     falloff.attachToParameter(tree, filter->getFalloffParameter());
     resonance.attachToParameter(tree, filter->getResonanceParameter());
+    shelfToggle.attachToParameter(tree, filter->getShelfModeParameter());
     onOff.onToggle = [this] (bool toggled)
     {
         frequency.slider.setEnabled(toggled);
         falloff.slider.setEnabled(toggled);
         resonance.slider.setEnabled(toggled);
+        shelfToggle.toggle.setColorAsUntoggled(!toggled);
     };
     onOff.attachToParameter(tree, filter->getOnOffParameter());
 }
@@ -59,6 +65,7 @@ void HighPassControl::link(const HighPassControl* other)
     falloff.link(&other->falloff);
     resonance.link(&other->resonance);
     onOff.link(&other->onOff);
+    shelfToggle.link(&other->shelfToggle);
 }
 
 void HighPassControl::unlink(const HighPassControl* other)
@@ -67,4 +74,5 @@ void HighPassControl::unlink(const HighPassControl* other)
     falloff.unlink(&other->falloff);
     resonance.unlink(&other->resonance);
     onOff.unlink(&other->onOff);
+    shelfToggle.unlink(&other->shelfToggle);
 }

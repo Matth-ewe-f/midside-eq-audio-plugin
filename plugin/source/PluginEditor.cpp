@@ -6,7 +6,29 @@ PluginEditor::PluginEditor (PluginProcessor &p)
 {
     setLookAndFeel(&lookAndFeel);
     setWantsKeyboardFocus(true);
-    // setup filter
+    // setup icons
+    juce::AudioProcessorValueTreeState* stateTree = &processorRef.tree;
+    setupFilterIcon(&hpfOneIcon, Icon::Type::HighPass);
+    hpfOneIcon.attachToFilter(stateTree, &processorRef.highPassOne);
+    setupFilterIcon(&hpfTwoIcon, Icon::Type::LowShelf);
+    hpfTwoIcon.attachToFilter(stateTree, &processorRef.highPassTwo);
+    setupFilterIcon(&peakOneIcon, Icon::Type::Peak);
+    peakOneIcon.attachToFilter(stateTree, &processorRef.peakOne);
+    setupFilterIcon(&peakTwoIcon, Icon::Type::Peak);
+    peakTwoIcon.attachToFilter(stateTree, &processorRef.peakTwo);
+    setupFilterIcon(&peakThreeIcon, Icon::Type::Peak);
+    peakThreeIcon.attachToFilter(stateTree, &processorRef.peakThree);
+    setupFilterIcon(&peakFourIcon, Icon::Type::Peak);
+    peakFourIcon.attachToFilter(stateTree, &processorRef.peakFour);
+    setupFilterIcon(&peakFiveIcon, Icon::Type::Peak);
+    peakFiveIcon.attachToFilter(stateTree, &processorRef.peakFive);
+    setupFilterIcon(&peakSixIcon, Icon::Type::Peak);
+    peakSixIcon.attachToFilter(stateTree, &processorRef.peakSix);
+    setupFilterIcon(&lpfOneIcon, Icon::Type::HighShelf);
+    lpfOneIcon.attachToFilter(stateTree, &processorRef.lowPassOne);
+    setupFilterIcon(&lpfTwoIcon, Icon::Type::LowPass);
+    lpfTwoIcon.attachToFilter(stateTree, &processorRef.lowPassTwo);
+    // setup filters
     addHighPassControl(&highPassOne);
     addHighPassControl(&highPassTwo);
     addPeakFilterControl(&peakOne);
@@ -17,8 +39,17 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     addPeakFilterControl(&peakSix);
     addLowPassControl(&lowPassOne);
     addLowPassControl(&lowPassTwo);
-    juce::AudioProcessorValueTreeState* stateTree = &processorRef.tree;
+    highPassOne.shelfToggle.onToggle = [this] (bool toggled)
+    {
+        auto iconType = toggled ? Icon::Type::LowShelf : Icon::Type::HighPass;
+        hpfOneIcon.setType(iconType);
+    };
     highPassOne.attachToHighPass(stateTree, &processorRef.highPassOne);
+    highPassTwo.shelfToggle.onToggle = [this] (bool toggled)
+    {
+        auto iconType = toggled ? Icon::Type::LowShelf : Icon::Type::HighPass;
+        hpfTwoIcon.setType(iconType);
+    };
     highPassTwo.attachToHighPass(stateTree, &processorRef.highPassTwo);
     peakOne.attachToPeakFilter(stateTree, &processorRef.peakOne);
     peakTwo.attachToPeakFilter(stateTree, &processorRef.peakTwo);
@@ -44,27 +75,6 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     peakFiveSixLink.attachToParameter(stateTree, "peak56-linked");
     setupLinkButton(&lowPassLink, &lowPassOne, &lowPassTwo);
     lowPassLink.attachToParameter(stateTree, "lpf-linked");
-    // setup icons
-    setupFilterIcon(&hpfOneIcon, Icon::Type::HighPass);
-    hpfOneIcon.attachToFilter(stateTree, &processorRef.highPassOne);
-    setupFilterIcon(&hpfTwoIcon, Icon::Type::LowShelf);
-    hpfTwoIcon.attachToFilter(stateTree, &processorRef.highPassTwo);
-    setupFilterIcon(&peakOneIcon, Icon::Type::Peak);
-    peakOneIcon.attachToFilter(stateTree, &processorRef.peakOne);
-    setupFilterIcon(&peakTwoIcon, Icon::Type::Peak);
-    peakTwoIcon.attachToFilter(stateTree, &processorRef.peakTwo);
-    setupFilterIcon(&peakThreeIcon, Icon::Type::Peak);
-    peakThreeIcon.attachToFilter(stateTree, &processorRef.peakThree);
-    setupFilterIcon(&peakFourIcon, Icon::Type::Peak);
-    peakFourIcon.attachToFilter(stateTree, &processorRef.peakFour);
-    setupFilterIcon(&peakFiveIcon, Icon::Type::Peak);
-    peakFiveIcon.attachToFilter(stateTree, &processorRef.peakFive);
-    setupFilterIcon(&peakSixIcon, Icon::Type::Peak);
-    peakSixIcon.attachToFilter(stateTree, &processorRef.peakSix);
-    setupFilterIcon(&lpfOneIcon, Icon::Type::HighShelf);
-    lpfOneIcon.attachToFilter(stateTree, &processorRef.lowPassOne);
-    setupFilterIcon(&lpfTwoIcon, Icon::Type::LowPass);
-    lpfTwoIcon.attachToFilter(stateTree, &processorRef.lowPassTwo);
     // setup mode buttons
     midSideButton.toggle.setText("Mid-Side");
     midSideButton.toggle.setRadioGroupId(1, juce::dontSendNotification);
@@ -167,6 +177,7 @@ void PluginEditor::addHighPassControl(HighPassControl* control)
     addParameterControl(&control->falloff);
     addParameterControl(&control->resonance);
     addAndMakeVisible(&control->onOff.toggle);
+    addAndMakeVisible(&control->shelfToggle.toggle);
 }
 
 void PluginEditor::addPeakFilterControl(PeakFilterControl* control)
@@ -245,7 +256,7 @@ void PluginEditor::layoutLinkButton(CtmToggle* linkButton, int index)
         + (cellWidth / 2);
     int cy = headerHeight + yStart + columnPaddingY + cellHeight
         + (cellMarginY / 2);
-    linkButton->setBounds(cx - 15, cy - 10, 30, 21);
+    linkButton->setBounds(cx - 18, cy - 10, 36, 21);
 }
 
 void PluginEditor::layoutFilterIcon(Icon* icon, int xIndex, int yIndex)

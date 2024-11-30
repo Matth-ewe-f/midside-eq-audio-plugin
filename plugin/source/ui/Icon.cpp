@@ -2,7 +2,10 @@
 #include "CtmLookAndFeel.h"
 
 // === Lifecycle ==============================================================
-Icon::Icon() : color(juce::Colours::white), enabled(true) { }
+Icon::Icon() : color(juce::Colours::white), enabled(true)
+{
+    lastRect = juce::Rectangle<int>(0, 0, 0, 0);
+}
 
 Icon::~Icon()
 {
@@ -10,6 +13,15 @@ Icon::~Icon()
 }
 
 // === Graphics ===============================================================
+void Icon::setType(Type type)
+{
+    int x = lastRect.getX();
+    int y = lastRect.getY();
+    int w = lastRect.getWidth();
+    int h = lastRect.getHeight();
+    setType(type, x, y, w, h);
+}
+
 void Icon::setType(Type type, int x, int y, int w, int h)
 {
     if (type == Type::LowPass)
@@ -32,6 +44,7 @@ void Icon::setType(Type type, int x, int y, int w, int h)
     {
         path = getLowShelfIcon(x, y, w, h);
     }
+    lastRect = juce::Rectangle<int>(x, y, w, h);
     repaint();
 }
 

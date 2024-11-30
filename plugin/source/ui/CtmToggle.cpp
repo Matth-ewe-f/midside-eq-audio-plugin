@@ -4,7 +4,7 @@
 // === Lifecycle ==============================================================
 CtmToggle::CtmToggle()
     : colorOverriden(false), colorGradient(false), toggledText(""),
-    untoggledText(""), fontSize(-1)
+    untoggledText(""), fontSize(-1), alwaysUp(false)
  { }
 
 void CtmToggle::parentHierarchyChanged()
@@ -45,6 +45,19 @@ void CtmToggle::setColorGradient(juce::Colour color1, juce::Colour color2)
     gradColor = color2;
     colorOverriden = false;
     colorGradient = true;
+    repaint();
+}
+
+void CtmToggle::setDisplayAlwaysUp(bool isAlwaysUp)
+{
+    alwaysUp = isAlwaysUp;
+    repaint();
+}
+
+void CtmToggle::setColorAsUntoggled(bool showUntoggled)
+{
+    untoggledColor = showUntoggled;
+    repaint();
 }
 
 // === Graphics ===============================================================
@@ -63,7 +76,7 @@ void CtmToggle::paintButton(juce::Graphics& g, bool hover, bool click)
     int w = bounds.getWidth() - 2;
     int h = bounds.getHeight() - 2;
     // draw the button background
-    if (toggle)
+    if (!(untoggledColor) && (toggle || alwaysUp))
     {
         if (colorGradient)
         {
@@ -79,7 +92,7 @@ void CtmToggle::paintButton(juce::Graphics& g, bool hover, bool click)
     g.fillRoundedRectangle(x, y, w, h, 4);
     // draw the highlights on the top of the button
     juce::Colour light;
-    if (click || !toggle)
+    if (click || (!toggle && !alwaysUp))
         light = getShadowColor();
     else 
         light = getHighlightColor();
@@ -96,7 +109,8 @@ void CtmToggle::paintButton(juce::Graphics& g, bool hover, bool click)
     g.setFont(fontSize == -1 ? (h / 2) + 2 : fontSize);
     auto justify = juce::Justification::centred;
     std::string s = toggle ? toggledText : untoggledText;
-    g.drawText(s, x + 2, toggle ? y + 3 : y + 4, w - 4, h - 8, justify, false);
+    int textY = !(toggle || alwaysUp) || (alwaysUp && click) ? y + 4 : y + 3;
+    g.drawText(s, x + 2, textY, w - 4, h - 8, justify, false);
     // darken the button it it's been clicked
     if (click)
     {

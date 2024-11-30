@@ -22,7 +22,7 @@ void LowPassControl::setBounds(int x, int y, int w, int h, int xPad, int yPad)
     frequency.setBounds(x, y, itemW, itemH);
     falloff.setBounds(x, y + itemH + yPad, itemW, itemH);
     resonance.setBounds(x + itemW + xPad, y + itemH + yPad, itemW, itemH);
-    int toggleW = 28;
+    int toggleW = 37;
     int toggleX = x + itemW + xPad + ((itemW - toggleW) / 2);
     onOff.setBounds(toggleX, y + 6, toggleW, 21);
 }

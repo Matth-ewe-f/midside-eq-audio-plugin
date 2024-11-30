@@ -20,7 +20,7 @@ void GainControl::setBounds(int x, int y, int w, int h, int xPad, int yPad)
     int toggleY;
     if (toggleAbove)
     {
-        gainY = y + 28;
+        gainY = y + 25;
         toggleY = y;
     }
     else
@@ -28,8 +28,8 @@ void GainControl::setBounds(int x, int y, int w, int h, int xPad, int yPad)
         gainY = y;
         toggleY = y + h - 20;
     }
-    gain.setBounds(x, gainY, w, h - 28);
-    onOff.setBounds(x + (w / 2) - 16, toggleY, 32, 20);
+    gain.setBounds(x, gainY, w, h - 25);
+    onOff.setBounds(x + (w / 2) - 18, toggleY, 36, 20);
 }
 
 void GainControl::setAllColorOverrides(juce::Colour color)

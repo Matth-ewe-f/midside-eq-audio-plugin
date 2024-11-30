@@ -14,6 +14,8 @@ public:
     void setFixedFontSize(float);
     void setColorOverride(juce::Colour);
     void setColorGradient(juce::Colour, juce::Colour);
+    void setDisplayAlwaysUp(bool);
+    void setColorAsUntoggled(bool);
 
     // === Graphics ===========================================================
     void paintButton(juce::Graphics& g, bool hover, bool click) override;
@@ -25,6 +27,8 @@ private:
     std::string toggledText;
     std::string untoggledText;
     float fontSize;
+    bool alwaysUp;
+    bool untoggledColor;
 
     // === Private Helper =====================================================
     juce::Colour getHighlightColor();

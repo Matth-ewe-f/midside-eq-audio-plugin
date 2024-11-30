@@ -21,6 +21,7 @@ public:
     ~Icon() override;
 
     // === Graphics ===========================================================
+    void setType(Type);
     void setType(Type, int x, int y, int w, int h);
     void setColor(juce::Colour);
     void setEnabled(bool);
@@ -36,6 +37,7 @@ private:
     bool enabled;
     juce::AudioProcessorValueTreeState* tree;
     std::string parameterName;
+    juce::Rectangle<int> lastRect;
 
     // === Factory Functions for Paths ========================================
     static juce::Path getHighPassFilterIcon(int x, int y, int w, int h);

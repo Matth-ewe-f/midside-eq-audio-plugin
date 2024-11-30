@@ -13,6 +13,7 @@ public:
     ParameterControl falloff;
     ParameterControl resonance;
     ParameterToggle onOff;
+    ParameterToggle shelfToggle;
 
     // === Lifecycle ==========================================================
     HighPassControl();

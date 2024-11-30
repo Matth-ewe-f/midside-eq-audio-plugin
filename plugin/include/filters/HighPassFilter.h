@@ -15,6 +15,8 @@ public:
     void parameterChanged(const juce::String&, float) override;
     inline std::string getOnOffParameter() override
         { return name + "-" + onOffParam.idPostfix; }
+    inline std::string getShelfModeParameter()
+        { return name + "-" + shelfModeParam.idPostfix; }
     inline std::string getFrequencyParameter()
         { return name + "-" + freqParam.idPostfix; }
     inline std::string getFalloffParameter()
@@ -27,6 +29,7 @@ public:
     void setBypass(bool);
     void setFrequency(float);
     void setOrder(int);
+    void setIsShelf(bool);
 
     // === Process Audio ======================================================
     void prepare(const dsp::ProcessSpec&);
@@ -48,11 +51,15 @@ private:
     int order;
     int pendingOrder;
     int fadeSamples;
+    bool isShelf;
     double sampleRate;
     
     // === Static Constants ===================================================
     inline static const ParameterFields onOffParam {
         makeParamFields("on", "On/Off", 0, 1, 1, 1, 1)
+    };
+    inline static const ParameterFields shelfModeParam {
+        makeParamFields("shelf-mode", "Shelf Mode", 0, 1, 1, 1, 1)
     };
     inline static const ParameterFields freqParam {
         makeParamFields("freq", "Frequency", 20, 20000, 0.1f, 0.35f, 20)
