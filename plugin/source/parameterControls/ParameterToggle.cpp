@@ -31,6 +31,7 @@ void ParameterToggle::addOnToggleFunction(std::function<void(bool)> func)
 void ParameterToggle::parameterChanged(const juce::String& param, float value)
 {
     juce::ignoreUnused(param);
+    toggle.setToggleState(value >= 1, juce::sendNotification);
     for (std::function<void(bool)> func : onToggle)
     {
         func(value >= 1);

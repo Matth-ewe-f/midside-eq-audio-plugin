@@ -41,14 +41,10 @@ private:
     /// === Private Variables =================================================
     PluginProcessor& processorRef;
     CtmLookAndFeel lookAndFeel;
-    // buttons
+    // global controls
     ParameterToggle midSideButton;
     ParameterToggle leftRightButton;
-    ParameterToggle highPassLink;
-    ParameterToggle peakOneTwoLink;
-    ParameterToggle peakThreeFourLink;
-    ParameterToggle peakFiveSixLink;
-    ParameterToggle lowPassLink;
+    CtmToggle linkAllButton;
     // channel gains
     GainControl gainOne;
     GainControl gainTwo;
@@ -63,6 +59,12 @@ private:
     PeakFilterControl peakSix;
     LowPassControl lowPassOne;
     LowPassControl lowPassTwo;
+    // link buttons
+    ParameterToggle highPassLink;
+    ParameterToggle peakOneTwoLink;
+    ParameterToggle peakThreeFourLink;
+    ParameterToggle peakFiveSixLink;
+    ParameterToggle lowPassLink;
     // filter icons
     Icon hpfOneIcon;
     Icon hpfTwoIcon;
@@ -78,10 +80,13 @@ private:
     // === Layout constants ===================================================
     inline static const int headerHeight { 50 };
     inline static const int xStart { 16 };
-    inline static const int xEnd { 16 };
+    inline static const int xEnd { 12 };
     inline static const int yStart { 10 };
     inline static const int yEnd { 10 };
     inline static const int gainWidth { 64 };
+    inline static const int globalsWidth { 64 };
+    inline static const int globalsHeight { 26 };
+    inline static const int globalsMargin { 8 };
     inline static const int cellWidth { 104 };
     inline static const int cellHeight { 102 };
     inline static const int cellMarginX { 12 };
@@ -101,6 +106,7 @@ private:
     inline static const Colour rightColor { Colour::fromRGB(60, 230, 10) };
 
     // === Drawing and Layout Helper Functions ================================
+    void layoutGlobalControl(CtmToggle*, int yIndex, int yMax);
     void layoutFilter(FilterControl*, int xIndex, int yIndex);
     void layoutGain(GainControl*, int yIndex);
     void layoutLinkButton(CtmToggle*, int);
