@@ -10,8 +10,10 @@ public:
     enum class Type
     {
         LowPass,
+        HighShelf,
         Peak,
-        HighPass
+        HighPass,
+        LowShelf
     };
 
     // === Lifecycle ==========================================================
@@ -39,4 +41,6 @@ private:
     static juce::Path getHighPassFilterIcon(int x, int y, int w, int h);
     static juce::Path getPeakFilterIcon(int x, int y, int w, int h);
     static juce::Path getLowPassFilterIcon(int x, int y, int w, int h);
+    static juce::Path getLowShelfIcon(int x, int y, int w, int h);
+    static juce::Path getHighShelfIcon(int x, int y, int w, int h);
 };

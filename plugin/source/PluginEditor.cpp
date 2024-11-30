@@ -47,7 +47,7 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     // setup icons
     setupFilterIcon(&hpfOneIcon, Icon::Type::HighPass);
     hpfOneIcon.attachToFilter(stateTree, &processorRef.highPassOne);
-    setupFilterIcon(&hpfTwoIcon, Icon::Type::HighPass);
+    setupFilterIcon(&hpfTwoIcon, Icon::Type::LowShelf);
     hpfTwoIcon.attachToFilter(stateTree, &processorRef.highPassTwo);
     setupFilterIcon(&peakOneIcon, Icon::Type::Peak);
     peakOneIcon.attachToFilter(stateTree, &processorRef.peakOne);
@@ -61,7 +61,7 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     peakFiveIcon.attachToFilter(stateTree, &processorRef.peakFive);
     setupFilterIcon(&peakSixIcon, Icon::Type::Peak);
     peakSixIcon.attachToFilter(stateTree, &processorRef.peakSix);
-    setupFilterIcon(&lpfOneIcon, Icon::Type::LowPass);
+    setupFilterIcon(&lpfOneIcon, Icon::Type::HighShelf);
     lpfOneIcon.attachToFilter(stateTree, &processorRef.lowPassOne);
     setupFilterIcon(&lpfTwoIcon, Icon::Type::LowPass);
     lpfTwoIcon.attachToFilter(stateTree, &processorRef.lowPassTwo);

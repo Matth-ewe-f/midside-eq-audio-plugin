@@ -16,6 +16,10 @@ void Icon::setType(Type type, int x, int y, int w, int h)
     {
         path = getLowPassFilterIcon(x, y, w, h);
     }
+    else if (type == Type::HighShelf)
+    {
+        path = getHighShelfIcon(x, y, w, h);
+    }
     else if (type == Type::Peak)
     {
         path = getPeakFilterIcon(x, y, w, h);
@@ -23,6 +27,10 @@ void Icon::setType(Type type, int x, int y, int w, int h)
     else if (type == Type::HighPass)
     {
         path = getHighPassFilterIcon(x, y, w, h);
+    }
+    else if (type == Type::LowShelf)
+    {
+        path = getLowShelfIcon(x, y, w, h);
     }
     repaint();
 }
@@ -109,6 +117,42 @@ juce::Path Icon::getPeakFilterIcon(int x, int y, int w, int h)
     lines[6] = juce::Line<float>(0.63f, 0.83f, 0.83f, 0.5f);
     lines[7] = juce::Line<float>(0.8f, 0.5f, 1, 0.5f);
     for (int i = 0;i < 8;i++)
+    {
+        lines[i].applyTransform(juce::AffineTransform::scale(w, h));
+        lines[i].applyTransform(juce::AffineTransform::translation(x, y));
+        path.addLineSegment(lines[i], 1.5f);
+    }
+    return path;
+}
+
+juce::Path Icon::getLowShelfIcon(int x, int y, int w, int h)
+{
+    juce::Path path;
+    juce::Line<float> lines[5];
+    lines[0] = juce::Line<float>(0.1f, 0.87f, 0.45f, 0.87f);
+    lines[1] = juce::Line<float>(0.1f, 0.13f, 0.45f, 0.13f);
+    lines[2] = juce::Line<float>(0.45f, 0.87f, 0.7f, 0.5f);
+    lines[3] = juce::Line<float>(0.45f, 0.13f, 0.7f, 0.5f);
+    lines[4] = juce::Line<float>(0.7f, 0.5f, 0.9f, 0.5f);
+    for (int i = 0;i < 5;i++)
+    {
+        lines[i].applyTransform(juce::AffineTransform::scale(w, h));
+        lines[i].applyTransform(juce::AffineTransform::translation(x, y));
+        path.addLineSegment(lines[i], 1.5f);
+    }
+    return path;
+}
+
+juce::Path Icon::getHighShelfIcon(int x, int y, int w, int h)
+{
+    juce::Path path;
+    juce::Line<float> lines[5];
+    lines[0] = juce::Line<float>(0.1f, 0.5f, 0.3f, 0.5f);
+    lines[1] = juce::Line<float>(0.3f, 0.5f, 0.55f, 0.87f);
+    lines[2] = juce::Line<float>(0.3f, 0.5f, 0.55f, 0.13f);
+    lines[3] = juce::Line<float>(0.55f, 0.87f, 0.9f, 0.87f);
+    lines[4] = juce::Line<float>(0.55f, 0.13f, 0.9f, 0.13f);
+    for (int i = 0;i < 5;i++)
     {
         lines[i].applyTransform(juce::AffineTransform::scale(w, h));
         lines[i].applyTransform(juce::AffineTransform::translation(x, y));
