@@ -11,8 +11,10 @@ class LowPassControl : public FilterControl, public Linkable<LowPassControl>
 public:
     ParameterControl frequency;
     ParameterControl falloff;
+    ParameterControl shelfGain;
     ParameterControl resonance;
     ParameterToggle onOff;
+    ParameterToggle shelfToggle;
 
     // === Lifecycle ==========================================================
     LowPassControl();
@@ -26,4 +28,9 @@ public:
     // === Linking ============================================================
     void link(const LowPassControl*) override;
     void unlink(const LowPassControl*) override;
+
+private:
+    bool isShelf;
+
+    void setIsShelf(bool);
 };

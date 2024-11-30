@@ -5,18 +5,13 @@ using Coefficients = juce::dsp::IIR::Coefficients<float>;
 // === Lifecycle ==============================================================
 LowPassFilter::LowPassFilter(std::string nameArg, std::string parameterText)
     : CtmFilter(nameArg, parameterText), order(1), pendingOrder(-1),
-    fadeSamples(-1), sampleRate(48000)
+    fadeSamples(-1), isShelf(false), sampleRate(48000)
 {
-    filterOne.coefficients
-        = Coefficients::makeLowPass(sampleRate, 20000, 0.71f);
-    filterTwo.coefficients
-        = Coefficients::makeLowPass(sampleRate, 20000, 0.71f);
-    filterThree.coefficients
-        = Coefficients::makeLowPass(sampleRate, 20000, 0.71f);
-    filterFour.coefficients
-        = Coefficients::makeFirstOrderLowPass(sampleRate, 20000);
     smoothFrequency.setCurrentAndTargetValue(20000);
     smoothBypass.setCurrentAndTargetValue(1);
+    smoothGain.setCurrentAndTargetValue(0);
+    smoothResonance.setCurrentAndTargetValue(0.71f);
+    updateFilters();
 }
 
 // === Parameter Information ==================================================
@@ -24,10 +19,16 @@ void LowPassFilter::parameterChanged(const juce::String& param, float value)
 {
     if (param.compare(name + "-" + onOffParam.idPostfix) == 0)
         smoothBypass.setTargetValue(value);
+    else if (param.compare(name + "-" + shelfModeParam.idPostfix) == 0)
+        setIsShelf(value >= 1);
     else if (param.compare(name + "-" + freqParam.idPostfix) == 0)
         setFrequency(value);
     else if (param.compare(name + "-" + falloffParam.idPostfix) == 0)
         setOrder((int) value / 6);
+    else if (param.compare(name + "-" + shelfGainParam.idPostfix) == 0)
+        setShelfGain(value);
+    else if (param.compare(name + "-" + resParam.idPostfix) == 0)
+        setResonance(value);
 }
 
 // === Set Parameters =========================================================
@@ -39,6 +40,8 @@ void LowPassFilter::reset(double newSampleRate, int samplesPerBlock)
     filterFour.reset();
     smoothFrequency.reset(samplesPerBlock);
     smoothBypass.reset(samplesPerBlock);
+    smoothGain.reset(samplesPerBlock);
+    smoothResonance.reset(samplesPerBlock);
     sampleRate = newSampleRate;
 }
 
@@ -60,7 +63,31 @@ void LowPassFilter::setOrder(int newOrder)
         pendingOrder = 7;
     else
         pendingOrder = newOrder;
-    fadeSamples = 0;
+    if (fadeSamples < 0)
+    {
+        fadeSamples = 0;
+    }
+    else if (fadeSamples >= fadeLength)
+    {
+        fadeSamples = (2 * fadeLength) - fadeSamples;
+    }
+    // if fadeSamples > 0 && < fadeLength, nothing needs to be done
+}
+
+void LowPassFilter::setIsShelf(bool shelf)
+{
+    isShelf = shelf;
+    updateFilters();
+}
+
+void LowPassFilter::setShelfGain(float gain)
+{
+    smoothGain.setTargetValue(gain);
+}
+
+void LowPassFilter::setResonance(float res)
+{
+    smoothResonance.setTargetValue(res);
 }
 
 // === Overriden from CtmFilter ===============================================
@@ -70,6 +97,8 @@ void LowPassFilter::getParameters(std::vector<ParameterFields>& parameters)
     parameters.push_back(freqParam);
     parameters.push_back(falloffParam);
     parameters.push_back(resParam);
+    parameters.push_back(shelfModeParam);
+    parameters.push_back(shelfGainParam);
 }
 
 // === Process Audio ==========================================================
@@ -85,8 +114,13 @@ float LowPassFilter::processSample(float sample)
 {
     if (smoothBypass.getCurrentValue() <= 0 && !smoothBypass.isSmoothing())
         return sample;
-    if (smoothFrequency.isSmoothing())
-        updateFilters(smoothFrequency.getNextValue());
+    if (anythingSmoothing())
+    {
+        float freq = smoothFrequency.getNextValue();
+        float gain = smoothGain.getNextValue();
+        float res = smoothResonance.getNextValue();
+        updateFilters(freq, gain, res);
+    }
     float result = sample;
     if (filterOneEnabled())
         result = filterOne.processSample(result);
@@ -121,7 +155,15 @@ float LowPassFilter::processSample(float sample)
 }
 
 // === Private Helper =========================================================
-void LowPassFilter::updateFilters(float f)
+void LowPassFilter::updateFilters()
+{
+    float freq = smoothFrequency.getCurrentValue();
+    float gain = smoothGain.getCurrentValue();
+    float res = smoothResonance.getCurrentValue();
+    updateFilters(freq, gain, res);
+}
+
+void LowPassFilter::updateFilters(float f, float gain, float resonance)
 {
     if (filterOneEnabled())
     {
@@ -140,8 +182,17 @@ void LowPassFilter::updateFilters(float f)
     }
     if (filterFourEnabled())
     {
-        filterFour.coefficients
-            = Coefficients::makeFirstOrderLowPass(sampleRate, f);
+        if (isShelf)
+        {
+            filterFour.coefficients = Coefficients::makeHighShelf(
+                sampleRate, f, resonance, pow(10.0f, gain / 20.0f)
+            );
+        }
+        else
+        {
+            filterFour.coefficients
+                = Coefficients::makeFirstOrderLowPass(sampleRate, f);
+        }
     }
 }
 
@@ -149,9 +200,13 @@ void LowPassFilter::delayedUpdateOrder()
 {
     order = pendingOrder;
     pendingOrder = -1;
-    float freq = smoothFrequency.getTargetValue();
-    smoothFrequency.setCurrentAndTargetValue(freq);
-    updateFilters(freq);
+    updateFilters();
+}
+
+bool LowPassFilter::anythingSmoothing()
+{
+    return smoothFrequency.isSmoothing() || smoothGain.isSmoothing()
+        || smoothResonance.isSmoothing();
 }
 
 float LowPassFilter::getQForFilter(int filter)

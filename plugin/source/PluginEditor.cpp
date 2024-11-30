@@ -57,7 +57,17 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     peakFour.attachToPeakFilter(stateTree, &processorRef.peakFour);
     peakFive.attachToPeakFilter(stateTree, &processorRef.peakFive);
     peakSix.attachToPeakFilter(stateTree, &processorRef.peakSix);
+    lowPassOne.shelfToggle.addOnToggleFunction([this] (bool toggled)
+    {
+        auto iconType = toggled ? Icon::Type::HighShelf : Icon::Type::LowPass;
+        lpfOneIcon.setType(iconType);
+    });
     lowPassOne.attachToLowPass(stateTree, &processorRef.lowPassOne);
+    lowPassTwo.shelfToggle.addOnToggleFunction([this] (bool toggled)
+    {
+        auto iconType = toggled ? Icon::Type::HighShelf : Icon::Type::LowPass;
+        lpfTwoIcon.setType(iconType);
+    });
     lowPassTwo.attachToLowPass(stateTree, &processorRef.lowPassTwo);
     // setup gain
     addGainControl(&gainOne);
@@ -193,8 +203,10 @@ void PluginEditor::addLowPassControl(LowPassControl* control)
 {
     addParameterControl(&control->frequency);
     addParameterControl(&control->falloff);
+    addParameterControl(&control->shelfGain);
     addParameterControl(&control->resonance);
     addAndMakeVisible(&control->onOff.toggle);
+    addAndMakeVisible(&control->shelfToggle.toggle);
 }
 
 template <linkable T>
