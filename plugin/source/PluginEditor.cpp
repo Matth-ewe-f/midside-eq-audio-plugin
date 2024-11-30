@@ -39,17 +39,17 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     addPeakFilterControl(&peakSix);
     addLowPassControl(&lowPassOne);
     addLowPassControl(&lowPassTwo);
-    highPassOne.shelfToggle.onToggle = [this] (bool toggled)
+    highPassOne.shelfToggle.addOnToggleFunction([this] (bool toggled)
     {
         auto iconType = toggled ? Icon::Type::LowShelf : Icon::Type::HighPass;
         hpfOneIcon.setType(iconType);
-    };
+    });
     highPassOne.attachToHighPass(stateTree, &processorRef.highPassOne);
-    highPassTwo.shelfToggle.onToggle = [this] (bool toggled)
+    highPassTwo.shelfToggle.addOnToggleFunction([this] (bool toggled)
     {
         auto iconType = toggled ? Icon::Type::LowShelf : Icon::Type::HighPass;
         hpfTwoIcon.setType(iconType);
-    };
+    });
     highPassTwo.attachToHighPass(stateTree, &processorRef.highPassTwo);
     peakOne.attachToPeakFilter(stateTree, &processorRef.peakOne);
     peakTwo.attachToPeakFilter(stateTree, &processorRef.peakTwo);
@@ -175,6 +175,7 @@ void PluginEditor::addHighPassControl(HighPassControl* control)
 {
     addParameterControl(&control->frequency);
     addParameterControl(&control->falloff);
+    addParameterControl(&control->shelfGain);
     addParameterControl(&control->resonance);
     addAndMakeVisible(&control->onOff.toggle);
     addAndMakeVisible(&control->shelfToggle.toggle);
@@ -201,7 +202,7 @@ void PluginEditor::setupLinkButton
 (ParameterToggle* linkButton, T* item1, T* item2)
 {
     linkButton->toggle.setText("LINK");
-    linkButton->onToggle = [item1, item2] (bool toggled)
+    linkButton->addOnToggleFunction([item1, item2] (bool toggled)
     {
         if (toggled)
         {
@@ -213,7 +214,7 @@ void PluginEditor::setupLinkButton
             item1->unlink(item2);
             item2->unlink(item1);
         }
-    };
+    });
     addAndMakeVisible(&linkButton->toggle);
 }
 

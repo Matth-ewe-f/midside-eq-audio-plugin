@@ -52,9 +52,9 @@ void GainControl::attachToGain
 (juce::AudioProcessorValueTreeState* tree, GainFilter* filter)
 {
     gain.attachToParameter(tree, filter->getGainParameter());
-    onOff.onToggle = [this] (bool toggled)
+    onOff.addOnToggleFunction([this] (bool toggled)
     {
         gain.slider.setEnabled(toggled);
-    };
+    });
     onOff.attachToParameter(tree, filter->getOnOffParameter());
 }

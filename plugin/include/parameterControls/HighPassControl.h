@@ -11,6 +11,7 @@ class HighPassControl : public FilterControl, public Linkable<HighPassControl>
 public:
     ParameterControl frequency;
     ParameterControl falloff;
+    ParameterControl shelfGain;
     ParameterControl resonance;
     ParameterToggle onOff;
     ParameterToggle shelfToggle;
@@ -28,4 +29,9 @@ public:
     // === Linking ============================================================
     void link(const HighPassControl*) override;
     void unlink(const HighPassControl*) override;
+    
+private:
+    bool isShelf;
+
+    void setIsShelf(bool);
 };

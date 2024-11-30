@@ -9,16 +9,11 @@ HighPassFilter::HighPassFilter(std::string nameArg, std::string parameterText)
     : CtmFilter(nameArg, parameterText), order(1), pendingOrder(-1),
     fadeSamples(-1), isShelf(false), sampleRate(48000)
 {
-    filterOne.coefficients
-        = Coefficients::makeHighPass(sampleRate, 20, 0.71f);
-    filterTwo.coefficients
-        = Coefficients::makeHighPass(sampleRate, 20, 0.71f);
-    filterThree.coefficients
-        = Coefficients::makeHighPass(sampleRate, 20, 0.71f);
-    filterFour.coefficients
-        = Coefficients::makeFirstOrderHighPass(sampleRate, 20);
     smoothFrequency.setCurrentAndTargetValue(20);
     smoothBypass.setCurrentAndTargetValue(1);
+    smoothGain.setCurrentAndTargetValue(0);
+    smoothResonance.setCurrentAndTargetValue(0.71f);
+    updateFilters();
 }
 
 // === Parameter Information ==================================================
@@ -30,8 +25,12 @@ void HighPassFilter::parameterChanged(const juce::String& param, float value)
         setFrequency(value);
     else if (param.compare(name + "-" + falloffParam.idPostfix) == 0)
         setOrder((int) value / 6);
+    else if (param.compare(name + "-" + resParam.idPostfix) == 0)
+        setResonance(value);
     else if (param.compare(name + "-" + shelfModeParam.idPostfix) == 0)
         setIsShelf(value >= 1);
+    else if (param.compare(name + "-" + shelfGainParam.idPostfix) == 0)
+        setShelfGain(value);
 }
 
 // === Parameter Functions ====================================================
@@ -43,6 +42,8 @@ void HighPassFilter::reset(double newSampleRate, int samplesPerBlock)
     filterFour.reset();
     smoothFrequency.reset(samplesPerBlock);
     smoothBypass.reset(samplesPerBlock);
+    smoothGain.reset(samplesPerBlock);
+    smoothResonance.reset(samplesPerBlock);
     sampleRate = newSampleRate;
 }
 
@@ -64,12 +65,31 @@ void HighPassFilter::setOrder(int newOrder)
         pendingOrder = 7;
     else
         pendingOrder = newOrder;
-    fadeSamples = 0;
+    if (fadeSamples < 0)
+    {
+        fadeSamples = 0;
+    }
+    else if (fadeSamples >= fadeLength)
+    {
+        fadeSamples = (2 * fadeLength) - fadeSamples;
+    }
+    // if fadeSamples > 0 && < fadeLength, nothing needs to be done
+}
+
+void HighPassFilter::setResonance(float newRes)
+{
+    smoothResonance.setTargetValue(newRes);
 }
 
 void HighPassFilter::setIsShelf(bool shelf)
 {
     isShelf = shelf;
+    updateFilters();
+}
+
+void HighPassFilter::setShelfGain(float gain)
+{
+    smoothGain.setTargetValue(gain);
 }
 
 // === Process Audio ==========================================================
@@ -85,8 +105,13 @@ float HighPassFilter::processSample(float sample)
 {
     if (smoothBypass.getCurrentValue() <= 0 && !smoothBypass.isSmoothing())
         return sample;
-    if (smoothFrequency.isSmoothing())
-        updateFilters(smoothFrequency.getNextValue());
+    if (anythingSmoothing())
+    {
+        float freq = smoothFrequency.getNextValue();
+        float gain = smoothGain.getNextValue();
+        float res = smoothResonance.getNextValue();
+        updateFilters(freq, gain, res);
+    }  
     float result = sample;
     if (filterOneEnabled())
         result = filterOne.processSample(result);
@@ -127,11 +152,20 @@ void HighPassFilter::getParameters(std::vector<ParameterFields>& parameters)
     parameters.push_back(shelfModeParam);
     parameters.push_back(freqParam);
     parameters.push_back(falloffParam);
+    parameters.push_back(shelfGainParam);
     parameters.push_back(resParam);
 }
 
 // === Private Helper =========================================================
-void HighPassFilter::updateFilters(float f)
+void HighPassFilter::updateFilters()
+{
+    float freq = smoothFrequency.getCurrentValue();
+    float gain = smoothGain.getCurrentValue();
+    float res = smoothResonance.getCurrentValue();
+    updateFilters(freq, gain, res);
+}
+
+void HighPassFilter::updateFilters(float f, float gain, float resonance)
 {
     if (filterOneEnabled())
     {
@@ -151,8 +185,17 @@ void HighPassFilter::updateFilters(float f)
     }
     if (filterFourEnabled())
     {
-        filterFour.coefficients
-            = Coefficients::makeFirstOrderHighPass(sampleRate, f);
+        if (isShelf)
+        {
+            filterFour.coefficients = Coefficients::makeLowShelf(
+                sampleRate, f, resonance, pow(10.0f, gain / 20.f)
+            );
+        }
+        else
+        {
+            filterFour.coefficients
+                = Coefficients::makeFirstOrderHighPass(sampleRate, f);
+        }
     }
 }
 
@@ -160,9 +203,13 @@ void HighPassFilter::delayedUpdateOrder()
 {
     order = pendingOrder;
     pendingOrder = -1;
-    float freq = smoothFrequency.getTargetValue();
-    smoothFrequency.setCurrentAndTargetValue(freq);
-    updateFilters(freq);
+    updateFilters();
+}
+
+bool HighPassFilter::anythingSmoothing()
+{
+    return smoothFrequency.isSmoothing() || smoothGain.isSmoothing()
+        || smoothResonance.isSmoothing();
 }
 
 float HighPassFilter::getQForFilter(int filter)

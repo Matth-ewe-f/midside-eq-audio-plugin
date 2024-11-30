@@ -4,6 +4,7 @@
 ParameterControl::ParameterControl()
     : parameterName(""), tree(nullptr)
 {
+    bounds = juce::Rectangle<int>(0, 0, 0, 0);
     setSliderStyle(juce::Slider::RotaryVerticalDrag);
     slider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     label.listenTo(&slider);
@@ -15,8 +16,14 @@ ParameterControl::ParameterControl()
 }
 
 // === Settings ===============================================================
+void ParameterControl::setBounds(juce::Rectangle<int> b)
+{
+    setBounds(b.getX(), b.getY(), b.getWidth(), b.getHeight());
+}
+
 void ParameterControl::setBounds(int x, int y, int width, int height)
 {
+    bounds = juce::Rectangle<int>(x, y, width, height);
     slider.setBounds(x, y, width, height - 13);
     label.setBounds(x, y + height - 12, width, 12);
 }

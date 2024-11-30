@@ -1,10 +1,7 @@
 #include "ParameterToggle.h"
 
 // === Lifecycle ==============================================================
-ParameterToggle::ParameterToggle()
-    : parameterName(""), onToggle( [](bool b){ juce::ignoreUnused(b); } ),
-    tree(nullptr)
-{ }
+ParameterToggle::ParameterToggle() : parameterName(""), tree(nullptr) { }
 
 // === Settings ===============================================================
 void ParameterToggle::setBounds(int x, int y, int width, int height)
@@ -19,14 +16,25 @@ void ParameterToggle::attachToParameter
     parameterName = parameter;
     tree->addParameterListener(parameterName, this);
     attachment.reset(new ButtonAttachment(*stateTree, parameter, toggle));
-    onToggle(*stateTree->getRawParameterValue(parameter) >= 1);
+    for (std::function<void(bool)> func : onToggle)
+    {
+        func(*stateTree->getRawParameterValue(parameter) >= 1);
+    }
+}
+
+void ParameterToggle::addOnToggleFunction(std::function<void(bool)> func)
+{
+    onToggle.push_back(func);
 }
 
 // === ValueTreeState Listener ================================================
 void ParameterToggle::parameterChanged(const juce::String& param, float value)
 {
     juce::ignoreUnused(param);
-    onToggle(value >= 1);
+    for (std::function<void(bool)> func : onToggle)
+    {
+        func(value >= 1);
+    }
     for (std::string otherName : linkedToggles)
     {
         copyValueToParameter(otherName, value);

@@ -4,7 +4,7 @@
 // === Lifecycle ==============================================================
 CtmToggle::CtmToggle()
     : colorOverriden(false), colorGradient(false), toggledText(""),
-    untoggledText(""), fontSize(-1), alwaysUp(false)
+    untoggledText(""), fontSize(-1), alwaysUp(false), untoggledColor(false)
  { }
 
 void CtmToggle::parentHierarchyChanged()

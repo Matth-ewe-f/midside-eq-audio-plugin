@@ -44,12 +44,12 @@ void PeakFilterControl::attachToPeakFilter
     frequency.attachToParameter(stateTree, filter->getFrequencyParameter());
     gain.attachToParameter(stateTree, filter->getGainParameter());
     qFactor.attachToParameter(stateTree, filter->getQFactorParameter());
-    onOff.onToggle = [this] (bool toggled)
+    onOff.addOnToggleFunction([this] (bool toggled)
     {
         frequency.slider.setEnabled(toggled);
         gain.slider.setEnabled(toggled);
         qFactor.slider.setEnabled(toggled);
-    };
+    });
     onOff.attachToParameter(stateTree, filter->getOnOffParameter());
 }
 

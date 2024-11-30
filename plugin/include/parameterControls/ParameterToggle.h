@@ -15,7 +15,7 @@ public:
     std::string parameterName;
     CtmToggle toggle;
     std::unique_ptr<ButtonAttachment> attachment;
-    std::function<void(bool)> onToggle;
+    std::vector<std::function<void(bool)>> onToggle;
 
     // === Lifecycle ==========================================================
     ParameterToggle();
@@ -23,6 +23,7 @@ public:
     // === Settings ===========================================================
     void setBounds(int x, int y, int width, int height);
     void attachToParameter(juce::AudioProcessorValueTreeState*, std::string);
+    void addOnToggleFunction(std::function<void(bool)>);
 
     // === ValueTreeState Listener ============================================
     void parameterChanged(const juce::String&, float) override;
