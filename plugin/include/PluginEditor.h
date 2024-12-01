@@ -11,6 +11,7 @@
 #include "LowPassControl.h"
 #include "Linkable.h"
 #include "Icon.h"
+#include "EqVisual.h"
 #include "CtmLookAndFeel.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
@@ -24,7 +25,8 @@ public:
     ~PluginEditor() override;
 
     // === Graphics ===========================================================
-    void paint (juce::Graphics&) override;
+    void paint(juce::Graphics&) override;
+    void paintOverChildren(juce::Graphics&) override;
     void resized() override;
 
     // === Functions for Custom Components ====================================
@@ -41,6 +43,7 @@ private:
     /// === Private Variables =================================================
     PluginProcessor& processorRef;
     CtmLookAndFeel lookAndFeel;
+    EqVisual eqVisual;
     // global controls
     ParameterToggle midSideButton;
     ParameterToggle leftRightButton;
@@ -78,7 +81,7 @@ private:
     Icon lpfTwoIcon;
     
     // === Layout constants ===================================================
-    inline static const int headerHeight { 50 };
+    inline static const int headerHeight { 240 };
     inline static const int xStart { 16 };
     inline static const int xEnd { 12 };
     inline static const int yStart { 10 };
@@ -115,7 +118,6 @@ private:
     void drawSectionLabels(juce::Graphics&);
     void drawFilterBackground(juce::Graphics&, int);
     void drawGainBackground(juce::Graphics&);
-    void drawGainLabels(juce::Graphics&);
 
     // === Other Helper Functions =============================================
     void setColorOverrides();

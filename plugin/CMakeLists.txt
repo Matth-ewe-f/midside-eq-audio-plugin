@@ -28,6 +28,7 @@ target_sources(
         source/ui/CtmToggle.cpp
         source/ui/SliderLabel.cpp
         source/ui/CtmLookAndFeel.cpp
+        source/ui/EqVisual.cpp
         source/parameterControls/ParameterListener.cpp
         source/parameterControls/ParameterToggle.cpp
         source/parameterControls/ParameterControl.cpp

@@ -120,6 +120,8 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     auto notif = juce::sendNotification;
     midSideButton.toggle.setToggleState(processorRef.isMidSide(), notif);
     leftRightButton.toggle.setToggleState(!processorRef.isMidSide(), notif);
+    // setup EQ Visualization
+    addAndMakeVisible(eqVisual);
     // setup colors
     setColorOverrides();
     // calculate size
@@ -141,13 +143,16 @@ void PluginEditor::paint(juce::Graphics &g)
     drawGainBackground(g);
     for (int i = 0;i < maxCols;i++)
         drawFilterBackground(g, i);
-    // draw lines seperating the mid and side sections
+    // draw lines and text seperating the mid and side sections
     drawSectionLabels(g);
-    // draw outlines around sections and whole component
+}
+
+void PluginEditor::paintOverChildren(juce::Graphics &g)
+{
+    // draw outlines around the whole component
     g.setColour(findColour(CtmColourIds::brightOutlineColourId));
     g.drawRect(0, 0, getWidth(), getHeight(), 1);
     g.drawLine(0, headerHeight, getWidth(), headerHeight);
-    g.drawLine(0, secondSectionStart(), getWidth(), secondSectionStart());
 }
 
 void PluginEditor::resized()
@@ -182,6 +187,7 @@ void PluginEditor::resized()
     layoutFilterIcon(&peakSixIcon, 3, 1);
     layoutFilterIcon(&lpfOneIcon, 4, 0);
     layoutFilterIcon(&lpfTwoIcon, 4, 1);
+    eqVisual.setBounds(0, 0, getWidth(), headerHeight);
 }
 
 // === Functions for Custom Components ========================================
@@ -351,6 +357,9 @@ void PluginEditor::drawSectionLabels(juce::Graphics& g)
     g.drawText(ms ? "Mid" : "Left", 4, headerHeight + 1, 40, 18, false);
     g.setColour(juce::Colours::white.interpolatedWith(getColorTwo(), 0.7f));
     g.drawText(ms ? "Side" : "Right", 4, secondSectionY + 1, 40, 18, false);
+    // draw the line between the sections
+    g.setColour(findColour(CtmColourIds::brightOutlineColourId));
+    g.drawLine(0, secondSectionStart(), getWidth(), secondSectionStart());
 }
 
 void PluginEditor::drawFilterBackground(juce::Graphics& g, int index)
@@ -376,18 +385,6 @@ void PluginEditor::drawGainBackground(juce::Graphics& g)
     p.addRoundedRectangle(xStart, y, gainWidth, h, columnBgCurvature);
     g.setColour(findColour(CtmColourIds::darkBgColourId));
     g.fillPath(p);
-}
-
-void PluginEditor::drawGainLabels(juce::Graphics& g)
-{
-    auto centered = juce::Justification::centred;
-    int y1 = headerHeight + yStart + columnPaddingY - 24;
-    g.setColour(getColorOne());
-    g.drawText("Gain", xStart, y1, gainWidth, 12, centered, false);
-    int y2 = headerHeight + yStart + columnPaddingY + cellMarginY
-        + (cellHeight * 2) + 12;
-    g.setColour(getColorTwo());
-    g.drawText("Gain", xStart, y2, gainWidth, 12, centered, false);
 }
 
 // === Other Helper Functions =================================================
