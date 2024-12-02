@@ -1,5 +1,7 @@
 #pragma once
-#include "CtmFilter.h"
+
+// forward declaration
+class CtmFilter;
 
 class FilterStateListener
 {

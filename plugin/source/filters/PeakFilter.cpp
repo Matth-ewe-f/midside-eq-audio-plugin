@@ -15,7 +15,7 @@ PeakFilter::PeakFilter
 }
 
 // === Parameter Information ==================================================
-void PeakFilter::parameterChanged(const juce::String& param, float value)
+void PeakFilter::onChangedParameter(const juce::String& param, float value)
 {
     if (param.compare(name + "-" + onOffParam.idPostfix) == 0)
         smoothBypass.setTargetValue(value);
@@ -25,23 +25,9 @@ void PeakFilter::parameterChanged(const juce::String& param, float value)
         setGain(pow(10.0f, value / 20));
     else if (param.compare(name + "-" + qParam.idPostfix) == 0)
         setQFactor(value);
-    for (FilterStateListener* listener : listeners)
-        listener->notify(this);
 }
 
 // === For EQ Displays ========================================================
-void PeakFilter::addStateListener(FilterStateListener* listener)
-{
-    listeners.push_back(listener);
-}
-
-void PeakFilter::removeStateListener(FilterStateListener* listener)
-{
-    auto pos = std::find(listeners.begin(), listeners.end(), listener);
-    if (pos != listeners.end())
-        listeners.erase(pos);
-}
-
 void PeakFilter::getMagnitudes
 (const double* frequencies, double* magnitudes, size_t len)
 {

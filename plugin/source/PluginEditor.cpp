@@ -121,8 +121,12 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     midSideButton.toggle.setToggleState(processorRef.isMidSide(), notif);
     leftRightButton.toggle.setToggleState(!processorRef.isMidSide(), notif);
     // setup EQ Visualization
+    eqVisual.listenTo(&processorRef.gainOne);
+    eqVisual.listenTo(&processorRef.highPassOne);
     eqVisual.listenTo(&processorRef.peakOne);
     eqVisual.listenTo(&processorRef.peakThree);
+    eqVisual.listenTo(&processorRef.peakFive);
+    eqVisual.listenTo(&processorRef.lowPassOne);
     addAndMakeVisible(eqVisual);
     // setup colors
     setColorOverrides();

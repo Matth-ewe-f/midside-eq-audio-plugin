@@ -1,5 +1,6 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "FilterStateListener.h"
 
 using ParameterLayout = juce::AudioProcessorValueTreeState::ParameterLayout;
 
@@ -30,9 +31,15 @@ public:
     // === Lifecycle ==========================================================
     CtmFilter(std::string nameArg, std::string parameterText);
 
-    // === Listener ===========================================================
+    // === ValueTreeState Listener ============================================
     void setListenTo(juce::AudioProcessorValueTreeState*);
     void stopListeningTo(juce::AudioProcessorValueTreeState*);
+    void parameterChanged(const juce::String&, float) override;
+    
+    // === For EQ Displays ====================================================
+    void addStateListener(FilterStateListener*);
+    void removeStateListener(FilterStateListener*);
+    virtual void getMagnitudes(const double*, double*, size_t) = 0;
 
     // === Parameters =========================================================
     void addParameters(ParameterLayout*);
@@ -42,5 +49,10 @@ protected:
     const std::string name;
     const std::string paramText;
 
+    virtual void onChangedParameter(const juce::String&, float) = 0;
     virtual void getParameters(std::vector<ParameterFields>& container) = 0;
+
+private:
+    std::vector<FilterStateListener*> listeners;
+    void nofityListeners();
 };

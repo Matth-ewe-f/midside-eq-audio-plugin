@@ -14,11 +14,12 @@ public:
     GainFilter(std::string nameArg, std::string displayName);
 
     // === Parameters =========================================================
-    void parameterChanged(const juce::String&, float) override;
+    void onChangedParameter(const juce::String&, float) override;
     inline std::string getOnOffParameter() override
         { return name + "-" + onOffParam.idPostfix; }
     inline std::string getGainParameter()
         { return name + "-" + gainParam.idPostfix; }
+    void getMagnitudes(const double*, double*, size_t) override;
     void setGain(float);
     void setBypass(bool);
 

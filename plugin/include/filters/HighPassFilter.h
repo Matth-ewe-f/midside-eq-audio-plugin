@@ -12,7 +12,7 @@ public:
     HighPassFilter(std::string name, std::string parameterText);
 
     // === Parameter Information ==============================================
-    void parameterChanged(const juce::String&, float) override;
+    void onChangedParameter(const juce::String&, float) override;
     inline std::string getOnOffParameter() override
         { return name + "-" + onOffParam.idPostfix; }
     inline std::string getShelfModeParameter()
@@ -25,6 +25,7 @@ public:
         { return name + "-" + shelfGainParam.idPostfix; }
     inline std::string getResonanceParameter()
         { return name + "-" + resParam.idPostfix; }
+    void getMagnitudes(const double*, double*, size_t) override;
 
     // === Set Parameters =====================================================
     void reset(double newSampleRate, int samplesPerBlock);
@@ -87,6 +88,7 @@ private:
     void delayedUpdateOrder();
     bool anythingSmoothing();
     float getQForFilter(int);
+    void combineMagnitudes(double* totals, const double* toCombine, size_t);
     inline bool filterOneEnabled() { return order >= 2 && !isShelf; }
     inline bool filterTwoEnabled() { return order >= 4 && !isShelf; }
     inline bool filterThreeEnabled() { return order >= 6 && !isShelf; }

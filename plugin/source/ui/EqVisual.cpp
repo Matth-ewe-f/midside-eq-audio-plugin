@@ -54,7 +54,7 @@ void EqVisual::paint(juce::Graphics& g)
 }
 
 // === Filter State Listener ==================================================
-void EqVisual::listenTo(PeakFilter* filter)
+void EqVisual::listenTo(CtmFilter* filter)
 {
     filter->addStateListener(this);
     filters.push_back(filter);
@@ -193,7 +193,7 @@ void EqVisual::drawFreqResponse(juce::Graphics& g)
         totals[i] = 1;
     }
     double* magnitudes = new double[width];
-    for (PeakFilter* filter : filters)
+    for (CtmFilter* filter : filters)
     {
         filter->getMagnitudes(freqs, magnitudes, width);
         for (size_t i = 0;i < width;i++)

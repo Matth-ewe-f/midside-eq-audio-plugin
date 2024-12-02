@@ -8,7 +8,7 @@ CtmFilter::CtmFilter(std::string nameArg, std::string parameterText)
     : name(nameArg), paramText(parameterText)
 { }
 
-// === Listener ===============================================================
+// === ValueTreeState Listener ================================================
 void CtmFilter::setListenTo(juce::AudioProcessorValueTreeState* tree)
 {
     std::vector<ParameterFields> parameters;
@@ -29,6 +29,25 @@ void CtmFilter::stopListeningTo(juce::AudioProcessorValueTreeState* tree)
     }
 }
 
+void CtmFilter::parameterChanged(const juce::String& s, float value)
+{
+    onChangedParameter(s, value);
+    nofityListeners();
+}
+
+// === For EQ Displays ========================================================
+void CtmFilter::addStateListener(FilterStateListener* listener)
+{
+    listeners.push_back(listener);
+}
+
+void CtmFilter::removeStateListener(FilterStateListener* listener)
+{
+    auto pos = std::find(listeners.begin(), listeners.end(), listener);
+    if (pos != listeners.end())
+        listeners.erase(pos);
+}
+
 // === Parameters =============================================================
 void CtmFilter::addParameters(ParameterLayout* parameters)
 {
@@ -42,5 +61,14 @@ void CtmFilter::addParameters(ParameterLayout* parameters)
             fields.range,
             fields.defaultValue
         ));
+    }
+}
+
+// === Protected ==============================================================
+void CtmFilter::nofityListeners()
+{
+    for (FilterStateListener* listener : listeners)
+    {
+        listener->notify(this);
     }
 }

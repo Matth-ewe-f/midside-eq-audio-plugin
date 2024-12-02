@@ -17,7 +17,7 @@ HighPassFilter::HighPassFilter(std::string nameArg, std::string parameterText)
 }
 
 // === Parameter Information ==================================================
-void HighPassFilter::parameterChanged(const juce::String& param, float value)
+void HighPassFilter::onChangedParameter(const juce::String& param, float value)
 {
     if (param.compare(name + "-" + onOffParam.idPostfix) == 0)
         smoothBypass.setTargetValue(value);
@@ -31,6 +31,45 @@ void HighPassFilter::parameterChanged(const juce::String& param, float value)
         setIsShelf(value >= 1);
     else if (param.compare(name + "-" + shelfGainParam.idPostfix) == 0)
         setShelfGain(value);
+}
+
+void HighPassFilter::getMagnitudes
+(const double* frequencies, double* magnitudes, size_t len)
+{
+    for (size_t i = 0;i < len;i++)
+        magnitudes[i] = 1;
+    if (smoothBypass.getTargetValue() <= 0)
+        return;
+    double* perFilter = new double[len];
+    if (filterOneEnabled())
+    {
+        filterOne.coefficients->getMagnitudeForFrequencyArray(
+            frequencies, perFilter, len, sampleRate
+        );
+        combineMagnitudes(magnitudes, perFilter, len);
+    }
+    if (filterTwoEnabled())
+    {
+        filterTwo.coefficients->getMagnitudeForFrequencyArray(
+            frequencies, perFilter, len, sampleRate
+        );
+        combineMagnitudes(magnitudes, perFilter, len);
+    }
+    if (filterThreeEnabled())
+    {
+        filterThree.coefficients->getMagnitudeForFrequencyArray(
+            frequencies, perFilter, len, sampleRate
+        );
+        combineMagnitudes(magnitudes, perFilter, len);
+    }
+    if (filterFourEnabled())
+    {
+
+        filterFour.coefficients->getMagnitudeForFrequencyArray(
+            frequencies, perFilter, len, sampleRate
+        );
+        combineMagnitudes(magnitudes, perFilter, len);
+    }
 }
 
 // === Parameter Functions ====================================================
@@ -249,4 +288,11 @@ float HighPassFilter::getQForFilter(int filter)
     }
     // this shouldn't happen, but return a neutral q just in case
     return 0.707f;
+}
+
+void HighPassFilter::combineMagnitudes
+(double* totals, const double* toCombine, size_t len)
+{
+    for (size_t i = 0;i < len;i++)
+        totals[i] *= toCombine[i];
 }

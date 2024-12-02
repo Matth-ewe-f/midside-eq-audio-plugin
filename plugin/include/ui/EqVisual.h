@@ -11,11 +11,11 @@ public:
     void paint(juce::Graphics&) override;
 
     // === Filter State Listener ==============================================
-    void listenTo(PeakFilter*);
+    void listenTo(CtmFilter*);
     void notify(CtmFilter*) override;
 
 private:
-    std::vector<PeakFilter*> filters;
+    std::vector<CtmFilter*> filters;
     // === Color Constants ====================================================
     inline static const juce::Colour bgColor
         { juce::Colour::fromRGB(8, 20, 32) };

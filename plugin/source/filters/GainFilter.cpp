@@ -9,12 +9,20 @@ GainFilter::GainFilter(std::string nameArg, std::string parameterText)
 }
 
 // === Parameters =============================================================
-void GainFilter::parameterChanged(const juce::String& parameter, float value)
+void GainFilter::onChangedParameter(const juce::String& parameter, float value)
 {
     if (parameter.compare(name + "-" + gainParam.idPostfix) == 0)
         setGain(value);
     else if (parameter.compare(name + "-" + onOffParam.idPostfix) == 0)
         setBypass(value <= 0);
+}
+
+void GainFilter::getMagnitudes
+(const double* frequencies, double* magnitudes, size_t len)
+{
+    juce::ignoreUnused(frequencies);
+    for (size_t i = 0;i < len;i++)
+        magnitudes[i] = pow(10, smoothGain.getTargetValue() / 20);
 }
 
 void GainFilter::setGain(float value)

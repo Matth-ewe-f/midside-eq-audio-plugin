@@ -13,7 +13,7 @@ public:
     PeakFilter(std::string nameArg, std::string paramText, float defaultFreq);
 
     // === Parameter Information ==============================================
-    void parameterChanged(const juce::String&, float) override;
+    void onChangedParameter(const juce::String&, float) override;
     inline std::string getOnOffParameter() override
         { return name + "-" + onOffParam.idPostfix; }
     inline std::string getFrequencyParameter()
@@ -22,12 +22,7 @@ public:
         { return name + "-" + gainParam.idPostfix; }
     inline std::string getQFactorParameter()
         { return name + "-" + qParam.idPostfix; }
-    
-    // === For EQ Displays ====================================================
-    void addStateListener(FilterStateListener*);
-    void removeStateListener(FilterStateListener*);
-    void getMagnitudes
-    (const double* frequencies, double* magnitudes, size_t len);
+    void getMagnitudes(const double*, double*, size_t) override;
 
     // === Set Parameters =====================================================
     void reset(double newSampleRate, int samplesPerBlock);
@@ -51,7 +46,6 @@ private:
     float gain;
     float q;
     double sampleRate;
-    std::vector<FilterStateListener*> listeners;
     
     // === Parameter Settings =================================================
     inline static const ParameterFields onOffParam {
