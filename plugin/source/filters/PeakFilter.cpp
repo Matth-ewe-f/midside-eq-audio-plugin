@@ -27,7 +27,14 @@ void PeakFilter::onChangedParameter(const juce::String& param, float value)
         setQFactor(value);
 }
 
-// === For EQ Displays ========================================================
+void PeakFilter::getParameters(std::vector<ParameterFields>& parameters)
+{
+    parameters.push_back(onOffParam);
+    parameters.push_back(gainParam);
+    parameters.push_back(qParam);
+    parameters.push_back(getFreqParameterFields());
+}
+
 void PeakFilter::getMagnitudes
 (const double* frequencies, double* magnitudes, size_t len)
 {
@@ -96,15 +103,6 @@ float PeakFilter::processSample(float sample)
         result = (result * p) + (sample * (1 - p));
     }
     return result;
-}
-
-// === Overriden from CtmFilter ===============================================
-void PeakFilter::getParameters(std::vector<ParameterFields>& parameters)
-{
-    parameters.push_back(onOffParam);
-    parameters.push_back(gainParam);
-    parameters.push_back(qParam);
-    parameters.push_back(getFreqParameterFields());
 }
 
 // === Private Helper =========================================================

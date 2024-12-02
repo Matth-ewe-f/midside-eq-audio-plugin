@@ -17,6 +17,12 @@ void GainFilter::onChangedParameter(const juce::String& parameter, float value)
         setBypass(value <= 0);
 }
 
+void GainFilter::getParameters(std::vector<ParameterFields>& params)
+{
+    params.push_back(onOffParam);
+    params.push_back(gainParam);
+}
+
 void GainFilter::getMagnitudes
 (const double* frequencies, double* magnitudes, size_t len)
 {
@@ -57,11 +63,4 @@ float GainFilter::processSample(float sample)
         result = (result * p) + (sample * (1 - p));
     }
     return result;
-}
-
-// === Inherited from CtmFilter ===============================================
-void GainFilter::getParameters(std::vector<ParameterFields>& params)
-{
-    params.push_back(onOffParam);
-    params.push_back(gainParam);
 }

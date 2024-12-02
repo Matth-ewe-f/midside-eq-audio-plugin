@@ -22,6 +22,7 @@ public:
         { return name + "-" + gainParam.idPostfix; }
     inline std::string getQFactorParameter()
         { return name + "-" + qParam.idPostfix; }
+    void getParameters(std::vector<ParameterFields>&) override;
     void getMagnitudes(const double*, double*, size_t) override;
 
     // === Set Parameters =====================================================
@@ -34,9 +35,6 @@ public:
     // === Process Audio ======================================================
     void prepare(const dsp::ProcessSpec&);
     float processSample(float);
-
-protected:
-    void getParameters(std::vector<ParameterFields>&) override;
 
 private:
     dsp::IIR::Filter<float> filter;

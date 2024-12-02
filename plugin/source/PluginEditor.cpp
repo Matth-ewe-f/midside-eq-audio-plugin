@@ -117,6 +117,13 @@ PluginEditor::PluginEditor (PluginProcessor &p)
         stateTree->getParameter("lpf-linked")->setValue(1);
     };
     addAndMakeVisible(linkAllButton);
+    resetButton.setText("Reset");
+    resetButton.setDisplayAlwaysUp(true);
+    resetButton.onClick = [this]
+    {
+        processorRef.resetAllParams();
+    };
+    addAndMakeVisible(resetButton);
     auto notif = juce::sendNotification;
     midSideButton.toggle.setToggleState(processorRef.isMidSide(), notif);
     leftRightButton.toggle.setToggleState(!processorRef.isMidSide(), notif);
@@ -163,9 +170,10 @@ void PluginEditor::paintOverChildren(juce::Graphics &g)
 
 void PluginEditor::resized()
 {
-    layoutGlobalControl(&midSideButton.toggle, 0, 2);
-    layoutGlobalControl(&leftRightButton.toggle, 1, 2);
-    layoutGlobalControl(&linkAllButton, 2, 2);
+    layoutGlobalControl(&midSideButton.toggle, 0, 4);
+    layoutGlobalControl(&leftRightButton.toggle, 1, 4);
+    layoutGlobalControl(&resetButton, 2.5f, 4);
+    layoutGlobalControl(&linkAllButton, 4, 4);
     layoutGain(&gainOne, 0);
     layoutGain(&gainTwo, 1);
     layoutFilter(&highPassOne, 0, 0);
@@ -270,13 +278,13 @@ void PluginEditor::setupFilterIcon(Icon* icon, Icon::Type type)
 
 // === Drawing and Layout Helper Functions ====================================
 void PluginEditor::layoutGlobalControl
-(CtmToggle* control, int yIndex, int yMax)
+(CtmToggle* control, float yIndex, int yMax)
 {
     int x = xStart + gainWidth + (cellWidth * maxCols)
         + (cellMarginX * (maxCols + 1)) + (cellPaddingX * (maxCols * 2));
     int lastY = headerHeight + yStart + columnPaddingY + cellHeight
         + (cellMarginY / 2) - (globalsHeight / 2);
-    int y = lastY - ((globalsHeight + globalsMargin) * (yMax - yIndex));
+    int y = lastY - (int)((globalsHeight + globalsMargin) * (yMax - yIndex));
     control->setBounds(x, y, globalsWidth, globalsHeight);
 }
 

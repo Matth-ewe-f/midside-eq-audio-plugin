@@ -81,8 +81,9 @@ public:
 
     // === State ==============================================================
     bool isMidSide();
-    void getStateInformation (juce::MemoryBlock& destData) override;
-    void setStateInformation (const void* data, int sizeInBytes) override;
+    void resetAllParams();
+    void getStateInformation(juce::MemoryBlock& destData) override;
+    void setStateInformation(const void* data, int sizeInBytes) override;
 
     // === Factory Functions ==================================================
     juce::AudioProcessorEditor* createEditor() override;
@@ -108,6 +109,7 @@ private:
     // === Other Helper Functions =============================================
     float processSampleChannelOne(float sample);
     float processSampleChannelTwo(float sample);
+    void resetFilterParams(CtmFilter*);
     void addParameterListener(ParameterListener*);
     float clampWithinOne(float);
 

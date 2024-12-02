@@ -47,6 +47,7 @@ private:
     // global controls
     ParameterToggle midSideButton;
     ParameterToggle leftRightButton;
+    CtmToggle resetButton;
     CtmToggle linkAllButton;
     // channel gains
     GainControl gainOne;
@@ -109,7 +110,7 @@ private:
     inline static const Colour rightColor { Colour::fromRGB(60, 230, 10) };
 
     // === Drawing and Layout Helper Functions ================================
-    void layoutGlobalControl(CtmToggle*, int yIndex, int yMax);
+    void layoutGlobalControl(CtmToggle*, float yIndex, int yMax);
     void layoutFilter(FilterControl*, int xIndex, int yIndex);
     void layoutGain(GainControl*, int yIndex);
     void layoutLinkButton(CtmToggle*, int);

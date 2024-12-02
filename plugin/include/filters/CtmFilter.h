@@ -28,6 +28,9 @@ float skew, float defaultValue)
 class CtmFilter : public juce::AudioProcessorValueTreeState::Listener
 {
 public:
+    const std::string name;
+    const std::string paramText;
+    
     // === Lifecycle ==========================================================
     CtmFilter(std::string nameArg, std::string parameterText);
 
@@ -44,13 +47,10 @@ public:
     // === Parameters =========================================================
     void addParameters(ParameterLayout*);
     virtual std::string getOnOffParameter() = 0;
+    virtual void getParameters(std::vector<ParameterFields>& container) = 0;
 
 protected:
-    const std::string name;
-    const std::string paramText;
-
     virtual void onChangedParameter(const juce::String&, float) = 0;
-    virtual void getParameters(std::vector<ParameterFields>& container) = 0;
 
 private:
     std::vector<FilterStateListener*> listeners;

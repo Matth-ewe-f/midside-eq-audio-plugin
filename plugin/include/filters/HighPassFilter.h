@@ -25,6 +25,7 @@ public:
         { return name + "-" + shelfGainParam.idPostfix; }
     inline std::string getResonanceParameter()
         { return name + "-" + resParam.idPostfix; }
+    void getParameters(std::vector<ParameterFields>&) override;
     void getMagnitudes(const double*, double*, size_t) override;
 
     // === Set Parameters =====================================================
@@ -39,9 +40,6 @@ public:
     // === Process Audio ======================================================
     void prepare(const dsp::ProcessSpec&);
     float processSample(float);
-
-protected:
-    void getParameters(std::vector<ParameterFields>&) override;
 
 private:
     // === Private Variables ==================================================
@@ -63,7 +61,7 @@ private:
     
     // === Static Constants ===================================================
     inline static const ParameterFields onOffParam {
-        makeParamFields("on", "On/Off", 0, 1, 1, 1, 1)
+        makeParamFields("on", "On/Off", 0, 1, 1, 1, 0)
     };
     inline static const ParameterFields shelfModeParam {
         makeParamFields("shelf-mode", "Shelf Mode", 0, 1, 1, 1, 0)

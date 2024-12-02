@@ -19,6 +19,7 @@ public:
         { return name + "-" + onOffParam.idPostfix; }
     inline std::string getGainParameter()
         { return name + "-" + gainParam.idPostfix; }
+    void getParameters(std::vector<ParameterFields>&) override;
     void getMagnitudes(const double*, double*, size_t) override;
     void setGain(float);
     void setBypass(bool);
@@ -26,9 +27,6 @@ public:
     // === Process Audio ======================================================
     void reset(int blockSize);
     float processSample(float);
-
-protected:
-    void getParameters(std::vector<ParameterFields>&) override;
 
 private:
     juce::SmoothedValue<float> smoothGain;

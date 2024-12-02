@@ -10,7 +10,7 @@ HighPassFilter::HighPassFilter(std::string nameArg, std::string parameterText)
     fadeSamples(-1), isShelf(false), sampleRate(48000)
 {
     smoothFrequency.setCurrentAndTargetValue(20);
-    smoothBypass.setCurrentAndTargetValue(1);
+    smoothBypass.setCurrentAndTargetValue(0);
     smoothGain.setCurrentAndTargetValue(0);
     smoothResonance.setCurrentAndTargetValue(0.71f);
     updateFilters();
@@ -31,6 +31,16 @@ void HighPassFilter::onChangedParameter(const juce::String& param, float value)
         setIsShelf(value >= 1);
     else if (param.compare(name + "-" + shelfGainParam.idPostfix) == 0)
         setShelfGain(value);
+}
+
+void HighPassFilter::getParameters(std::vector<ParameterFields>& parameters)
+{
+    parameters.push_back(onOffParam);
+    parameters.push_back(shelfModeParam);
+    parameters.push_back(freqParam);
+    parameters.push_back(falloffParam);
+    parameters.push_back(shelfGainParam);
+    parameters.push_back(resParam);
 }
 
 void HighPassFilter::getMagnitudes
@@ -182,17 +192,6 @@ float HighPassFilter::processSample(float sample)
         result = (result * p) + (sample * (1 - p));
     }
     return result;
-}
-
-// === Overriden from CtmFilter ===============================================
-void HighPassFilter::getParameters(std::vector<ParameterFields>& parameters)
-{
-    parameters.push_back(onOffParam);
-    parameters.push_back(shelfModeParam);
-    parameters.push_back(freqParam);
-    parameters.push_back(falloffParam);
-    parameters.push_back(shelfGainParam);
-    parameters.push_back(resParam);
 }
 
 // === Private Helper =========================================================

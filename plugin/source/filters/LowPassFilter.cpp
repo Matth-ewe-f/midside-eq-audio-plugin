@@ -8,7 +8,7 @@ LowPassFilter::LowPassFilter(std::string nameArg, std::string parameterText)
     fadeSamples(-1), isShelf(false), sampleRate(48000)
 {
     smoothFrequency.setCurrentAndTargetValue(20000);
-    smoothBypass.setCurrentAndTargetValue(1);
+    smoothBypass.setCurrentAndTargetValue(0);
     smoothGain.setCurrentAndTargetValue(0);
     smoothResonance.setCurrentAndTargetValue(0.71f);
     updateFilters();
@@ -29,6 +29,16 @@ void LowPassFilter::onChangedParameter(const juce::String& param, float value)
         setShelfGain(value);
     else if (param.compare(name + "-" + resParam.idPostfix) == 0)
         setResonance(value);
+}
+
+void LowPassFilter::getParameters(std::vector<ParameterFields>& parameters)
+{
+    parameters.push_back(onOffParam);
+    parameters.push_back(freqParam);
+    parameters.push_back(falloffParam);
+    parameters.push_back(resParam);
+    parameters.push_back(shelfModeParam);
+    parameters.push_back(shelfGainParam);
 }
 
 void LowPassFilter::getMagnitudes
@@ -127,17 +137,6 @@ void LowPassFilter::setShelfGain(float gain)
 void LowPassFilter::setResonance(float res)
 {
     smoothResonance.setTargetValue(res);
-}
-
-// === Overriden from CtmFilter ===============================================
-void LowPassFilter::getParameters(std::vector<ParameterFields>& parameters)
-{
-    parameters.push_back(onOffParam);
-    parameters.push_back(freqParam);
-    parameters.push_back(falloffParam);
-    parameters.push_back(resParam);
-    parameters.push_back(shelfModeParam);
-    parameters.push_back(shelfGainParam);
 }
 
 // === Process Audio ==========================================================

@@ -228,6 +228,22 @@ bool PluginProcessor::isMidSide()
 }
 #pragma GCC diagnostic pop
 
+void PluginProcessor::resetAllParams()
+{
+	resetFilterParams(&gainOne);
+	resetFilterParams(&gainTwo);
+	resetFilterParams(&highPassOne);
+	resetFilterParams(&highPassTwo);
+	resetFilterParams(&peakOne);
+	resetFilterParams(&peakTwo);
+	resetFilterParams(&peakThree);
+	resetFilterParams(&peakFour);
+	resetFilterParams(&peakFive);
+	resetFilterParams(&peakSix);
+	resetFilterParams(&lowPassOne);
+	resetFilterParams(&lowPassTwo);
+}
+
 void PluginProcessor::getStateInformation(juce::MemoryBlock &destData)
 {
 	auto state = tree.copyState();
@@ -263,6 +279,18 @@ float PluginProcessor::processSampleChannelTwo(float sample)
 	sample = peakSix.processSample(sample);
 	sample = lowPassTwo.processSample(sample);
 	return sample;
+}
+
+void PluginProcessor::resetFilterParams(CtmFilter* filter)
+{
+	std::vector<ParameterFields> parameters;
+	filter->getParameters(parameters);
+	for (ParameterFields fields : parameters)
+	{
+		std::string name = filter->name + "-" + fields.idPostfix;
+		juce::RangedAudioParameter* param = tree.getParameter(name);
+		param->setValueNotifyingHost(param->getDefaultValue());
+	}
 }
 
 void PluginProcessor::addParameterListener(ParameterListener* listener)
