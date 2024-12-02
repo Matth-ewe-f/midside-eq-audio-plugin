@@ -49,6 +49,7 @@ private:
     ParameterToggle leftRightButton;
     CtmToggle resetButton;
     CtmToggle linkAllButton;
+    CtmToggle unlinkAllButton;
     // channel gains
     GainControl gainOne;
     GainControl gainTwo;

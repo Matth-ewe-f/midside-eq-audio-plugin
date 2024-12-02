@@ -94,7 +94,7 @@ PluginEditor::PluginEditor (PluginProcessor &p)
         setColorOverrides();
         repaint(); 
     };
-    midSideButton.toggle.setColorGradient(midColor, sideColor);
+    // midSideButton.toggle.setColorGradient(midColor, sideColor);
     addAndMakeVisible(midSideButton.toggle);
     leftRightButton.toggle.setText("Stereo");
     leftRightButton.toggle.setRadioGroupId(1, juce::dontSendNotification);
@@ -104,7 +104,7 @@ PluginEditor::PluginEditor (PluginProcessor &p)
         setColorOverrides();
         repaint();
     };
-    leftRightButton.toggle.setColorGradient(leftColor, rightColor);
+    // leftRightButton.toggle.setColorGradient(leftColor, rightColor);
     addAndMakeVisible(leftRightButton.toggle);
     linkAllButton.setText("Link All");
     linkAllButton.setDisplayAlwaysUp(true);
@@ -117,6 +117,17 @@ PluginEditor::PluginEditor (PluginProcessor &p)
         stateTree->getParameter("lpf-linked")->setValue(1);
     };
     addAndMakeVisible(linkAllButton);
+    unlinkAllButton.setText("Unlink All");
+    unlinkAllButton.setDisplayAlwaysUp(true);
+    unlinkAllButton.onClick = [stateTree]
+    {
+        stateTree->getParameter("hpf-linked")->setValue(0);
+        stateTree->getParameter("peak12-linked")->setValue(0);
+        stateTree->getParameter("peak34-linked")->setValue(0);
+        stateTree->getParameter("peak56-linked")->setValue(0);
+        stateTree->getParameter("lpf-linked")->setValue(0);
+    };
+    addAndMakeVisible(unlinkAllButton);
     resetButton.setText("Reset");
     resetButton.setDisplayAlwaysUp(true);
     resetButton.onClick = [this]
@@ -174,6 +185,7 @@ void PluginEditor::resized()
     layoutGlobalControl(&leftRightButton.toggle, 1, 4);
     layoutGlobalControl(&resetButton, 2.5f, 4);
     layoutGlobalControl(&linkAllButton, 4, 4);
+    layoutGlobalControl(&unlinkAllButton, 5, 4);
     layoutGain(&gainOne, 0);
     layoutGain(&gainTwo, 1);
     layoutFilter(&highPassOne, 0, 0);
@@ -405,6 +417,7 @@ void PluginEditor::drawGainBackground(juce::Graphics& g)
 void PluginEditor::setColorOverrides()
 {
     linkAllButton.setColorGradient(getColorOne(), getColorTwo());
+    unlinkAllButton.setColorGradient(getColorOne(), getColorTwo());
     gainOne.setAllColorOverrides(getColorOne());
     gainTwo.setAllColorOverrides(getColorTwo());
     highPassOne.setAllColorOverrides(getColorOne());
