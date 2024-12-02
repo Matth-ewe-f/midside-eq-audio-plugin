@@ -111,7 +111,7 @@ private:
     inline static const Colour rightColor { Colour::fromRGB(60, 230, 10) };
 
     // === Drawing and Layout Helper Functions ================================
-    void layoutGlobalControl(CtmToggle*, float yIndex, int yMax);
+    void layoutGlobalControl(CtmToggle*, float yPos);
     void layoutFilter(FilterControl*, int xIndex, int yIndex);
     void layoutGain(GainControl*, int yIndex);
     void layoutLinkButton(CtmToggle*, int);

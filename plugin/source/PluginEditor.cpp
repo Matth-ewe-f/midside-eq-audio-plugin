@@ -181,11 +181,11 @@ void PluginEditor::paintOverChildren(juce::Graphics &g)
 
 void PluginEditor::resized()
 {
-    layoutGlobalControl(&midSideButton.toggle, 0, 4);
-    layoutGlobalControl(&leftRightButton.toggle, 1, 4);
-    layoutGlobalControl(&resetButton, 2.5f, 4);
-    layoutGlobalControl(&linkAllButton, 4, 4);
-    layoutGlobalControl(&unlinkAllButton, 5, 4);
+    layoutGlobalControl(&midSideButton.toggle, 4);
+    layoutGlobalControl(&leftRightButton.toggle, 3);
+    layoutGlobalControl(&resetButton, 1.5f);
+    layoutGlobalControl(&linkAllButton, 0);
+    layoutGlobalControl(&unlinkAllButton, -1);
     layoutGain(&gainOne, 0);
     layoutGain(&gainTwo, 1);
     layoutFilter(&highPassOne, 0, 0);
@@ -289,14 +289,13 @@ void PluginEditor::setupFilterIcon(Icon* icon, Icon::Type type)
 }
 
 // === Drawing and Layout Helper Functions ====================================
-void PluginEditor::layoutGlobalControl
-(CtmToggle* control, float yIndex, int yMax)
+void PluginEditor::layoutGlobalControl(CtmToggle* control, float yPos)
 {
     int x = xStart + gainWidth + (cellWidth * maxCols)
         + (cellMarginX * (maxCols + 1)) + (cellPaddingX * (maxCols * 2));
-    int lastY = headerHeight + yStart + columnPaddingY + cellHeight
+    int cy = headerHeight + yStart + columnPaddingY + cellHeight
         + (cellMarginY / 2) - (globalsHeight / 2);
-    int y = lastY - (int)((globalsHeight + globalsMargin) * (yMax - yIndex));
+    int y = cy - (int)((globalsHeight + globalsMargin) * yPos);
     control->setBounds(x, y, globalsWidth, globalsHeight);
 }
 
