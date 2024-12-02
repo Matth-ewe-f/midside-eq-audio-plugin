@@ -1,13 +1,21 @@
 #pragma once
 #include <juce_gui_basics/juce_gui_basics.h>
+#include "FilterStateListener.h"
+#include "CtmFilter.h"
+#include "PeakFilter.h"
 
-class EqVisual : public juce::Component
+class EqVisual : public juce::Component, public FilterStateListener
 {
 public:
     // === Graphics Functions =================================================
     void paint(juce::Graphics&) override;
 
+    // === Filter State Listener ==============================================
+    void listenTo(PeakFilter*);
+    void notify(CtmFilter*) override;
+
 private:
+    std::vector<PeakFilter*> filters;
     // === Color Constants ====================================================
     inline static const juce::Colour bgColor
         { juce::Colour::fromRGB(8, 20, 32) };
@@ -30,9 +38,12 @@ private:
     void drawMainVertLine(juce::Graphics&, int);
     void drawGainLabel(juce::Graphics&, int, int);
     void drawFreqLabel(juce::Graphics&, int, int);
+    void drawFreqResponse(juce::Graphics&);
 
     // === Other Helper Functions =============================================
-    int getXForFrequency(float);
+    float getYForGain(float);
+    float getXForFrequency(float);
+    float getFrequencyForX(int);
     bool shouldDrawFreqLabel(int);
     juce::Colour getColorForGainLabels();
     juce::Colour getColorForFreqLabels();

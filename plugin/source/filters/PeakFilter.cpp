@@ -25,6 +25,39 @@ void PeakFilter::parameterChanged(const juce::String& param, float value)
         setGain(pow(10.0f, value / 20));
     else if (param.compare(name + "-" + qParam.idPostfix) == 0)
         setQFactor(value);
+    for (FilterStateListener* listener : listeners)
+        listener->notify(this);
+}
+
+// === For EQ Displays ========================================================
+void PeakFilter::addStateListener(FilterStateListener* listener)
+{
+    listeners.push_back(listener);
+}
+
+void PeakFilter::removeStateListener(FilterStateListener* listener)
+{
+    auto pos = std::find(listeners.begin(), listeners.end(), listener);
+    if (pos != listeners.end())
+        listeners.erase(pos);
+}
+
+void PeakFilter::getMagnitudes
+(const double* frequencies, double* magnitudes, size_t len)
+{
+    if (smoothBypass.getTargetValue() <= 0)
+    {
+        for (size_t i = 0;i < len;i++)
+        {
+            *(magnitudes + i) = 0;
+        }
+    }
+    else
+    {
+        filter.coefficients->getMagnitudeForFrequencyArray(
+            frequencies, magnitudes, len, sampleRate
+        );
+    }
 }
 
 // === Set Parameters =========================================================

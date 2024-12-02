@@ -2,6 +2,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
 #include "CtmFilter.h"
+#include "FilterStateListener.h"
 
 namespace dsp = juce::dsp;
 
@@ -9,8 +10,7 @@ class PeakFilter : public CtmFilter
 {
 public:
     // === Lifecycle ==========================================================
-    PeakFilter
-    (std::string nameArg, std::string parameterText, float defaultFrequency);
+    PeakFilter(std::string nameArg, std::string paramText, float defaultFreq);
 
     // === Parameter Information ==============================================
     void parameterChanged(const juce::String&, float) override;
@@ -22,6 +22,12 @@ public:
         { return name + "-" + gainParam.idPostfix; }
     inline std::string getQFactorParameter()
         { return name + "-" + qParam.idPostfix; }
+    
+    // === For EQ Displays ====================================================
+    void addStateListener(FilterStateListener*);
+    void removeStateListener(FilterStateListener*);
+    void getMagnitudes
+    (const double* frequencies, double* magnitudes, size_t len);
 
     // === Set Parameters =====================================================
     void reset(double newSampleRate, int samplesPerBlock);
@@ -45,6 +51,7 @@ private:
     float gain;
     float q;
     double sampleRate;
+    std::vector<FilterStateListener*> listeners;
     
     // === Parameter Settings =================================================
     inline static const ParameterFields onOffParam {

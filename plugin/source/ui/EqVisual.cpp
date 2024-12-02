@@ -12,21 +12,19 @@ void EqVisual::paint(juce::Graphics& g)
     // draw horizontal gridlines and labels
     for (int i = 0;i < numHorzLines;i++)
     {
-        int yStart = paddingY + (vertLineGradHeight - 4);
-        int yInterval = (getHeight() - (2 * yStart)) / (numHorzLines - 1);
-        int y = yStart + yInterval * i;
+        int gainValue = ((numHorzLines / 2) - i) * 6;
+        int y = (int)getYForGain(gainValue);
         if (i == numHorzLines / 2)
             drawCentralHorzLine(g, y);
         else
             drawHorzLine(g, y);
-        int gainValue = abs((numHorzLines / 2) - i) * 6;
         drawGainLabel(g, y, gainValue);
     }
     // draw vertical gridlines
     int f = 20;
     while (f <= 20000)
     {
-        int x = getXForFrequency(f);
+        int x = (int)getXForFrequency(f);
         if (f == 20 || f == 100 || f == 1000 || f == 20000)
             drawMainVertLine(g, x);
         else
@@ -50,7 +48,21 @@ void EqVisual::paint(juce::Graphics& g)
     g.drawText("dB", xStart - 40, cy - 8, 20, 14, justify);
     g.setColour(getColorForFreqLabels());
     g.setFont(12);
-    g.drawText("Hz", getWidth() - xEnd + 8, cy + 1, 20, 12, justify);
+    g.drawText("Hz", getWidth() - xEnd + 8, cy, 20, 12, justify);
+    // draw the frequency response
+    drawFreqResponse(g);
+}
+
+// === Filter State Listener ==================================================
+void EqVisual::listenTo(PeakFilter* filter)
+{
+    filter->addStateListener(this);
+    filters.push_back(filter);
+}
+
+void EqVisual::notify(CtmFilter*)
+{
+    repaint();
 }
 
 // === Drawing Helper Functions ===============================================
@@ -165,13 +177,74 @@ void EqVisual::drawFreqLabel(juce::Graphics& g, int cx, int freq)
     g.drawText(freqString, cx - 10, y, 20, 12, juce::Justification::centred);
 }
 
+void EqVisual::drawFreqResponse(juce::Graphics& g)
+{
+    // get the frequency repsonse from the filters
+    if (filters.size() == 0)
+        return;
+    int start = xStart + minorLinesExtraPaddingX + (horzLineGradWidth - 12);
+    int end = xEnd + minorLinesExtraPaddingX + (horzLineGradWidth - 12);
+    const size_t width = (size_t)(getWidth() - start - end);
+    double* freqs = new double[width];
+    double* totals = new double[width];
+    for (size_t i = 0;i < width;i++)
+    {
+        freqs[i] = getFrequencyForX(start + (int)i);
+        totals[i] = 1;
+    }
+    double* magnitudes = new double[width];
+    for (PeakFilter* filter : filters)
+    {
+        filter->getMagnitudes(freqs, magnitudes, width);
+        for (size_t i = 0;i < width;i++)
+        {
+            totals[i] *= magnitudes[i];
+        }
+    }
+    // draw the frequency response, point by point
+    juce::Path p;
+    float lastX = 0;
+    float lastY = 0;
+    for (size_t i = 0;i < width;i++)
+    {
+        float x = getXForFrequency((float)freqs[i]);
+        float y = getYForGain(20 * log10((float)totals[i]));
+        if (i != 0)
+            p.addLineSegment(juce::Line<float>(lastX, lastY, x, y), 1.5f);
+        lastX = x;
+        lastY = y;
+    }
+    g.setColour(juce::Colours::blue);
+    g.fillPath(p);
+    // memory management
+    delete[] freqs;
+    delete[] totals;
+    delete[] magnitudes;
+}
+
 // === Other Helper Functions =================================================
-int EqVisual::getXForFrequency(float freq)
+float EqVisual::getYForGain(float gain)
+{
+    int cy = getHeight() / 2;
+    int maxHeight = cy - (paddingY + (vertLineGradHeight - 4));
+    float maxGain = (numHorzLines / 2) * 6;
+    return cy - ((gain / maxGain) * maxHeight);
+}
+
+float EqVisual::getXForFrequency(float freq)
 {
     float p = freqRange.convertTo0to1(freq);
     int start = xStart + minorLinesExtraPaddingX + (horzLineGradWidth - 12);
     int end = xEnd + minorLinesExtraPaddingX + (horzLineGradWidth - 12);
-    return start + (int) (p * (getWidth() - start - end));
+    return start + (p * (getWidth() - start - end));
+}
+
+float EqVisual::getFrequencyForX(int x)
+{
+    int start = xStart + minorLinesExtraPaddingX + (horzLineGradWidth - 12);
+    int end = xEnd + minorLinesExtraPaddingX + (horzLineGradWidth - 12);
+    float p = ((float)x - start) / ((float)getWidth() - end - start);
+    return freqRange.convertFrom0to1(p);
 }
 
 bool EqVisual::shouldDrawFreqLabel(int freq)
