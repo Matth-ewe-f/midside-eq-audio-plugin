@@ -7,6 +7,9 @@
 class EqVisual : public juce::Component, public FilterStateListener
 {
 public:
+    /// === Lifecycle =========================================================
+    ~EqVisual() override;
+
     // === Graphics Functions =================================================
     void paint(juce::Graphics&) override;
 

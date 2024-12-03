@@ -1,4 +1,5 @@
 #pragma once
+#include <atomic>
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "FilterStateListener.h"
 
@@ -49,8 +50,15 @@ public:
     virtual std::string getOnOffParameter() = 0;
     virtual void getParameters(std::vector<ParameterFields>& container) = 0;
 
+    // === Process Audio ======================================================
+    float processSample(float);
+
 protected:
+    std::atomic<long long> timeAtLastProcess;
+
+    virtual float processSampleProtected(float) = 0;
     virtual void onChangedParameter(const juce::String&, float) = 0;
+    bool isProcessing();
 
 private:
     std::vector<FilterStateListener*> listeners;

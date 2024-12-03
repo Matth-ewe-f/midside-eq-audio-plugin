@@ -1,6 +1,15 @@
 #include "EqVisual.h"
 #include "CtmLookAndFeel.h"
 
+// === Lifecycle ==============================================================
+EqVisual::~EqVisual()
+{
+    for (CtmFilter* filter : filtersForResponseOne)
+        filter->removeStateListener(this);
+    for (CtmFilter* filter : filtersForResponseTwo)
+        filter->removeStateListener(this);
+}
+
 // === Graphics ===============================================================
 void EqVisual::paint(juce::Graphics& g)
 {

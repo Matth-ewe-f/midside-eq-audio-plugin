@@ -1,11 +1,12 @@
 #include "CtmFilter.h"
+#include <chrono>
 #include <format>
 
 using Parameter = juce::AudioProcessorValueTreeState::Parameter;
 
 // === Lifecycle ==============================================================
 CtmFilter::CtmFilter(std::string nameArg, std::string parameterText)
-    : name(nameArg), paramText(parameterText)
+    : name(nameArg), paramText(parameterText), timeAtLastProcess(0)
 { }
 
 // === ValueTreeState Listener ================================================
@@ -64,11 +65,31 @@ void CtmFilter::addParameters(ParameterLayout* parameters)
     }
 }
 
-// === Protected ==============================================================
+// === Process Audio ==========================================================
+float CtmFilter::processSample(float sample)
+{
+    auto sinceEpoch = std::chrono::system_clock::now().time_since_epoch();
+    long long ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+        sinceEpoch
+    ).count();
+    timeAtLastProcess.store(ms);
+    return processSampleProtected(sample);
+}
+
+// === Protected & Private ====================================================
 void CtmFilter::nofityListeners()
 {
     for (FilterStateListener* listener : listeners)
     {
         listener->notify(this);
     }
+}
+
+bool CtmFilter::isProcessing()
+{
+    auto sinceEpoch = std::chrono::system_clock::now().time_since_epoch();
+    long long ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+        sinceEpoch
+    ).count();
+    return timeAtLastProcess.load() >= ms - 2;
 }

@@ -34,7 +34,7 @@ public:
 
     // === Process Audio ======================================================
     void prepare(const dsp::ProcessSpec&);
-    float processSample(float);
+    float processSampleProtected(float) override;
 
 private:
     dsp::IIR::Filter<float> filter;

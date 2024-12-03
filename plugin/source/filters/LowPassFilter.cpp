@@ -108,31 +108,48 @@ void LowPassFilter::reset(double newSampleRate, int samplesPerBlock)
 
 void LowPassFilter::setBypass(bool isBypassed)
 {
-    smoothBypass.setTargetValue(isBypassed ? 0 : 1);
+    if (isProcessing())
+        smoothBypass.setTargetValue(isBypassed ? 0 : 1);
+    else
+        smoothBypass.setCurrentAndTargetValue(isBypassed ? 0 : 1);
 }
 
 void LowPassFilter::setFrequency(float newFrequency)
 {
-    smoothFrequency.setTargetValue(newFrequency);
+    if (isProcessing())
+        smoothFrequency.setTargetValue(newFrequency);
+    else
+    {
+        smoothFrequency.setCurrentAndTargetValue(newFrequency);
+        updateFilters();
+    }
 }
 
 void LowPassFilter::setOrder(int newOrder)
 {
-    if (newOrder <= 1)
-        pendingOrder = 1;
-    else if (newOrder >= 7)
-        pendingOrder = 7;
+    if (isProcessing())
+    {
+        if (newOrder <= 1)
+            pendingOrder = 1;
+        else if (newOrder >= 7)
+            pendingOrder = 7;
+        else
+            pendingOrder = newOrder;
+        if (fadeSamples < 0)
+        {
+            fadeSamples = 0;
+        }
+        else if (fadeSamples >= fadeLength)
+        {
+            fadeSamples = (2 * fadeLength) - fadeSamples;
+        }
+        // if fadeSamples > 0 && < fadeLength, nothing needs to be done
+    }
     else
-        pendingOrder = newOrder;
-    if (fadeSamples < 0)
     {
-        fadeSamples = 0;
+        order = newOrder;
+        updateFilters();
     }
-    else if (fadeSamples >= fadeLength)
-    {
-        fadeSamples = (2 * fadeLength) - fadeSamples;
-    }
-    // if fadeSamples > 0 && < fadeLength, nothing needs to be done
 }
 
 void LowPassFilter::setIsShelf(bool shelf)
@@ -143,12 +160,24 @@ void LowPassFilter::setIsShelf(bool shelf)
 
 void LowPassFilter::setShelfGain(float gain)
 {
-    smoothGain.setTargetValue(gain);
+    if (isProcessing())
+        smoothGain.setTargetValue(gain);
+    else
+    {
+        smoothGain.setCurrentAndTargetValue(gain);
+        updateFilters();
+    }
 }
 
 void LowPassFilter::setResonance(float res)
 {
-    smoothResonance.setTargetValue(res);
+    if (isProcessing())
+        smoothResonance.setTargetValue(res);
+    else
+    {
+        smoothResonance.setCurrentAndTargetValue(res);
+        updateFilters();
+    }
 }
 
 // === Process Audio ==========================================================
@@ -160,7 +189,7 @@ void LowPassFilter::prepare(const dsp::ProcessSpec& spec)
     filterFour.prepare(spec);
 }
 
-float LowPassFilter::processSample(float sample)
+float LowPassFilter::processSampleProtected(float sample)
 {
     if (smoothBypass.getCurrentValue() <= 0 && !smoothBypass.isSmoothing())
         return sample;

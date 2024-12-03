@@ -64,12 +64,21 @@ void PeakFilter::reset(double newSampleRate, int samplesPerBlock)
 
 void PeakFilter::setBypass(bool isBypassed)
 {
-    smoothBypass.setTargetValue(isBypassed ? 0 : 1);
+    if (isProcessing())
+        smoothBypass.setTargetValue(isBypassed ? 0 : 1);
+    else
+        smoothBypass.setCurrentAndTargetValue(isBypassed ? 0 : 1);
 }
 
 void PeakFilter::setFrequency(float frequency)
 {
-    smoothFrequency.setTargetValue(frequency);
+    if (isProcessing())
+        smoothFrequency.setTargetValue(frequency);
+    else
+    {
+        smoothFrequency.setCurrentAndTargetValue(frequency);
+        setFilterParameters(frequency, gain, q);
+    }
 }
 
 void PeakFilter::setGain(float newGain)
@@ -90,7 +99,7 @@ void PeakFilter::prepare(const dsp::ProcessSpec& spec)
     filter.prepare(spec);
 }
 
-float PeakFilter::processSample(float sample)
+float PeakFilter::processSampleProtected(float sample)
 {
     if (smoothBypass.getCurrentValue() <= 0 && !smoothBypass.isSmoothing())
         return sample;

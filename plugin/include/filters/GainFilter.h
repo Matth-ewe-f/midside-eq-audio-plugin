@@ -26,7 +26,7 @@ public:
 
     // === Process Audio ======================================================
     void reset(int blockSize);
-    float processSample(float);
+    float processSampleProtected(float) override;
 
 private:
     juce::SmoothedValue<float> smoothGain;

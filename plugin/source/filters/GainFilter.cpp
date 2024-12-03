@@ -28,17 +28,28 @@ void GainFilter::getMagnitudes
 {
     juce::ignoreUnused(frequencies);
     for (size_t i = 0;i < len;i++)
-        magnitudes[i] = pow(10, smoothGain.getTargetValue() / 20);
+    {
+        if (smoothBypass.getCurrentValue() <= 0)
+            magnitudes[i] = 1;
+        else
+            magnitudes[i] = pow(10, smoothGain.getTargetValue() / 20);
+    }
 }
 
 void GainFilter::setGain(float value)
 {
-    smoothGain.setTargetValue(value);
+    if (isProcessing())
+        smoothGain.setTargetValue(value);
+    else
+        smoothGain.setCurrentAndTargetValue(value);    
 }
 
 void GainFilter::setBypass(bool b)
 {
-    smoothBypass.setTargetValue(b ? 0 : 1);
+    if (isProcessing())
+        smoothBypass.setTargetValue(b ? 0 : 1);
+    else
+        smoothBypass.setCurrentAndTargetValue(b ? 0 : 1);
 }
 
 // === Process Audio ==========================================================
@@ -48,7 +59,7 @@ void GainFilter::reset(int blockSize)
     smoothBypass.reset(blockSize);
 }
 
-float GainFilter::processSample(float sample)
+float GainFilter::processSampleProtected(float sample)
 {
     if (!smoothBypass.isSmoothing() && smoothBypass.getCurrentValue() <= 0)
         return sample;
