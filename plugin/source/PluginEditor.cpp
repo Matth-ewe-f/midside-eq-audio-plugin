@@ -444,6 +444,7 @@ void PluginEditor::setColorOverrides()
     peakSixIcon.setColor(getColorTwo());
     lpfOneIcon.setColor(getColorOne());
     lpfTwoIcon.setColor(getColorTwo());
+    eqVisual.setFrequencyResponseColor(getColorOne());
 }
 
 juce::Colour PluginEditor::getColorOne()

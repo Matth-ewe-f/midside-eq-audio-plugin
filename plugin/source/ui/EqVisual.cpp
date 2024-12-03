@@ -1,8 +1,6 @@
 #include "EqVisual.h"
 #include "CtmLookAndFeel.h"
 
-juce::NormalisableRange<float> EqVisual::freqRange = EqVisual::getFreqRange();
-
 // === Graphics ===============================================================
 void EqVisual::paint(juce::Graphics& g)
 {
@@ -45,10 +43,13 @@ void EqVisual::paint(juce::Graphics& g)
     int cy = (getHeight() / 2);
     g.setColour(getColorForGainLabels());
     g.setFont(14);
-    g.drawText("dB", xStart - 40, cy - 8, 20, 14, justify);
+    int x1 = xStart - horzLineExtension - majorHorzLineExtraExtension - 40;
+    g.drawText("dB", x1, cy - 8, 20, 14, justify);
     g.setColour(getColorForFreqLabels());
     g.setFont(12);
-    g.drawText("Hz", getWidth() - xEnd + 8, cy, 20, 12, justify);
+    int x2 = getWidth() - xEnd + horzLineExtension
+        + majorHorzLineExtraExtension + 8;
+    g.drawText("Hz", x2, cy, 20, 12, justify);
     // draw the frequency response
     drawFreqResponse(g);
 }
@@ -65,84 +66,73 @@ void EqVisual::notify(CtmFilter*)
     repaint();
 }
 
+// === Parameters =========================================================
+void EqVisual::setFrequencyResponseColor(juce::Colour color)
+{
+    freqResponseColor = color;
+}
+
 // === Drawing Helper Functions ===============================================
 void EqVisual::drawHorzLine(juce::Graphics& g, int y)
 {
     auto clr = findColour(CtmColourIds::brightOutlineColourId).withAlpha(0.2f);
-    int start = xStart + minorLinesExtraPaddingX;
-    int end = getWidth() - xEnd - minorLinesExtraPaddingX;
     auto trans = juce::Colour::fromRGBA(255, 255, 255, 16);
-    int gw = horzLineGradWidth;
-    juce::ColourGradient grad1 = juce::ColourGradient::horizontal(
-        trans, start, clr, start + gw
+    int gw = horzLineExtension;
+    juce::ColourGradient gradient = juce::ColourGradient::horizontal(
+        trans, xStart - gw, trans, getWidth() - xEnd + gw
     );
-    juce::ColourGradient grad2 = juce::ColourGradient::horizontal(
-        clr, end - gw, trans, end
-    );
-    g.setGradientFill(grad1);
-    g.drawLine(start, y, start + gw, y);
-    g.setColour(clr);
-    g.drawLine(start + gw, y, end - gw, y);
-    g.setGradientFill(grad2);
-    g.drawLine(end - gw, y, end, y);
+    int length = getWidth() - xStart - xEnd + (2 * gw);
+    gradient.addColour((double)gw / length, clr);
+    gradient.addColour((double)(length - gw) / length, clr);
+    g.setGradientFill(gradient);
+    g.drawLine(xStart - gw, y, getWidth() - xEnd + gw, y);
 }
 
 void EqVisual::drawCentralHorzLine(juce::Graphics& g, int y)
 {
     auto clr = findColour(CtmColourIds::brightOutlineColourId).withAlpha(0.7f);
-    auto trans = juce::Colour::fromRGBA(255, 255, 255, 64);
-    int gw = horzLineGradWidth / 2;
-    juce::ColourGradient grad1 = juce::ColourGradient::horizontal(
-        trans, xStart, clr, xStart + gw
+    auto trans = juce::Colour::fromRGBA(255, 255, 255, 32);
+    int extension = horzLineExtension + majorHorzLineExtraExtension;
+    juce::ColourGradient gradient = juce::ColourGradient::horizontal(
+        trans, xStart - extension, trans, getWidth() - xEnd + extension
     );
-    juce::ColourGradient grad2 = juce::ColourGradient::horizontal(
-        clr, getWidth() - xEnd - gw, trans, getWidth() - xEnd
-    );
-    g.setGradientFill(grad1);
-    g.drawLine(xStart, y, xStart + gw, y);
-    g.setColour(clr);
-    g.drawLine(xStart + gw, y, getWidth() - xEnd - gw, y);
-    g.setGradientFill(grad2);
-    g.drawLine(getWidth() - xEnd - gw, y, getWidth() - xEnd, y);
+    int gw = horzLineExtension / 2;
+    int length = getWidth() - xStart - xEnd + (2 * extension);
+    gradient.addColour((double)gw / length, clr);
+    gradient.addColour((double)(length - gw) / length, clr);
+    g.setGradientFill(gradient);
+    g.drawLine(xStart - extension, y, getWidth() - xEnd + extension, y);
 }
 
 void EqVisual::drawVertLine(juce::Graphics& g, int x)
 {
     auto clr = findColour(CtmColourIds::brightOutlineColourId).withAlpha(0.2f);
     auto trans = juce::Colour::fromRGBA(255, 255, 255, 16);
-    int bound = paddingY + minorLinesExtraPaddingY;
-    int gh = vertLineGradHeight;
-    juce::ColourGradient grad1 = juce::ColourGradient::vertical(
-        trans, bound, clr, bound + gh
+    int gh = vertLineExtension;
+    juce::ColourGradient gradient = juce::ColourGradient::vertical(
+        trans, paddingY - gh, trans, getHeight() - paddingY + gh
     );
-    juce::ColourGradient grad2 = juce::ColourGradient::vertical(
-        clr, getHeight() - bound - gh, trans, getHeight() - bound
-    );
-    g.setGradientFill(grad1);
-    g.drawLine(x, bound, x, bound + gh);
-    g.setColour(clr);
-    g.drawLine(x, bound + gh, x, getHeight() - bound - gh);
-    g.setGradientFill(grad2);
-    g.drawLine(x, getHeight() - bound - gh, x, getHeight() - bound);
+    int length = getHeight() - (2 * paddingY) + (2 * gh);
+    gradient.addColour((double)gh / length, clr);
+    gradient.addColour((double)(length - gh) / length, clr);
+    g.setGradientFill(gradient);
+    g.drawLine(x, paddingY - gh, x, getHeight() - paddingY + gh);
 }
 
 void EqVisual::drawMainVertLine(juce::Graphics& g, int x)
 {
     auto clr = findColour(CtmColourIds::brightOutlineColourId).withAlpha(0.5f);
     auto trans = juce::Colour::fromRGBA(255, 255, 255, 32);
-    int gh = vertLineGradHeight / 2;
-    juce::ColourGradient grad1 = juce::ColourGradient::vertical(
-        trans, paddingY, clr, paddingY + gh
+    int extension = vertLineExtension + majorVertLineExtraExtension;
+    juce::ColourGradient gradient = juce::ColourGradient::vertical(
+        trans, paddingY - extension, trans, getHeight() - paddingY + extension
     );
-    juce::ColourGradient grad2 = juce::ColourGradient::vertical(
-        clr, getHeight() - paddingY - gh, trans, getHeight() - paddingY
-    );
-    g.setGradientFill(grad1);
-    g.drawLine(x, paddingY, x, paddingY + gh);
-    g.setColour(clr);
-    g.drawLine(x, paddingY + gh, x, getHeight() - paddingY - gh);
-    g.setGradientFill(grad2);
-    g.drawLine(x, getHeight() - paddingY - gh, x, getHeight() - paddingY);
+    int gh = vertLineExtension / 2;
+    int length = getHeight() - (2 * paddingY) + (2 * extension);
+    gradient.addColour((double)gh / length, clr);
+    gradient.addColour((double)(length - gh) / length, clr);
+    g.setGradientFill(gradient);
+    g.drawLine(x, paddingY - extension, x, getHeight() - paddingY + extension);
 }
 
 void EqVisual::drawGainLabel(juce::Graphics& g, int cy, int gain)
@@ -150,7 +140,7 @@ void EqVisual::drawGainLabel(juce::Graphics& g, int cy, int gain)
     std::string gainString = std::to_string(gain);
     if (gain > 0)
         gainString = "+" + gainString;
-    int x = xStart - 28;
+    int x = xStart - horzLineExtension - majorHorzLineExtraExtension - 32;
     g.setColour(getColorForGainLabels());
     g.setFont(11);
     g.drawText(gainString, x, cy - 7, 24, 12, juce::Justification::right);
@@ -182,9 +172,9 @@ void EqVisual::drawFreqResponse(juce::Graphics& g)
     // get the frequency repsonse from the filters
     if (filters.size() == 0)
         return;
-    int start = xStart + minorLinesExtraPaddingX + (horzLineGradWidth - 12);
-    int end = xEnd + minorLinesExtraPaddingX + (horzLineGradWidth - 12);
-    const size_t width = (size_t)(getWidth() - start - end);
+    int start = xStart - freqResponseExtension;
+    int end = getWidth() - xEnd + freqResponseExtension;
+    const size_t width = (size_t)(end - start);
     double* freqs = new double[width];
     double* totals = new double[width];
     for (size_t i = 0;i < width;i++)
@@ -201,20 +191,39 @@ void EqVisual::drawFreqResponse(juce::Graphics& g)
             totals[i] *= magnitudes[i];
         }
     }
-    // draw the frequency response, point by point
+    // create the frequency response path, point by point
     juce::Path p;
-    float lastX = 0;
-    float lastY = 0;
     for (size_t i = 0;i < width;i++)
     {
         float x = getXForFrequency((float)freqs[i]);
         float y = getYForGain(20 * log10((float)totals[i]));
-        if (i != 0)
-            p.addLineSegment(juce::Line<float>(lastX, lastY, x, y), 1.5f);
-        lastX = x;
-        lastY = y;
+        if (i == 0)
+            p.startNewSubPath(x, y);
+        else
+            p.lineTo(x, y);
     }
-    g.setColour(juce::Colours::blue);
+    // draw the path itslef
+    juce::Colour trans = freqResponseColor.withAlpha(0.0f);
+    juce::ColourGradient lineGradient = juce::ColourGradient::horizontal(
+        trans, start, trans, end
+    );
+    double gradProp1 = (double)(xStart - start) / (end - start);
+    double gradProp2 = (double)(getWidth() - start - xEnd) / (end - start);
+    lineGradient.addColour(gradProp1, freqResponseColor);
+    lineGradient.addColour(gradProp2, freqResponseColor);
+    g.setGradientFill(lineGradient);
+    g.strokePath(p, juce::PathStrokeType(2));
+    // fill the path
+    juce::ColourGradient fillGradient = juce::ColourGradient::horizontal(
+        trans, start, trans, end
+    );
+    juce::Colour fillColor = freqResponseColor.withAlpha(0.3f);
+    fillGradient.addColour(gradProp1, fillColor);
+    fillGradient.addColour(gradProp2, fillColor);
+    p.lineTo(end, getHeight() / 2);
+    p.lineTo(start, getHeight() / 2);
+    p.closeSubPath();
+    g.setGradientFill(fillGradient);
     g.fillPath(p);
     // memory management
     delete[] freqs;
@@ -226,25 +235,22 @@ void EqVisual::drawFreqResponse(juce::Graphics& g)
 float EqVisual::getYForGain(float gain)
 {
     int cy = getHeight() / 2;
-    int maxHeight = cy - (paddingY + (vertLineGradHeight - 4));
     float maxGain = (numHorzLines / 2) * 6;
-    return cy - ((gain / maxGain) * maxHeight);
+    return cy - ((gain / maxGain) * ((getHeight() - (2 * paddingY)) / 2));
 }
 
 float EqVisual::getXForFrequency(float freq)
 {
-    float p = freqRange.convertTo0to1(freq);
-    int start = xStart + minorLinesExtraPaddingX + (horzLineGradWidth - 12);
-    int end = xEnd + minorLinesExtraPaddingX + (horzLineGradWidth - 12);
-    return start + (p * (getWidth() - start - end));
+    // normalize freq from 20-20000 on a log scale to 0-1 on a linear scale
+    float p = log2(freq / 20) / log2(20000.0f / 20.0f);
+    return xStart + (p * (getWidth() - xStart - xEnd));
 }
 
 float EqVisual::getFrequencyForX(int x)
 {
-    int start = xStart + minorLinesExtraPaddingX + (horzLineGradWidth - 12);
-    int end = xEnd + minorLinesExtraPaddingX + (horzLineGradWidth - 12);
-    float p = ((float)x - start) / ((float)getWidth() - end - start);
-    return freqRange.convertFrom0to1(p);
+    float p = ((float)x - xStart) / ((float)getWidth() - xEnd - xStart);
+    // map freq from 0-1 on a linear scale to 20-20000 on a log scale
+    return 20 * pow(2.0f, p * log2(20000.0f / 20.0f));
 }
 
 bool EqVisual::shouldDrawFreqLabel(int freq)
@@ -277,16 +283,16 @@ juce::Colour EqVisual::getColorForFreqLabels()
     return findColour(CtmColourIds::brightOutlineColourId).withAlpha(0.8f);
 }
 
-juce::NormalisableRange<float> EqVisual::getFreqRange()
-{
-    return juce::NormalisableRange<float>(
-        20,
-        20000,
-        [](float min, float max, float normalized) {
-            return min * pow(2, normalized * log2(max / min));
-        },
-        [](float min, float max, float value) {
-            return log2(value / min) / log2(max / min);
-        }
-    );
-}
+// juce::NormalisableRange<float> EqVisual::getFreqRange()
+// {
+//     return juce::NormalisableRange<float>(
+//         10,
+//         40000,
+//         [](float min, float max, float normalized) {
+//             return 20 * pow(2, normalized * log2(20000 / 20));
+//         },
+//         [](float min, float max, float value) {
+//             return log2(value / 20) / log2(20000 / 20);
+//         }
+//     );
+// }

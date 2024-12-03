@@ -14,22 +14,26 @@ public:
     void listenTo(CtmFilter*);
     void notify(CtmFilter*) override;
 
+    // === Parameters =========================================================
+    void setFrequencyResponseColor(juce::Colour);
+
 private:
     std::vector<CtmFilter*> filters;
+    juce::Colour freqResponseColor;
     // === Color Constants ====================================================
     inline static const juce::Colour bgColor
         { juce::Colour::fromRGB(8, 20, 32) };
 
     // === Layout Constants ===================================================
-    inline static const int xStart { 72 };
-    inline static const int xEnd { 48 };
-    inline static const int paddingY { 10 };
+    inline static const int xStart { 108 };
+    inline static const int xEnd { 80 };
+    inline static const int paddingY { 28 };
     inline static const int numHorzLines { 9 };
-    inline static const int horzLineGradWidth { 48 };
-    inline static const int vertLineGradHeight { 18 };
-    inline static const int minorLinesExtraPaddingX { 8 };
-    inline static const int minorLinesExtraPaddingY { 4 };
-    static juce::NormalisableRange<float> freqRange;
+    inline static const int horzLineExtension { 32 };
+    inline static const int vertLineExtension { 16 };
+    inline static const int majorHorzLineExtraExtension { 8 };
+    inline static const int majorVertLineExtraExtension { 4 };
+    inline static const int freqResponseExtension { 24 };
 
     // === Drawing Helper Functions ===========================================
     void drawHorzLine(juce::Graphics&, int);
@@ -47,5 +51,4 @@ private:
     bool shouldDrawFreqLabel(int);
     juce::Colour getColorForGainLabels();
     juce::Colour getColorForFreqLabels();
-    static juce::NormalisableRange<float> getFreqRange();
 };

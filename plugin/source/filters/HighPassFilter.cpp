@@ -74,7 +74,6 @@ void HighPassFilter::getMagnitudes
     }
     if (filterFourEnabled())
     {
-
         filterFour.coefficients->getMagnitudeForFrequencyArray(
             frequencies, perFilter, len, sampleRate
         );

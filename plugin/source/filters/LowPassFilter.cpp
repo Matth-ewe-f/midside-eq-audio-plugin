@@ -78,6 +78,15 @@ void LowPassFilter::getMagnitudes
         );
         combineMagnitudes(magnitudes, perFilter, len);
     }
+    // don't show filter mirroring above the Nyquist frequency
+    // ensure that the magnitudes are non-increasing
+    double lastMagnitude = magnitudes[0];
+    for (size_t i = 1;i < len;i++)
+    {
+        if (magnitudes[i] > lastMagnitude)
+            magnitudes[i] = lastMagnitude;
+        lastMagnitude = magnitudes[i];
+    }
 }
 
 // === Set Parameters =========================================================
