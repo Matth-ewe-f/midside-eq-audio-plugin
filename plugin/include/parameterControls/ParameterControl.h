@@ -13,8 +13,8 @@ class ParameterControl :
 public:
     std::string parameterName;
     CtmSlider slider;
-    std::unique_ptr<SliderAttachment> attachment;
     SliderLabel label;
+    std::unique_ptr<SliderAttachment> attachment;
 
     // === Lifecycle ==========================================================
     ParameterControl();
