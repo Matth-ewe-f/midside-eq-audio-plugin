@@ -51,14 +51,21 @@ void EqVisual::paint(juce::Graphics& g)
         + majorHorzLineExtraExtension + 8;
     g.drawText("Hz", x2, cy, 20, 12, justify);
     // draw the frequency response
-    drawFreqResponse(g);
+    drawFreqResponse(g, filtersForResponseTwo, freqResponseColorTwo);
+    drawFreqResponse(g, filtersForResponseOne, freqResponseColorOne);
 }
 
 // === Filter State Listener ==================================================
-void EqVisual::listenTo(CtmFilter* filter)
+void EqVisual::addToFirstResponse(CtmFilter* filter)
 {
     filter->addStateListener(this);
-    filters.push_back(filter);
+    filtersForResponseOne.push_back(filter);
+}
+
+void EqVisual::addToSecondResponse(CtmFilter* filter)
+{
+    filter->addStateListener(this);
+    filtersForResponseTwo.push_back(filter);
 }
 
 void EqVisual::notify(CtmFilter*)
@@ -66,10 +73,11 @@ void EqVisual::notify(CtmFilter*)
     repaint();
 }
 
-// === Parameters =========================================================
-void EqVisual::setFrequencyResponseColor(juce::Colour color)
+// === Parameters =============================================================
+void EqVisual::setFrequencyResponseColors(juce::Colour c1, juce::Colour c2)
 {
-    freqResponseColor = color;
+    freqResponseColorOne = c1;
+    freqResponseColorTwo = c2;
 }
 
 // === Drawing Helper Functions ===============================================
@@ -167,7 +175,8 @@ void EqVisual::drawFreqLabel(juce::Graphics& g, int cx, int freq)
     g.drawText(freqString, cx - 10, y, 20, 12, juce::Justification::centred);
 }
 
-void EqVisual::drawFreqResponse(juce::Graphics& g)
+void EqVisual::drawFreqResponse
+(juce::Graphics& g, std::vector<CtmFilter*> filters, juce::Colour color)
 {
     // get the frequency repsonse from the filters
     if (filters.size() == 0)
@@ -203,23 +212,22 @@ void EqVisual::drawFreqResponse(juce::Graphics& g)
             p.lineTo(x, y);
     }
     // draw the path itslef
-    juce::Colour trans = freqResponseColor.withAlpha(0.0f);
+    juce::Colour trans = color.withAlpha(0.0f);
     juce::ColourGradient lineGradient = juce::ColourGradient::horizontal(
         trans, start, trans, end
     );
     double gradProp1 = (double)(xStart - start) / (end - start);
     double gradProp2 = (double)(getWidth() - start - xEnd) / (end - start);
-    lineGradient.addColour(gradProp1, freqResponseColor);
-    lineGradient.addColour(gradProp2, freqResponseColor);
+    lineGradient.addColour(gradProp1, color.withAlpha(0.7f));
+    lineGradient.addColour(gradProp2, color.withAlpha(0.7f));
     g.setGradientFill(lineGradient);
     g.strokePath(p, juce::PathStrokeType(2));
     // fill the path
     juce::ColourGradient fillGradient = juce::ColourGradient::horizontal(
         trans, start, trans, end
     );
-    juce::Colour fillColor = freqResponseColor.withAlpha(0.3f);
-    fillGradient.addColour(gradProp1, fillColor);
-    fillGradient.addColour(gradProp2, fillColor);
+    fillGradient.addColour(gradProp1, color.withAlpha(0.3f));
+    fillGradient.addColour(gradProp2, color.withAlpha(0.3f));
     p.lineTo(end, getHeight() / 2);
     p.lineTo(start, getHeight() / 2);
     p.closeSubPath();

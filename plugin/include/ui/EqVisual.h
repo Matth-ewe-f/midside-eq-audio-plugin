@@ -11,15 +11,18 @@ public:
     void paint(juce::Graphics&) override;
 
     // === Filter State Listener ==============================================
-    void listenTo(CtmFilter*);
+    void addToFirstResponse(CtmFilter*);
+    void addToSecondResponse(CtmFilter*);
     void notify(CtmFilter*) override;
 
     // === Parameters =========================================================
-    void setFrequencyResponseColor(juce::Colour);
+    void setFrequencyResponseColors(juce::Colour, juce::Colour);
 
 private:
-    std::vector<CtmFilter*> filters;
-    juce::Colour freqResponseColor;
+    std::vector<CtmFilter*> filtersForResponseOne;
+    std::vector<CtmFilter*> filtersForResponseTwo;
+    juce::Colour freqResponseColorOne;
+    juce::Colour freqResponseColorTwo;
     // === Color Constants ====================================================
     inline static const juce::Colour bgColor
         { juce::Colour::fromRGB(8, 20, 32) };
@@ -42,7 +45,8 @@ private:
     void drawMainVertLine(juce::Graphics&, int);
     void drawGainLabel(juce::Graphics&, int, int);
     void drawFreqLabel(juce::Graphics&, int, int);
-    void drawFreqResponse(juce::Graphics&);
+    void drawFreqResponse
+    (juce::Graphics&, std::vector<CtmFilter*>, juce::Colour);
 
     // === Other Helper Functions =============================================
     float getYForGain(float);

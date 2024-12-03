@@ -139,12 +139,18 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     midSideButton.toggle.setToggleState(processorRef.isMidSide(), notif);
     leftRightButton.toggle.setToggleState(!processorRef.isMidSide(), notif);
     // setup EQ Visualization
-    eqVisual.listenTo(&processorRef.gainOne);
-    eqVisual.listenTo(&processorRef.highPassOne);
-    eqVisual.listenTo(&processorRef.peakOne);
-    eqVisual.listenTo(&processorRef.peakThree);
-    eqVisual.listenTo(&processorRef.peakFive);
-    eqVisual.listenTo(&processorRef.lowPassOne);
+    eqVisual.addToFirstResponse(&processorRef.gainOne);
+    eqVisual.addToFirstResponse(&processorRef.highPassOne);
+    eqVisual.addToFirstResponse(&processorRef.peakOne);
+    eqVisual.addToFirstResponse(&processorRef.peakThree);
+    eqVisual.addToFirstResponse(&processorRef.peakFive);
+    eqVisual.addToFirstResponse(&processorRef.lowPassOne);
+    eqVisual.addToSecondResponse(&processorRef.gainTwo);
+    eqVisual.addToSecondResponse(&processorRef.highPassTwo);
+    eqVisual.addToSecondResponse(&processorRef.peakTwo);
+    eqVisual.addToSecondResponse(&processorRef.peakFour);
+    eqVisual.addToSecondResponse(&processorRef.peakSix);
+    eqVisual.addToSecondResponse(&processorRef.lowPassTwo);
     addAndMakeVisible(eqVisual);
     // setup colors
     setColorOverrides();
@@ -444,7 +450,7 @@ void PluginEditor::setColorOverrides()
     peakSixIcon.setColor(getColorTwo());
     lpfOneIcon.setColor(getColorOne());
     lpfTwoIcon.setColor(getColorTwo());
-    eqVisual.setFrequencyResponseColor(getColorOne());
+    eqVisual.setFrequencyResponseColors(getColorOne(), getColorTwo());
 }
 
 juce::Colour PluginEditor::getColorOne()
