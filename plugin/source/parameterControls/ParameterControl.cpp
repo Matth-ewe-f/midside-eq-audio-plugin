@@ -15,6 +15,12 @@ ParameterControl::ParameterControl()
     label.updateText(&slider);
 }
 
+ParameterControl::~ParameterControl()
+{
+    if (tree != nullptr)
+        tree->removeParameterListener(parameterName, this);
+}
+
 // === Settings ===============================================================
 void ParameterControl::setBounds(juce::Rectangle<int> b)
 {

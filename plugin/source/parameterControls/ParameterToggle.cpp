@@ -3,6 +3,12 @@
 // === Lifecycle ==============================================================
 ParameterToggle::ParameterToggle() : parameterName(""), tree(nullptr) { }
 
+ParameterToggle::~ParameterToggle()
+{
+    if (tree != nullptr)
+        tree->removeParameterListener(parameterName, this);
+}
+
 // === Settings ===============================================================
 void ParameterToggle::setBounds(int x, int y, int width, int height)
 {

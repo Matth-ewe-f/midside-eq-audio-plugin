@@ -18,6 +18,7 @@ public:
 
     // === Lifecycle ==========================================================
     ParameterControl();
+    ~ParameterControl() override;
 
     // === Settings ===========================================================
     void setBounds(juce::Rectangle<int>);

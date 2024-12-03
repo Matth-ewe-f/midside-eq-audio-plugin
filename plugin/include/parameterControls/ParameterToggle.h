@@ -19,6 +19,7 @@ public:
 
     // === Lifecycle ==========================================================
     ParameterToggle();
+    ~ParameterToggle() override;
 
     // === Settings ===========================================================
     void setBounds(int x, int y, int width, int height);
