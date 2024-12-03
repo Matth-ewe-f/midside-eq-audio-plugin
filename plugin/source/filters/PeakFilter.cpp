@@ -42,7 +42,7 @@ void PeakFilter::getMagnitudes
     {
         for (size_t i = 0;i < len;i++)
         {
-            *(magnitudes + i) = 0;
+            *(magnitudes + i) = 1;
         }
     }
     else
