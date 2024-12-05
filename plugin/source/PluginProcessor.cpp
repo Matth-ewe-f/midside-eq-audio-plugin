@@ -28,6 +28,9 @@ PluginProcessor::PluginProcessor()
 	tree(*this, nullptr, "PARAMETERS", createParameters()),
 	lastSampleRate(48000) // default value
 {
+#if PERFETTO
+    MelatoninPerfetto::get().beginSession();
+#endif
 	gainOne.setListenTo(&tree);
 	gainTwo.setListenTo(&tree);
 	highPassOne.setListenTo(&tree);
@@ -53,6 +56,9 @@ PluginProcessor::~PluginProcessor()
 	}
 	highPassOne.stopListeningTo(&tree);
 	highPassTwo.stopListeningTo(&tree);
+#if PERFETTO
+    MelatoninPerfetto::get().endSession();
+#endif
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout
@@ -163,6 +169,7 @@ void PluginProcessor::releaseResources() { }
 void PluginProcessor::processBlock
 (juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages)
 {
+	TRACE_DSP();
 	juce::ignoreUnused(midiMessages);
 	auto numInputChannels = getTotalNumInputChannels();
 	auto numOutputChannels = getTotalNumOutputChannels();

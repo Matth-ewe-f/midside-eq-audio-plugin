@@ -20,3 +20,13 @@ else()
 endif()
 
 add_subdirectory(plugin)
+
+include (FetchContent)
+
+FetchContent_Declare (melatonin_perfetto
+  GIT_REPOSITORY https://github.com/sudara/melatonin_perfetto.git
+  GIT_TAG origin/main)
+
+FetchContent_MakeAvailable (melatonin_perfetto)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE Melatonin::Perfetto)

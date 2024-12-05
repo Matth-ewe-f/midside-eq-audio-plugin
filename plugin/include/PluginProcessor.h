@@ -2,6 +2,7 @@
 #include <list>
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
+#include <melatonin_perfetto/melatonin_perfetto.h>
 #include "ParameterListener.h"
 #include "HighPassFilter.h"
 #include "PeakFilter.h"
@@ -91,6 +92,9 @@ public:
 private:
     double lastSampleRate;
     std::list<ParameterListener*> paramListeners;
+#if PERFETTO
+    std::unique_ptr<perfetto::TracingSession> tracingSession;
+#endif
 
     // === Parameter Ranges ===================================================
     inline static const juce::NormalisableRange<float> onOffRange
