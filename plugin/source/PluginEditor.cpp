@@ -67,6 +67,7 @@ void PluginEditor::resized()
     layoutFilter(&peakSix, 3, 1);
     layoutFilter(&lowPassOne, 4, 0);
     layoutFilter(&lowPassTwo, 4, 1);
+    layoutLinkButton(&gainLink.toggle, -1);
     layoutLinkButton(&highPassLink.toggle, 0);
     layoutLinkButton(&peakOneTwoLink.toggle, 1);
     layoutLinkButton(&peakThreeFourLink.toggle, 2);
@@ -163,6 +164,8 @@ void PluginEditor::initializeFilters()
 void PluginEditor::initializeLinkButtons()
 {
     juce::AudioProcessorValueTreeState* stateTree = &processorRef.tree;
+    setupLinkButton(&gainLink, &gainOne, &gainTwo);
+    gainLink.attachToParameter(stateTree, "gain-linked");
     setupLinkButton(&highPassLink, &highPassOne, &highPassTwo);
     highPassLink.attachToParameter(stateTree, "hpf-linked");
     setupLinkButton(&peakOneTwoLink, &peakOne, &peakTwo);
@@ -199,6 +202,7 @@ void PluginEditor::initializeGlobalControls()
     linkAllButton.setText("Link All");
     linkAllButton.onClick = [this, stateTree]
     {
+        stateTree->getParameter("gain-linked")->setValue(1);
         stateTree->getParameter("hpf-linked")->setValue(1);
         stateTree->getParameter("peak12-linked")->setValue(1);
         stateTree->getParameter("peak34-linked")->setValue(1);
@@ -211,6 +215,7 @@ void PluginEditor::initializeGlobalControls()
     unlinkAllButton.setText("Unlink");
     unlinkAllButton.onClick = [this, stateTree]
     {
+        stateTree->getParameter("gain-linked")->setValue(0);
         stateTree->getParameter("hpf-linked")->setValue(0);
         stateTree->getParameter("peak12-linked")->setValue(0);
         stateTree->getParameter("peak34-linked")->setValue(0);
@@ -357,9 +362,17 @@ void PluginEditor::layoutGain(GainControl* gain, int yIndex)
 
 void PluginEditor::layoutLinkButton(CtmToggle* linkButton, int index)
 {
-    int cx = xStart + gainWidth + (cellWidth * index)
-        + (cellMarginX * (index + 1)) + (cellPaddingX * ((index * 2) + 1))
-        + (cellWidth / 2);
+    int cx;
+    if (index == -1)
+    {
+        cx = xStart + (gainWidth / 2);
+    }
+    else
+    {
+        cx = xStart + gainWidth + (cellWidth * index)
+            + (cellMarginX * (index + 1)) + (cellPaddingX * ((index * 2) + 1))
+            + (cellWidth / 2);
+    }
     int cy = headerHeight + yStart + columnPaddingY + cellHeight
         + (cellMarginY / 2);
     linkButton->setBounds(cx - 18, cy - 10, 36, 21);
@@ -399,14 +412,10 @@ void PluginEditor::drawSectionLabels(juce::Graphics& g)
 {
     // define the position and area of the labels
     bool ms = processorRef.isMidSide();
-    int secondSectionY = secondSectionStart();
     int x1 = ms ? 30 : 31;
     int y1 = headerHeight + 20;
     int x2 = ms ? 33 : 40;
-    int y2 = secondSectionY + 20;
-    int globalX = xStart + gainWidth + (cellWidth * maxCols)
-        + (cellMarginX * (maxCols + 1)) + (cellPaddingX * (maxCols * 2))
-        + (globalsMarginL / 2) - 4;
+    int y2 = getHeight();
     // fill the labels with background color
     g.setColour(findColour(CtmColourIds::brightBgColourId));
     g.fillRect(0, y1 - 20, x1, 20);
@@ -415,21 +424,24 @@ void PluginEditor::drawSectionLabels(juce::Graphics& g)
     g.fillPath(triangle1);
     g.fillRect(0, y2 - 20, x2, 20);
     juce::Path triangle2;
-    triangle2.addTriangle(x2, y2 - 20, x2 + 4, y2 - 20, x2, y2);
+    triangle2.addTriangle(x2, y2, x2 + 4, y2, x2, y2 - 20);
     g.fillPath(triangle2);
     // draw the outlines around the labels
     g.setColour(findColour(CtmColourIds::brightOutlineColourId));
     g.drawLine(0, y1, x1, y1);
     g.drawLine(x1, y1, x1 + 4, y1 - 20);
-    g.drawLine(0, y2, x2, y2);
-    g.drawLine(x2, y2, x2 + 4, y2 - 20);
+    g.drawLine(0, y2 - 20, x2, y2 - 20);
+    g.drawLine(x2, y2 - 20, x2 + 4, y2);
     // draw text of the labels
     g.setFont(16);
     g.setColour(juce::Colours::white.interpolatedWith(getColorOne(), 0.7f));
     g.drawText(ms ? "Mid" : "Left", 4, headerHeight + 1, 40, 18, false);
     g.setColour(juce::Colours::white.interpolatedWith(getColorTwo(), 0.7f));
-    g.drawText(ms ? "Side" : "Right", 4, secondSectionY + 1, 40, 18, false);
+    g.drawText(ms ? "Side" : "Right", 4, getHeight() - 20, 40, 18, false);
     // draw the line between the sections
+    int globalX = xStart + gainWidth + (cellWidth * maxCols)
+        + (cellMarginX * (maxCols + 1)) + (cellPaddingX * (maxCols * 2))
+        + (globalsMarginL / 2) - 4;
     g.setColour(findColour(CtmColourIds::brightOutlineColourId));
     g.drawLine(0, secondSectionStart(), globalX + 40, secondSectionStart());
     // draw the line seperating the global controls section
@@ -464,10 +476,12 @@ void PluginEditor::drawGainBackground(juce::Graphics& g)
 // === Other Helper Functions =================================================
 void PluginEditor::setColorOverrides()
 {
-    juce::Colour c = getColorOne();
-    c = c.withMultipliedBrightness(0.8f).withMultipliedSaturation(0.8f);
-    midSideButton.toggle.setColorOverride(c);
-    leftRightButton.toggle.setColorOverride(c);
+    juce::Colour c1 = getColorOne();
+    c1 = c1.withMultipliedBrightness(0.8f).withMultipliedSaturation(0.8f);
+    juce::Colour c2 = getColorTwo();
+    c2 = c2.withMultipliedBrightness(0.8f).withMultipliedSaturation(0.8f);
+    midSideButton.toggle.setColorOverride(c1);
+    leftRightButton.toggle.setColorOverride(c1);
     linkAllButton.setColorGradient(getColorOne(), getColorTwo());
     unlinkAllButton.setColorGradient(getColorOne(), getColorTwo());
     gainOne.setAllColorOverrides(getColorOne());
@@ -482,6 +496,7 @@ void PluginEditor::setColorOverrides()
     peakFour.setAllColorOverrides(getColorTwo());
     peakSix.setAllColorOverrides(getColorTwo());
     lowPassTwo.setAllColorOverrides(getColorTwo());
+    gainLink.toggle.setColorGradient(getColorOne(), getColorTwo());
     highPassLink.toggle.setColorGradient(getColorOne(), getColorTwo());
     peakOneTwoLink.toggle.setColorGradient(getColorOne(), getColorTwo());
     peakThreeFourLink.toggle.setColorGradient(getColorOne(), getColorTwo());

@@ -58,3 +58,16 @@ void GainControl::attachToGain
     });
     onOff.attachToParameter(tree, filter->getOnOffParameter());
 }
+
+// === Linking ================================================================
+void GainControl::link(const GainControl* other)
+{
+    gain.link(&other->gain);
+    onOff.link(&other->onOff);
+}
+
+void GainControl::unlink(const GainControl* other)
+{
+    gain.unlink(&other->gain);
+    onOff.unlink(&other->onOff);
+}

@@ -81,6 +81,12 @@ PluginProcessor::createParameters()
 		"mode", "Mode", juce::NormalisableRange<float>(0, 1, 1), 0
 	));
 	parameters.add(std::make_unique<Parameter>(
+		"gain-linked",
+		"Gain Channels Linked",
+		juce::NormalisableRange<float>(0, 1, 1),
+		0
+	));
+	parameters.add(std::make_unique<Parameter>(
 		"hpf-linked",
 		"High-Pass Channels Linked",
 		juce::NormalisableRange<float>(0, 1, 1),

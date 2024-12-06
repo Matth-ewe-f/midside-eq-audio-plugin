@@ -55,6 +55,7 @@ private:
     LowPassControl lowPassOne;
     LowPassControl lowPassTwo;
     // link buttons
+    ParameterToggle gainLink;
     ParameterToggle highPassLink;
     ParameterToggle peakOneTwoLink;
     ParameterToggle peakThreeFourLink;
@@ -74,7 +75,7 @@ private:
     
     // === Layout constants ===================================================
     inline static const int headerHeight { 240 };
-    inline static const int xStart { 16 };
+    inline static const int xStart { 24 };
     inline static const int xEnd { 12 };
     inline static const int yStart { 10 };
     inline static const int yEnd { 10 };

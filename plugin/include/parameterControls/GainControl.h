@@ -3,8 +3,9 @@
 #include "ParameterControl.h"
 #include "ParameterToggle.h"
 #include "GainFilter.h"
+#include "Linkable.h"
 
-class GainControl : public FilterControl
+class GainControl : public FilterControl, public Linkable<GainControl>
 {
 public:
     ParameterControl gain;
@@ -20,6 +21,11 @@ public:
     void setToggleAboveSlider(bool);
     void attachToGain
     (juce::AudioProcessorValueTreeState*, GainFilter*);
+
+    // === Linking ============================================================
+    void link(const GainControl*) override;
+    void unlink(const GainControl*) override;
+
 private:
     bool toggleAbove;
 };
