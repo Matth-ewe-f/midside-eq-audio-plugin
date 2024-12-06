@@ -42,13 +42,16 @@ void PeakFilter::getMagnitudes
     {
         for (size_t i = 0;i < len;i++)
         {
-            *(magnitudes + i) = 1;
+            magnitudes[i] = 1;
         }
     }
     else
     {
-        filter.coefficients->getMagnitudeForFrequencyArray(
-            frequencies, magnitudes, len, sampleRate
+        auto coefficients = Coefficients::makePeakFilter(
+            sampleRate * 2, smoothFrequency.getTargetValue(), q, gain
+        );
+        coefficients->getMagnitudeForFrequencyArray(
+            frequencies, magnitudes, len, sampleRate * 2
         );
     }
 }

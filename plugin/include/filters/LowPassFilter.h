@@ -85,10 +85,14 @@ private:
     void updateFilters(float frequency, float gain, float resonance);
     void delayedUpdateOrder();
     bool anythingSmoothing();
-    float getQForFilter(int);
+    float getQForFilter(int, int);
     void combineMagnitudes(double* totals, const double* toCombine, size_t);
     inline bool filterOneEnabled() { return order >= 2 && !isShelf; }
     inline bool filterTwoEnabled() { return order >= 4 && !isShelf; }
     inline bool filterThreeEnabled() { return order >= 6 && !isShelf; }
     inline bool filterFourEnabled() { return order % 2 == 1 || isShelf; }
+    inline bool filterOneEnabled(int ord) { return ord >= 2 && !isShelf; }
+    inline bool filterTwoEnabled(int ord) { return ord >= 4 && !isShelf; }
+    inline bool filterThreeEnabled(int ord) { return ord >= 6 && !isShelf; }
+    inline bool filterFourEnabled(int ord) { return ord % 2 == 1 || isShelf; }
 };

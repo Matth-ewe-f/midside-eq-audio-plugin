@@ -169,7 +169,6 @@ void PluginProcessor::releaseResources() { }
 void PluginProcessor::processBlock
 (juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages)
 {
-	TRACE_DSP();
 	juce::ignoreUnused(midiMessages);
 	auto numInputChannels = getTotalNumInputChannels();
 	auto numOutputChannels = getTotalNumOutputChannels();

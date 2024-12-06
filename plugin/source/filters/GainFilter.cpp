@@ -27,12 +27,14 @@ void GainFilter::getMagnitudes
 (const double* frequencies, double* magnitudes, size_t len)
 {
     juce::ignoreUnused(frequencies);
+    double a;
+    if (smoothBypass.getTargetValue() <= 0)
+        a = 1;
+    else
+        a = pow(10, smoothGain.getTargetValue() / 20);
     for (size_t i = 0;i < len;i++)
     {
-        if (smoothBypass.getCurrentValue() <= 0)
-            magnitudes[i] = 1;
-        else
-            magnitudes[i] = pow(10, smoothGain.getTargetValue() / 20);
+        magnitudes[i] = a;
     }
 }
 

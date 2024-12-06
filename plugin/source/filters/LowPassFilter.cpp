@@ -47,48 +47,63 @@ void LowPassFilter::getMagnitudes
     for (size_t i = 0;i < len;i++)
         magnitudes[i] = 1;
     if (smoothBypass.getTargetValue() <= 0)
+    {
         return;
+    }
     double* perFilter = new double[len];
+    float freq = smoothFrequency.getTargetValue();
+    int curOrder = pendingOrder == -1 ? order : pendingOrder;
     if (filterOneEnabled())
     {
-        filterOne.coefficients->getMagnitudeForFrequencyArray(
-            frequencies, perFilter, len, sampleRate
+        auto coefficients = Coefficients::makeLowPass(
+            sampleRate * 2, freq, getQForFilter(1, curOrder)
+        );
+        coefficients->getMagnitudeForFrequencyArray(
+            frequencies, perFilter, len, sampleRate * 2
         );
         combineMagnitudes(magnitudes, perFilter, len);
     }
     if (filterTwoEnabled())
     {
-        filterTwo.coefficients->getMagnitudeForFrequencyArray(
-            frequencies, perFilter, len, sampleRate
+        auto coefficients = Coefficients::makeLowPass(
+            sampleRate * 2, freq, getQForFilter(2, curOrder)
+        );
+        coefficients->getMagnitudeForFrequencyArray(
+            frequencies, perFilter, len, sampleRate * 2
         );
         combineMagnitudes(magnitudes, perFilter, len);
     }
     if (filterThreeEnabled())
     {
-        filterThree.coefficients->getMagnitudeForFrequencyArray(
-            frequencies, perFilter, len, sampleRate
+        auto coefficients = Coefficients::makeLowPass(
+            sampleRate * 2, freq, getQForFilter(3, curOrder)
+        );
+        coefficients->getMagnitudeForFrequencyArray(
+            frequencies, perFilter, len, sampleRate * 2
         );
         combineMagnitudes(magnitudes, perFilter, len);
     }
     if (filterFourEnabled())
     {
-
-        filterFour.coefficients->getMagnitudeForFrequencyArray(
-            frequencies, perFilter, len, sampleRate
+        juce::ReferenceCountedObjectPtr<Coefficients> coefficients;
+        if (isShelf)
+        {
+            float res = smoothResonance.getTargetValue();
+            float gain = smoothGain.getTargetValue();
+            coefficients = Coefficients::makeHighShelf(
+                sampleRate * 2, freq, res, pow(10.0f, gain / 20.f)
+            );
+        }
+        else
+        {
+            coefficients = Coefficients::makeFirstOrderLowPass(
+                sampleRate * 2, freq
+            );
+        }
+        coefficients->getMagnitudeForFrequencyArray(
+            frequencies, perFilter, len, sampleRate * 2
         );
         combineMagnitudes(magnitudes, perFilter, len);
-    }
-    if (!isShelf)
-    {
-        // don't show filter mirroring above the Nyquist frequency
-        // ensure that the magnitudes are non-increasing
-        double lastMagnitude = magnitudes[0];
-        for (size_t i = 1;i < len;i++)
-        {
-            if (magnitudes[i] > lastMagnitude)
-                magnitudes[i] = lastMagnitude;
-            lastMagnitude = magnitudes[i];
-        }
     }
 }
 
@@ -246,17 +261,17 @@ void LowPassFilter::updateFilters(float f, float gain, float resonance)
 {
     if (filterOneEnabled())
     {
-        float q = getQForFilter(1);
+        float q = getQForFilter(1, order);
         filterOne.coefficients = Coefficients::makeLowPass(sampleRate, f, q);
     }
     if (filterTwoEnabled())
     {
-        float q = getQForFilter(2);
+        float q = getQForFilter(2, order);
         filterTwo.coefficients = Coefficients::makeLowPass(sampleRate, f, q);
     }
     if (filterThreeEnabled())
     {
-        float q = getQForFilter(3);
+        float q = getQForFilter(3, order);
         filterThree.coefficients = Coefficients::makeLowPass(sampleRate, f, q);
     }
     if (filterFourEnabled())
@@ -288,39 +303,39 @@ bool LowPassFilter::anythingSmoothing()
         || smoothResonance.isSmoothing();
 }
 
-float LowPassFilter::getQForFilter(int filter)
+float LowPassFilter::getQForFilter(int filter, int ord)
 {
     if (filter == 1)
     {
-        if (order == 2)
+        if (ord == 2)
             return 0.707f;
-        else if (order == 3)
+        else if (ord == 3)
             return 1;
-        else if (order == 4)
+        else if (ord == 4)
             return 0.541f;
-        else if (order == 5)
+        else if (ord == 5)
             return 0.618f;
-        else if (order == 6)
+        else if (ord == 6)
             return 0.518f;
-        else if (order == 7)
+        else if (ord == 7)
             return 0.555f;
     }
     else if (filter == 2)
     {
-        if (order == 4)
+        if (ord == 4)
             return 1.307f;
-        else if (order == 5)
+        else if (ord == 5)
             return 1.618f;
-        else if (order == 6)
+        else if (ord == 6)
             return 0.707f;
-        else if (order == 7)
+        else if (ord == 7)
             return 0.802f;
     }
     else if (filter == 3)
     {
-        if (order == 6)
+        if (ord == 6)
             return 1.932f;
-        else if (order == 7)
+        else if (ord == 7)
             return 2.247f;
     }
     // this shouldn't happen, but return a neutral q just in case
