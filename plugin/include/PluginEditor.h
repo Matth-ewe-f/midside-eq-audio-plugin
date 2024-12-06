@@ -29,16 +29,6 @@ public:
     void paintOverChildren(juce::Graphics&) override;
     void resized() override;
 
-    // === Functions for Custom Components ====================================
-    void addParameterControl(ParameterControl*);
-    void addGainControl(GainControl*);
-    void addHighPassControl(HighPassControl*);
-    void addPeakFilterControl(PeakFilterControl*);
-    void addLowPassControl(LowPassControl*);
-    template<linkable T>
-    void setupLinkButton(ParameterToggle*, T*, T*);
-    void setupFilterIcon(Icon*, Icon::Type);
-
 private:
     /// === Private Variables =================================================
     PluginProcessor& processorRef;
@@ -89,9 +79,12 @@ private:
     inline static const int yStart { 10 };
     inline static const int yEnd { 10 };
     inline static const int gainWidth { 64 };
-    inline static const int globalsWidth { 64 };
+    inline static const int globalsWidth { 54 };
     inline static const int globalsHeight { 26 };
-    inline static const int globalsMargin { 8 };
+    inline static const int globalsInset { 5 };
+    inline static const int globalsInsetCorner { 8 };
+    inline static const int globalsMarginL { 12 };
+    inline static const int globalsMarginY { 6 };
     inline static const int cellWidth { 104 };
     inline static const int cellHeight { 102 };
     inline static const int cellMarginX { 12 };
@@ -109,20 +102,41 @@ private:
     inline static const Colour sideColor { Colour::fromRGB(12, 208, 255) };
     inline static const Colour leftColor { Colour::fromRGB(250, 50, 40) };
     inline static const Colour rightColor { Colour::fromRGB(60, 230, 10) };
+    inline static const Colour resetColor { Colour::fromRGB(44, 65, 71) };
 
-    // === Drawing and Layout Helper Functions ================================
+    // === Initialization Functions ===========================================
+    void initializeIcons();
+    void initializeFilters();
+    void initializeLinkButtons();
+    void initializeGlobalControls();
+    void initializeEqVisual();
+
+    // === Initialization Helper Functions ====================================
+    void addParameterControl(ParameterControl*);
+    void addGainControl(GainControl*);
+    void addHighPassControl(HighPassControl*);
+    void addPeakFilterControl(PeakFilterControl*);
+    void addLowPassControl(LowPassControl*);
+    template<linkable T>
+    void setupLinkButton(ParameterToggle*, T*, T*);
+    void setupFilterIcon(Icon*, Icon::Type);
+
+    // === Layout Helper Functions ============================================
     void layoutGlobalControl(CtmToggle*, float yPos);
     void layoutFilter(FilterControl*, int xIndex, int yIndex);
     void layoutGain(GainControl*, int yIndex);
     void layoutLinkButton(CtmToggle*, int);
     void layoutFilterIcon(Icon*, int xIndex, int yIndex);
-    void layoutTest(juce::Graphics&, int, int);
+
+    // === Drawing Functions ==================================================
+    void drawGlobalControlGrouping(juce::Graphics&, float start, float end);
     void drawSectionLabels(juce::Graphics&);
     void drawFilterBackground(juce::Graphics&, int);
     void drawGainBackground(juce::Graphics&);
 
     // === Other Helper Functions =============================================
     void setColorOverrides();
+    void checkGlobalLinkButtonState();
     juce::Colour getColorOne();
     juce::Colour getColorTwo();
     int secondSectionStart();

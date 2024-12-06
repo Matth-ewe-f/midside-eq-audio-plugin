@@ -124,7 +124,10 @@ void CtmToggle::paintButton(juce::Graphics& g, bool hover, bool click)
 juce::Colour CtmToggle::getHighlightColor()
 {
     juce::Colour outline = findColour(CtmColourIds::brightOutlineColourId);
-    return outline.withAlpha(0.3f);
+    if (colorOverriden && fillColor.getLightness() < 0.3f)
+        return outline.withAlpha(0.2f);
+    else
+        return outline.withAlpha(0.3f);
 }
 
 juce::Colour CtmToggle::getShadowColor()
