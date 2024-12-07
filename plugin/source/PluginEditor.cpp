@@ -23,7 +23,10 @@ PluginEditor::PluginEditor (PluginProcessor &p)
     setSize(w, h);
 }
 
-PluginEditor::~PluginEditor() { }
+PluginEditor::~PluginEditor()
+{
+    setLookAndFeel(nullptr);
+}
 
 // === Graphics ===============================================================
 void PluginEditor::paint(juce::Graphics &g)
@@ -55,6 +58,8 @@ void PluginEditor::resized()
     layoutGlobalControl(&resetButton, 1.5f);
     layoutGlobalControl(&linkAllButton, 0);
     layoutGlobalControl(&unlinkAllButton, -1);
+    layoutGlobalControl(&undo, -2.5f);
+    layoutGlobalControl(&redo, -3.5f);
     layoutGain(&gainOne, 0);
     layoutGain(&gainTwo, 1);
     layoutFilter(&highPassOne, 0, 0);
@@ -127,54 +132,71 @@ void PluginEditor::initializeFilters()
     addPeakFilterControl(&peakSix);
     addLowPassControl(&lowPassOne);
     addLowPassControl(&lowPassTwo);
-    gainOne.attachToGain(stateTree, &processorRef.gainOne);
-    gainTwo.attachToGain(stateTree, &processorRef.gainTwo);
+    gainOne.attachToFilter(stateTree, &processorRef.gainOne);
+    gainTwo.attachToFilter(stateTree, &processorRef.gainTwo);
     highPassOne.shelfToggle.addOnToggleFunction([this] (bool toggled)
     {
         auto iconType = toggled ? Icon::Type::LowShelf : Icon::Type::HighPass;
         hpfOneIcon.setType(iconType);
     });
-    highPassOne.attachToHighPass(stateTree, &processorRef.highPassOne);
+    highPassOne.attachToFilter(stateTree, &processorRef.highPassOne);
     highPassTwo.shelfToggle.addOnToggleFunction([this] (bool toggled)
     {
         auto iconType = toggled ? Icon::Type::LowShelf : Icon::Type::HighPass;
         hpfTwoIcon.setType(iconType);
     });
-    highPassTwo.attachToHighPass(stateTree, &processorRef.highPassTwo);
-    peakOne.attachToPeakFilter(stateTree, &processorRef.peakOne);
-    peakTwo.attachToPeakFilter(stateTree, &processorRef.peakTwo);
-    peakThree.attachToPeakFilter(stateTree, &processorRef.peakThree);
-    peakFour.attachToPeakFilter(stateTree, &processorRef.peakFour);
-    peakFive.attachToPeakFilter(stateTree, &processorRef.peakFive);
-    peakSix.attachToPeakFilter(stateTree, &processorRef.peakSix);
+    highPassTwo.attachToFilter(stateTree, &processorRef.highPassTwo);
+    peakOne.attachToFilter(stateTree, &processorRef.peakOne);
+    peakTwo.attachToFilter(stateTree, &processorRef.peakTwo);
+    peakThree.attachToFilter(stateTree, &processorRef.peakThree);
+    peakFour.attachToFilter(stateTree, &processorRef.peakFour);
+    peakFive.attachToFilter(stateTree, &processorRef.peakFive);
+    peakSix.attachToFilter(stateTree, &processorRef.peakSix);
     lowPassOne.shelfToggle.addOnToggleFunction([this] (bool toggled)
     {
         auto iconType = toggled ? Icon::Type::HighShelf : Icon::Type::LowPass;
         lpfOneIcon.setType(iconType);
     });
-    lowPassOne.attachToLowPass(stateTree, &processorRef.lowPassOne);
+    lowPassOne.attachToFilter(stateTree, &processorRef.lowPassOne);
     lowPassTwo.shelfToggle.addOnToggleFunction([this] (bool toggled)
     {
         auto iconType = toggled ? Icon::Type::HighShelf : Icon::Type::LowPass;
         lpfTwoIcon.setType(iconType);
     });
-    lowPassTwo.attachToLowPass(stateTree, &processorRef.lowPassTwo);
+    lowPassTwo.attachToFilter(stateTree, &processorRef.lowPassTwo);
 }
 
 void PluginEditor::initializeLinkButtons()
 {
     juce::AudioProcessorValueTreeState* stateTree = &processorRef.tree;
-    setupLinkButton(&gainLink, &gainOne, &gainTwo);
+    setupLinkButton(
+        &gainLink, &gainTwo, &processorRef.gainTwo, &processorRef.gainOne
+    );
     gainLink.attachToParameter(stateTree, "gain-linked");
-    setupLinkButton(&highPassLink, &highPassOne, &highPassTwo);
+    setupLinkButton(
+        &highPassLink, &highPassTwo, &processorRef.highPassTwo,
+        &processorRef.highPassOne
+    );
     highPassLink.attachToParameter(stateTree, "hpf-linked");
-    setupLinkButton(&peakOneTwoLink, &peakOne, &peakTwo);
+    setupLinkButton(
+        &peakOneTwoLink, &peakTwo, &processorRef.peakTwo,
+        &processorRef.peakOne
+    );
     peakOneTwoLink.attachToParameter(stateTree, "peak12-linked");
-    setupLinkButton(&peakThreeFourLink, &peakThree, &peakFour);
+    setupLinkButton(
+        &peakThreeFourLink, &peakFour, &processorRef.peakFour,
+        &processorRef.peakThree
+    );
     peakThreeFourLink.attachToParameter(stateTree, "peak34-linked");
-    setupLinkButton(&peakFiveSixLink, &peakFive, &peakSix);
+    setupLinkButton(
+        &peakFiveSixLink, &peakSix, &processorRef.peakSix,
+        &processorRef.peakFive
+    );
     peakFiveSixLink.attachToParameter(stateTree, "peak56-linked");
-    setupLinkButton(&lowPassLink, &lowPassOne, &lowPassTwo);
+    setupLinkButton(
+        &lowPassLink, &lowPassTwo, &processorRef.lowPassTwo,
+        &processorRef.lowPassOne
+    );
     lowPassLink.attachToParameter(stateTree, "lpf-linked");
 }
 
@@ -183,18 +205,18 @@ void PluginEditor::initializeGlobalControls()
     juce::AudioProcessorValueTreeState* stateTree = &processorRef.tree;
     midSideButton.toggle.setText("M-S");
     midSideButton.toggle.setRadioGroupId(1, juce::dontSendNotification);
-    midSideButton.toggle.onClick = [this]
-    { 
-        processorRef.tree.getParameter("mode")->setValue(0);
+    midSideButton.toggle.onClick = [this, stateTree]
+    {
+        stateTree->getParameter("mode")->setValueNotifyingHost(0);
         setColorOverrides();
         repaint(); 
     };
     addAndMakeVisible(midSideButton.toggle);
     leftRightButton.toggle.setText("Stereo");
     leftRightButton.toggle.setRadioGroupId(1, juce::dontSendNotification);
-    leftRightButton.toggle.onClick = [this]
-    { 
-        processorRef.tree.getParameter("mode")->setValue(1);
+    leftRightButton.toggle.onClick = [this, stateTree]
+    {
+        stateTree->getParameter("mode")->setValueNotifyingHost(1);
         setColorOverrides();
         repaint();
     };
@@ -235,6 +257,20 @@ void PluginEditor::initializeGlobalControls()
     auto notif = juce::sendNotification;
     midSideButton.toggle.setToggleState(processorRef.isMidSide(), notif);
     leftRightButton.toggle.setToggleState(!processorRef.isMidSide(), notif);
+    undo.setText("undo");
+    undo.setDisplayAlwaysUp(true);
+    undo.onClick = [this]
+    {
+        processorRef.undoManager.undo();
+    };
+    addAndMakeVisible(&undo);
+    redo.setText("redo");
+    redo.setDisplayAlwaysUp(true);
+    redo.onClick = [this]
+    {
+        processorRef.undoManager.redo();
+    };
+    addAndMakeVisible(&redo);
 }
 
 void PluginEditor::initializeEqVisual()
@@ -295,25 +331,28 @@ void PluginEditor::addLowPassControl(LowPassControl* control)
     addAndMakeVisible(&control->shelfToggle.toggle);
 }
 
-template <linkable T>
+template <filter T>
 void PluginEditor::setupLinkButton
-(ParameterToggle* linkButton, T* item1, T* item2)
+(ParameterToggle* linkButton, FilterControl<T>* control, T* untoggledFilter,
+T* toggledFilter)
 {
     linkButton->toggle.setText("LINK");
-    linkButton->addOnToggleFunction([this, item1, item2] (bool toggled)
-    {
-        if (toggled)
+    linkButton->addOnToggleFunction(
+        [this, control, toggledFilter, untoggledFilter] (bool toggled)
         {
-            item1->link(item2);
-            item2->link(item1);
-        }
-        else
-        {
-            item1->unlink(item2);
-            item2->unlink(item1);
-        }
-        checkGlobalLinkButtonState();
-    });
+            juce::AudioProcessorValueTreeState* tree = &processorRef.tree;
+            if (toggled)
+            {
+                toggledFilter->link(untoggledFilter);
+                control->attachToFilter(tree, toggledFilter);
+            }
+            else
+            {
+                toggledFilter->unlink(untoggledFilter);
+                control->attachToFilter(tree, untoggledFilter);
+            }
+            checkGlobalLinkButtonState();
+        });
     addAndMakeVisible(&linkButton->toggle);
 }
 
@@ -339,8 +378,9 @@ void PluginEditor::layoutGlobalControl(CtmToggle* control, float yPos)
     control->setBounds(x, y, globalsWidth, globalsHeight);
 }
 
+template <filter T>
 void PluginEditor::layoutFilter
-(FilterControl* lowPass, int xIndex, int yIndex)
+(FilterControl<T>* lowPass, int xIndex, int yIndex)
 {
     int x = xStart + gainWidth + (cellWidth * xIndex)
         + (cellMarginX * (xIndex + 1)) + (cellPaddingX * ((2 * xIndex) + 1));

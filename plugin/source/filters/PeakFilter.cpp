@@ -17,13 +17,13 @@ PeakFilter::PeakFilter
 // === Parameter Information ==================================================
 void PeakFilter::onChangedParameter(const juce::String& param, float value)
 {
-    if (param.compare(name + "-" + onOffParam.idPostfix) == 0)
-        smoothBypass.setTargetValue(value);
-    else if (param.compare(name + "-" + freqParamIdPostfix) == 0)
+    if (param.compare(onOffParam.idPostfix) == 0)
+        setBypass(value <= 0);
+    else if (param.compare(freqParamIdPostfix) == 0)
         setFrequency(value);
-    else if (param.compare(name + "-" + gainParam.idPostfix) == 0)
+    else if (param.compare(gainParam.idPostfix) == 0)
         setGain(pow(10.0f, value / 20));
-    else if (param.compare(name + "-" + qParam.idPostfix) == 0)
+    else if (param.compare(qParam.idPostfix) == 0)
         setQFactor(value);
 }
 
@@ -94,6 +94,25 @@ void PeakFilter::setQFactor(float newQ)
 {
     q = newQ;
     setFilterParameters(smoothFrequency.getCurrentValue(), gain, q);
+}
+
+// === Linking ================================================================
+void PeakFilter::setParamsOnLink(std::string paramName)
+{
+    std::atomic<float>* param;
+    std::string paramId;
+    paramId = paramName + "-" + onOffParam.idPostfix;
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setBypass(*param <= 0);
+    paramId = paramName + "-" + freqParamIdPostfix;
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setFrequency(*param);
+    paramId = paramName + "-" + gainParam.idPostfix;
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setGain(pow(10.0f, *param / 20));
+    paramId = paramName + "-" + qParam.idPostfix;
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setQFactor(*param);
 }
 
 // === Process Audio ==========================================================

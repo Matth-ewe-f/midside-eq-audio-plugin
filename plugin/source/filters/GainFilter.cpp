@@ -11,9 +11,9 @@ GainFilter::GainFilter(std::string nameArg, std::string parameterText)
 // === Parameters =============================================================
 void GainFilter::onChangedParameter(const juce::String& parameter, float value)
 {
-    if (parameter.compare(name + "-" + gainParam.idPostfix) == 0)
+    if (parameter.compare(gainParam.idPostfix) == 0)
         setGain(value);
-    else if (parameter.compare(name + "-" + onOffParam.idPostfix) == 0)
+    else if (parameter.compare(onOffParam.idPostfix) == 0)
         setBypass(value <= 0);
 }
 
@@ -52,6 +52,19 @@ void GainFilter::setBypass(bool b)
         smoothBypass.setTargetValue(b ? 0 : 1);
     else
         smoothBypass.setCurrentAndTargetValue(b ? 0 : 1);
+}
+
+// === Linking ================================================================
+void GainFilter::setParamsOnLink(std::string paramName)
+{
+    std::atomic<float>* param;
+    std::string paramId;
+    paramId = paramName + "-" + onOffParam.idPostfix;
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setBypass(*param <= 0);
+    paramId = paramName + "-" + gainParam.idPostfix;
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setGain(*param);
 }
 
 // === Process Audio ==========================================================

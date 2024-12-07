@@ -33,6 +33,9 @@ public:
     void setGain(float);
     void setQFactor(float);
 
+    // === Linking ============================================================
+    void setParamsOnLink(std::string) override;
+
     // === Process Audio ======================================================
     void prepare(const dsp::ProcessSpec&);
     float processSampleProtected(float) override;

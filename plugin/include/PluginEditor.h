@@ -40,6 +40,8 @@ private:
     CtmToggle resetButton;
     CtmToggle linkAllButton;
     CtmToggle unlinkAllButton;
+    CtmToggle undo;
+    CtmToggle redo;
     // channel gains
     GainControl gainOne;
     GainControl gainTwo;
@@ -118,13 +120,14 @@ private:
     void addHighPassControl(HighPassControl*);
     void addPeakFilterControl(PeakFilterControl*);
     void addLowPassControl(LowPassControl*);
-    template<linkable T>
-    void setupLinkButton(ParameterToggle*, T*, T*);
+    template <filter T>
+    void setupLinkButton(ParameterToggle*, FilterControl<T>*, T*, T*);
     void setupFilterIcon(Icon*, Icon::Type);
 
     // === Layout Helper Functions ============================================
     void layoutGlobalControl(CtmToggle*, float yPos);
-    void layoutFilter(FilterControl*, int xIndex, int yIndex);
+    template <filter T>
+    void layoutFilter(FilterControl<T>*, int xIndex, int yIndex);
     void layoutGain(GainControl*, int yIndex);
     void layoutLinkButton(CtmToggle*, int);
     void layoutFilterIcon(Icon*, int xIndex, int yIndex);

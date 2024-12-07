@@ -48,7 +48,7 @@ void HighPassControl::setAllColorOverrides(juce::Colour color)
     shelfToggle.toggle.setColorOverride(color);
 }
 
-void HighPassControl::attachToHighPass
+void HighPassControl::attachToFilter
 (juce::AudioProcessorValueTreeState* tree, HighPassFilter* filter)
 {
     frequency.attachToParameter(tree, filter->getFrequencyParameter());
@@ -69,27 +69,6 @@ void HighPassControl::attachToHighPass
         shelfToggle.toggle.setColorAsUntoggled(!toggled);
     });
     onOff.attachToParameter(tree, filter->getOnOffParameter());
-}
-
-// === Linking ================================================================
-void HighPassControl::link(const HighPassControl* other)
-{
-    frequency.link(&other->frequency);
-    falloff.link(&other->falloff);
-    shelfGain.link(&other->shelfGain);
-    resonance.link(&other->resonance);
-    onOff.link(&other->onOff);
-    shelfToggle.link(&other->shelfToggle);
-}
-
-void HighPassControl::unlink(const HighPassControl* other)
-{
-    frequency.unlink(&other->frequency);
-    falloff.unlink(&other->falloff);
-    shelfGain.unlink(&other->shelfGain);
-    resonance.unlink(&other->resonance);
-    onOff.unlink(&other->onOff);
-    shelfToggle.unlink(&other->shelfToggle);
 }
 
 // === Private ================================================================

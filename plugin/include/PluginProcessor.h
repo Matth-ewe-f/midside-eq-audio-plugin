@@ -2,6 +2,7 @@
 #include <list>
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
+#include <juce_data_structures/juce_data_structures.h>
 #include <melatonin_perfetto/melatonin_perfetto.h>
 #include "ParameterListener.h"
 #include "HighPassFilter.h"
@@ -27,6 +28,7 @@ public:
     PeakFilter peakSix;
     LowPassFilter lowPassOne;
     LowPassFilter lowPassTwo;
+    juce::UndoManager undoManager;
     juce::AudioProcessorValueTreeState tree;
 
     // === Lifecycle ==========================================================

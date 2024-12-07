@@ -6,7 +6,7 @@
 #include "HighPassFilter.h"
 #include "Linkable.h"
 
-class HighPassControl : public FilterControl, public Linkable<HighPassControl>
+class HighPassControl : public FilterControl<HighPassFilter>
 {
 public:
     ParameterControl frequency;
@@ -23,12 +23,8 @@ public:
     // === Settings ===========================================================
     void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
     void setAllColorOverrides(juce::Colour) override;
-    void attachToHighPass
-    (juce::AudioProcessorValueTreeState*, HighPassFilter*);
-
-    // === Linking ============================================================
-    void link(const HighPassControl*) override;
-    void unlink(const HighPassControl*) override;
+    void attachToFilter(juce::AudioProcessorValueTreeState*, HighPassFilter*)
+        override;
     
 private:
     bool isShelf;

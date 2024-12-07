@@ -24,6 +24,9 @@ public:
     void setGain(float);
     void setBypass(bool);
 
+    // === Linking ============================================================
+    void setParamsOnLink(std::string) override;
+
     // === Process Audio ======================================================
     void reset(int blockSize);
     float processSampleProtected(float) override;

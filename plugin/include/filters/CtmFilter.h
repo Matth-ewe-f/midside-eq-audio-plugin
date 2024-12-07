@@ -51,10 +51,16 @@ public:
     virtual void getParameters(std::vector<ParameterFields>& container) = 0;
 
     // === Process Audio ======================================================
+    void link(CtmFilter*);
+    void unlink(CtmFilter*);
+    virtual void setParamsOnLink(std::string) = 0;
+
+    // === Process Audio ======================================================
     float processSample(float);
 
 protected:
     std::atomic<long long> timeAtLastProcess;
+    juce::AudioProcessorValueTreeState* stateTree;
 
     virtual float processSampleProtected(float) = 0;
     virtual void onChangedParameter(const juce::String&, float) = 0;
@@ -62,5 +68,6 @@ protected:
 
 private:
     std::vector<FilterStateListener*> listeners;
+    std::vector<CtmFilter*> linked;
     void nofityListeners();
 };

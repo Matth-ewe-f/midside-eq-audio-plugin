@@ -25,6 +25,7 @@ public:
     void setBounds(int x, int y, int width, int height);
     void attachToParameter(juce::AudioProcessorValueTreeState*, std::string);
     void addOnToggleFunction(std::function<void(bool)>);
+    void removeOnToggleFunctions();
 
     // === ValueTreeState Listener ============================================
     void parameterChanged(const juce::String&, float) override;

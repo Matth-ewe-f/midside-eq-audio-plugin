@@ -6,7 +6,8 @@ using Parameter = juce::AudioProcessorValueTreeState::Parameter;
 
 // === Lifecycle ==============================================================
 CtmFilter::CtmFilter(std::string nameArg, std::string parameterText)
-    : name(nameArg), paramText(parameterText), timeAtLastProcess(0)
+    : name(nameArg), paramText(parameterText), timeAtLastProcess(0),
+    stateTree(nullptr)
 { }
 
 // === ValueTreeState Listener ================================================
@@ -18,6 +19,7 @@ void CtmFilter::setListenTo(juce::AudioProcessorValueTreeState* tree)
     {
         tree->addParameterListener(name + "-" + fields.idPostfix, this);
     }
+    stateTree = tree;
 }
 
 void CtmFilter::stopListeningTo(juce::AudioProcessorValueTreeState* tree)
@@ -28,11 +30,18 @@ void CtmFilter::stopListeningTo(juce::AudioProcessorValueTreeState* tree)
     {
         tree->removeParameterListener(name + "-" + fields.idPostfix, this);
     }
+    stateTree = nullptr;
 }
 
 void CtmFilter::parameterChanged(const juce::String& s, float value)
 {
-    onChangedParameter(s, value);
+    juce::String param = s.substring((int)name.length() + 1);
+    onChangedParameter(param, value);
+    for (CtmFilter* otherFilter : linked)
+    {
+        otherFilter->onChangedParameter(param, value);
+        otherFilter->nofityListeners();
+    }
     nofityListeners();
 }
 
@@ -63,6 +72,23 @@ void CtmFilter::addParameters(ParameterLayout* parameters)
             fields.defaultValue
         ));
     }
+}
+
+// === Linking ================================================================
+void CtmFilter::link(CtmFilter* other)
+{
+    linked.push_back(other);
+    other->setParamsOnLink(name);
+    other->nofityListeners();
+}
+
+void CtmFilter::unlink(CtmFilter* other)
+{
+    linked.erase(
+        std::remove(linked.begin(), linked.end(), other), linked.end()
+    );
+    other->setParamsOnLink(other->name);
+    other->nofityListeners();
 }
 
 // === Process Audio ==========================================================

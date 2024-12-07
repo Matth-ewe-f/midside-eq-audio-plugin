@@ -2,6 +2,8 @@
 
 // === Lifecycle ==============================================================
 PeakFilterControl::PeakFilterControl()
+    : attachedTo(nullptr), tree(nullptr), unlinkedAttachedTo(nullptr),
+    unlinkedTree(nullptr)
 {
     frequency.label.setPostfix(" Hz");
     frequency.label.setMaxDecimals(1);
@@ -38,12 +40,13 @@ void PeakFilterControl::setAllColorOverrides(juce::Colour color)
     onOff.toggle.setColorOverride(color);
 }
 
-void PeakFilterControl::attachToPeakFilter
+void PeakFilterControl::attachToFilter
 (juce::AudioProcessorValueTreeState* stateTree, PeakFilter* filter)
 {
     frequency.attachToParameter(stateTree, filter->getFrequencyParameter());
     gain.attachToParameter(stateTree, filter->getGainParameter());
     qFactor.attachToParameter(stateTree, filter->getQFactorParameter());
+    onOff.removeOnToggleFunctions();
     onOff.addOnToggleFunction([this] (bool toggled)
     {
         frequency.slider.setEnabled(toggled);
@@ -51,21 +54,6 @@ void PeakFilterControl::attachToPeakFilter
         qFactor.slider.setEnabled(toggled);
     });
     onOff.attachToParameter(stateTree, filter->getOnOffParameter());
-}
-
-// === Linking ================================================================
-void PeakFilterControl::link(const PeakFilterControl* other)
-{
-    frequency.link(&other->frequency);
-    gain.link(&other->gain);
-    qFactor.link(&other->qFactor);
-    onOff.link(&other->onOff);
-}
-
-void PeakFilterControl::unlink(const PeakFilterControl* other)
-{
-    frequency.unlink(&other->frequency);
-    gain.unlink(&other->gain);
-    qFactor.unlink(&other->qFactor);
-    onOff.unlink(&other->onOff);
+    tree = stateTree;
+    attachedTo = filter;
 }

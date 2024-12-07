@@ -48,7 +48,7 @@ void GainControl::setToggleAboveSlider(bool isAbove)
     onOff.toggle.repaint();
 }
 
-void GainControl::attachToGain
+void GainControl::attachToFilter
 (juce::AudioProcessorValueTreeState* tree, GainFilter* filter)
 {
     gain.attachToParameter(tree, filter->getGainParameter());
@@ -57,17 +57,4 @@ void GainControl::attachToGain
         gain.slider.setEnabled(toggled);
     });
     onOff.attachToParameter(tree, filter->getOnOffParameter());
-}
-
-// === Linking ================================================================
-void GainControl::link(const GainControl* other)
-{
-    gain.link(&other->gain);
-    onOff.link(&other->onOff);
-}
-
-void GainControl::unlink(const GainControl* other)
-{
-    gain.unlink(&other->gain);
-    onOff.unlink(&other->onOff);
 }

@@ -48,7 +48,7 @@ void LowPassControl::setAllColorOverrides(juce::Colour color)
     shelfToggle.toggle.setColorOverride(color);
 }
 
-void LowPassControl::attachToLowPass
+void LowPassControl::attachToFilter
 (juce::AudioProcessorValueTreeState* stateTree, LowPassFilter* filter)
 {
     frequency.attachToParameter(stateTree, filter->getFrequencyParameter());
@@ -69,27 +69,6 @@ void LowPassControl::attachToLowPass
         shelfToggle.toggle.setColorAsUntoggled(!toggled);
     });
     onOff.attachToParameter(stateTree, filter->getOnOffParameter());
-}
-
-// === Linking ================================================================
-void LowPassControl::link(const LowPassControl* other)
-{
-    frequency.link(&other->frequency);
-    falloff.link(&other->falloff);
-    shelfGain.link(&other->shelfGain);
-    resonance.link(&other->resonance);
-    onOff.link(&other->onOff);
-    shelfToggle.link(&other->shelfToggle);
-}
-
-void LowPassControl::unlink(const LowPassControl* other)
-{
-    frequency.unlink(&other->frequency);
-    falloff.unlink(&other->falloff);
-    shelfGain.unlink(&other->shelfGain);
-    resonance.unlink(&other->resonance);
-    onOff.unlink(&other->onOff);
-    shelfToggle.unlink(&other->shelfToggle);
 }
 
 // === Private ================================================================

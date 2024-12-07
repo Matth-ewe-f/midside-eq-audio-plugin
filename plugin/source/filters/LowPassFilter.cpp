@@ -17,17 +17,17 @@ LowPassFilter::LowPassFilter(std::string nameArg, std::string parameterText)
 // === Parameter Information ==================================================
 void LowPassFilter::onChangedParameter(const juce::String& param, float value)
 {
-    if (param.compare(name + "-" + onOffParam.idPostfix) == 0)
-        smoothBypass.setTargetValue(value);
-    else if (param.compare(name + "-" + shelfModeParam.idPostfix) == 0)
+    if (param.compare(onOffParam.idPostfix) == 0)
+        setBypass(value <= 0);
+    else if (param.compare(shelfModeParam.idPostfix) == 0)
         setIsShelf(value >= 1);
-    else if (param.compare(name + "-" + freqParam.idPostfix) == 0)
+    else if (param.compare(freqParam.idPostfix) == 0)
         setFrequency(value);
-    else if (param.compare(name + "-" + falloffParam.idPostfix) == 0)
+    else if (param.compare(falloffParam.idPostfix) == 0)
         setOrder((int) value / 6);
-    else if (param.compare(name + "-" + shelfGainParam.idPostfix) == 0)
+    else if (param.compare(shelfGainParam.idPostfix) == 0)
         setShelfGain(value);
-    else if (param.compare(name + "-" + resParam.idPostfix) == 0)
+    else if (param.compare(resParam.idPostfix) == 0)
         setResonance(value);
 }
 
@@ -193,6 +193,31 @@ void LowPassFilter::setResonance(float res)
         smoothResonance.setCurrentAndTargetValue(res);
         updateFilters();
     }
+}
+
+// === Linking ================================================================
+void LowPassFilter::setParamsOnLink(std::string paramName)
+{
+    std::atomic<float>* param;
+    std::string paramId;
+    paramId = paramName + "-" + onOffParam.idPostfix;
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setBypass(*param <= 0);
+    paramId = paramName + "-" + freqParam.idPostfix;
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setFrequency(*param);
+    paramId = paramName + "-" + falloffParam.idPostfix;
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setOrder((int)(*param) / 6);
+    paramId = paramName + "-" + resParam.idPostfix;
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setResonance(*param);
+    paramId = paramName + "-" + shelfModeParam.idPostfix;
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setIsShelf(*param >= 1);
+    paramId = paramName + "-" + shelfGainParam.idPostfix;
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setShelfGain(*param);
 }
 
 // === Process Audio ==========================================================

@@ -18,6 +18,10 @@ void ParameterToggle::setBounds(int x, int y, int width, int height)
 void ParameterToggle::attachToParameter
 (juce::AudioProcessorValueTreeState* stateTree, std::string parameter)
 {
+    ButtonAttachment* old = attachment.release();
+    delete old;
+    if (tree != nullptr)
+        tree->removeParameterListener(parameterName, this);
     tree = stateTree;
     parameterName = parameter;
     tree->addParameterListener(parameterName, this);
@@ -31,6 +35,11 @@ void ParameterToggle::attachToParameter
 void ParameterToggle::addOnToggleFunction(std::function<void(bool)> func)
 {
     onToggle.push_back(func);
+}
+
+void ParameterToggle::removeOnToggleFunctions()
+{
+    onToggle.clear();
 }
 
 // === ValueTreeState Listener ================================================

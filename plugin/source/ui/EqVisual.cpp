@@ -7,14 +7,11 @@ EqVisual::~EqVisual()
     for (auto kvp : responseOne)
     {
         kvp.first->removeStateListener(this);
-        delete[] kvp.second;
     }
     for (auto kvp : responseTwo)
     {
         kvp.first->removeStateListener(this);
-        delete[] kvp.second;
     }
-    delete[] displayFreqs;
 }
 
 // === Graphics ===============================================================
@@ -36,12 +33,11 @@ void EqVisual::resized()
     // reset the array of frequencies
     int width = getWidth() - xStart - xEnd + (2 * freqResponseExtension);
     numDisplayFreqs = static_cast<size_t>(width);
-    delete[] displayFreqs;
-    displayFreqs = new double[numDisplayFreqs];
+    displayFreqs.resize(numDisplayFreqs);
     for (int i = 0;i < width;i++)
     {
         int x = xStart - freqResponseExtension + i;
-        displayFreqs[i] = getFrequencyForX(x);
+        displayFreqs[(size_t) i] = getFrequencyForX(x);
     }
     // reset the frequency responses of all the filters
     updateResponseOnResize(responseOne);
@@ -223,7 +219,8 @@ void EqVisual::drawFreqLabel(juce::Graphics& g, int cx, int freq)
 }
 
 void EqVisual::drawFreqResponse
-(juce::Graphics& g, std::map<CtmFilter*, double*>& response, juce::Colour color)
+(juce::Graphics& g, std::map<CtmFilter*, std::vector<double>>& response,
+juce::Colour color)
 {
     // create the total frequency response of all filters in the map
     if (response.size() == 0)
@@ -235,7 +232,7 @@ void EqVisual::drawFreqResponse
     }
     for (auto kvp : response)
     {
-        double* filterResponse = kvp.second;
+        double* filterResponse = kvp.second.data();
         for (size_t i = 0;i < numDisplayFreqs;i++)
         {
             totals[i] *= filterResponse[i];
@@ -281,30 +278,27 @@ void EqVisual::drawFreqResponse
 
 // === Other Helper Functions =================================================
 void EqVisual::updateOrAddFilterResponse
-(CtmFilter* filter, std::map<CtmFilter*, double*>& response)
+(CtmFilter* filter, std::map<CtmFilter*, std::vector<double>>& response)
 {
-    double* data;
-    if (response.contains(filter))
+    if (!response.contains(filter))
     {
-        data = response[filter];
+        response[filter] = std::vector<double>(numDisplayFreqs);
     }
-    else
-    {
-        data = new double[numDisplayFreqs];
-        response[filter] = data;
-    }
-    filter->getMagnitudes(displayFreqs, data, numDisplayFreqs);
+    filter->getMagnitudes(
+        displayFreqs.data(), response[filter].data(), numDisplayFreqs
+    );
 }
 
-void EqVisual::updateResponseOnResize(std::map<CtmFilter*, double*>& response)
+void EqVisual::updateResponseOnResize
+(std::map<CtmFilter*, std::vector<double>>& response)
 {
     for (auto it = response.begin();it != response.end();it++)
     {
-        delete it->second;
-        double* newData = new double[numDisplayFreqs];
-        it->second = newData;
-        it->first->getMagnitudes(displayFreqs, newData, numDisplayFreqs);
-        int x = 4;
+        it->second.clear();
+        it->second.resize(numDisplayFreqs);
+        it->first->getMagnitudes(
+            displayFreqs.data(), it->second.data(), numDisplayFreqs
+        );
     }
 }
 
@@ -358,17 +352,3 @@ juce::Colour EqVisual::getColorForFreqLabels()
 {
     return findColour(CtmColourIds::brightOutlineColourId).withAlpha(0.8f);
 }
-
-// juce::NormalisableRange<float> EqVisual::getFreqRange()
-// {
-//     return juce::NormalisableRange<float>(
-//         10,
-//         40000,
-//         [](float min, float max, float normalized) {
-//             return 20 * pow(2, normalized * log2(20000 / 20));
-//         },
-//         [](float min, float max, float value) {
-//             return log2(value / 20) / log2(20000 / 20);
-//         }
-//     );
-// }

@@ -25,7 +25,7 @@ PluginProcessor::PluginProcessor()
 	peakSix("peak6", "Peak #4 {0} (S/R)", 6000),
 	lowPassOne("lpf1", "Low-Pass {0} (M/L)"),
 	lowPassTwo("lpf2", "Low-Pass {0} (S/R)"),
-	tree(*this, nullptr, "PARAMETERS", createParameters()),
+	tree(*this, &undoManager, "PARAMETERS", createParameters()),
 	lastSampleRate(48000) // default value
 {
 #if PERFETTO

@@ -37,6 +37,8 @@ void ParameterControl::setBounds(int x, int y, int width, int height)
 void ParameterControl::attachToParameter
 (juce::AudioProcessorValueTreeState* stateTree, std::string parameter)
 {
+    SliderAttachment* old = attachment.release();
+    delete old;
     tree = stateTree;
     parameterName = parameter;
     attachment.reset(new SliderAttachment(*stateTree, parameter, slider));

@@ -6,7 +6,7 @@
 #include "LowPassFilter.h"
 #include "Linkable.h"
 
-class LowPassControl : public FilterControl, public Linkable<LowPassControl>
+class LowPassControl : public FilterControl<LowPassFilter>
 {
 public:
     ParameterControl frequency;
@@ -23,11 +23,8 @@ public:
     // === Settings ===========================================================
     void setBounds(int x, int y, int w, int h, int xPad, int yPad) override;
     void setAllColorOverrides(juce::Colour) override;
-    void attachToLowPass(juce::AudioProcessorValueTreeState*, LowPassFilter*);
-
-    // === Linking ============================================================
-    void link(const LowPassControl*) override;
-    void unlink(const LowPassControl*) override;
+    void attachToFilter(juce::AudioProcessorValueTreeState*, LowPassFilter*)
+        override;
 
 private:
     bool isShelf;
