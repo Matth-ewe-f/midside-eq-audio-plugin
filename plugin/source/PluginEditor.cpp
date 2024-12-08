@@ -202,47 +202,46 @@ void PluginEditor::initializeLinkButtons()
 
 void PluginEditor::initializeGlobalControls()
 {
-    juce::AudioProcessorValueTreeState* stateTree = &processorRef.tree;
     midSideButton.toggle.setText("M-S");
     midSideButton.toggle.setRadioGroupId(1, juce::dontSendNotification);
-    midSideButton.toggle.onClick = [this, stateTree]
-    {
-        stateTree->getParameter("mode")->setValueNotifyingHost(0);
-        setColorOverrides();
-        repaint(); 
-    };
     addAndMakeVisible(midSideButton.toggle);
     leftRightButton.toggle.setText("Stereo");
     leftRightButton.toggle.setRadioGroupId(1, juce::dontSendNotification);
-    leftRightButton.toggle.onClick = [this, stateTree]
+    leftRightButton.attachToParameter(&processorRef.tree, "mode");
+    leftRightButton.addOnToggleFunction([this] (bool toggled)
     {
-        stateTree->getParameter("mode")->setValueNotifyingHost(1);
+        if (!toggled)
+            midSideButton.toggle.setToggleState(true, juce::dontSendNotification);
         setColorOverrides();
         repaint();
-    };
+    });
     addAndMakeVisible(leftRightButton.toggle);
     linkAllButton.setText("Link All");
-    linkAllButton.onClick = [this, stateTree]
+    linkAllButton.onClick = [this]
     {
-        stateTree->getParameter("gain-linked")->setValue(1);
-        stateTree->getParameter("hpf-linked")->setValue(1);
-        stateTree->getParameter("peak12-linked")->setValue(1);
-        stateTree->getParameter("peak34-linked")->setValue(1);
-        stateTree->getParameter("peak56-linked")->setValue(1);
-        stateTree->getParameter("lpf-linked")->setValue(1);
+        juce::AudioProcessorValueTreeState* stateTree = &processorRef.tree;
+        stateTree->undoManager->beginNewTransaction();
+        stateTree->getParameter("gain-linked")->setValueNotifyingHost(1);
+        stateTree->getParameter("hpf-linked")->setValueNotifyingHost(1);
+        stateTree->getParameter("peak12-linked")->setValueNotifyingHost(1);
+        stateTree->getParameter("peak34-linked")->setValueNotifyingHost(1);
+        stateTree->getParameter("peak56-linked")->setValueNotifyingHost(1);
+        stateTree->getParameter("lpf-linked")->setValueNotifyingHost(1);
         checkGlobalLinkButtonState();
         
     };
     addAndMakeVisible(linkAllButton);
     unlinkAllButton.setText("Unlink");
-    unlinkAllButton.onClick = [this, stateTree]
+    unlinkAllButton.onClick = [this]
     {
-        stateTree->getParameter("gain-linked")->setValue(0);
-        stateTree->getParameter("hpf-linked")->setValue(0);
-        stateTree->getParameter("peak12-linked")->setValue(0);
-        stateTree->getParameter("peak34-linked")->setValue(0);
-        stateTree->getParameter("peak56-linked")->setValue(0);
-        stateTree->getParameter("lpf-linked")->setValue(0);
+        juce::AudioProcessorValueTreeState* stateTree = &processorRef.tree;
+        stateTree->undoManager->beginNewTransaction();
+        stateTree->getParameter("gain-linked")->setValueNotifyingHost(0);
+        stateTree->getParameter("hpf-linked")->setValueNotifyingHost(0);
+        stateTree->getParameter("peak12-linked")->setValueNotifyingHost(0);
+        stateTree->getParameter("peak34-linked")->setValueNotifyingHost(0);
+        stateTree->getParameter("peak56-linked")->setValueNotifyingHost(0);
+        stateTree->getParameter("lpf-linked")->setValueNotifyingHost(0);
         checkGlobalLinkButtonState();
     };
     addAndMakeVisible(unlinkAllButton);
