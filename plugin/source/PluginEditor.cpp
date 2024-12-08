@@ -58,8 +58,8 @@ void PluginEditor::resized()
     layoutGlobalControl(&resetButton, 1.5f);
     layoutGlobalControl(&linkAllButton, 0);
     layoutGlobalControl(&unlinkAllButton, -1);
-    layoutGlobalControl(&undo, -2.5f);
-    layoutGlobalControl(&redo, -3.5f);
+    // layoutGlobalControl(&undo, -2.5f);
+    // layoutGlobalControl(&redo, -3.5f);
     layoutGain(&gainOne, 0);
     layoutGain(&gainTwo, 1);
     layoutFilter(&highPassOne, 0, 0);
@@ -221,14 +221,26 @@ void PluginEditor::initializeGlobalControls()
     {
         juce::AudioProcessorValueTreeState* stateTree = &processorRef.tree;
         stateTree->undoManager->beginNewTransaction();
+        stateTree->getParameter("gain-linked")->beginChangeGesture();
         stateTree->getParameter("gain-linked")->setValueNotifyingHost(1);
+        stateTree->getParameter("gain-linked")->endChangeGesture();
+        stateTree->getParameter("hpf-linked")->beginChangeGesture();
         stateTree->getParameter("hpf-linked")->setValueNotifyingHost(1);
+        stateTree->getParameter("hpf-linked")->endChangeGesture();
+        stateTree->getParameter("peak12-linked")->beginChangeGesture();
         stateTree->getParameter("peak12-linked")->setValueNotifyingHost(1);
+        stateTree->getParameter("peak12-linked")->endChangeGesture();
+        stateTree->getParameter("peak34-linked")->beginChangeGesture();
         stateTree->getParameter("peak34-linked")->setValueNotifyingHost(1);
+        stateTree->getParameter("peak34-linked")->endChangeGesture();
+        stateTree->getParameter("peak56-linked")->beginChangeGesture();
         stateTree->getParameter("peak56-linked")->setValueNotifyingHost(1);
+        stateTree->getParameter("peak56-linked")->endChangeGesture();
+        stateTree->getParameter("lpf-linked")->beginChangeGesture();
         stateTree->getParameter("lpf-linked")->setValueNotifyingHost(1);
+        stateTree->getParameter("lpf-linked")->endChangeGesture();
+        processorRef.notifyHostOfStateChange();
         checkGlobalLinkButtonState();
-        
     };
     addAndMakeVisible(linkAllButton);
     unlinkAllButton.setText("Unlink");
@@ -236,12 +248,25 @@ void PluginEditor::initializeGlobalControls()
     {
         juce::AudioProcessorValueTreeState* stateTree = &processorRef.tree;
         stateTree->undoManager->beginNewTransaction();
+        stateTree->getParameter("gain-linked")->beginChangeGesture();
         stateTree->getParameter("gain-linked")->setValueNotifyingHost(0);
+        stateTree->getParameter("gain-linked")->endChangeGesture();
+        stateTree->getParameter("hpf-linked")->beginChangeGesture();
         stateTree->getParameter("hpf-linked")->setValueNotifyingHost(0);
+        stateTree->getParameter("hpf-linked")->endChangeGesture();
+        stateTree->getParameter("peak12-linked")->beginChangeGesture();
         stateTree->getParameter("peak12-linked")->setValueNotifyingHost(0);
+        stateTree->getParameter("peak12-linked")->endChangeGesture();
+        stateTree->getParameter("peak34-linked")->beginChangeGesture();
         stateTree->getParameter("peak34-linked")->setValueNotifyingHost(0);
+        stateTree->getParameter("peak34-linked")->endChangeGesture();
+        stateTree->getParameter("peak56-linked")->beginChangeGesture();
         stateTree->getParameter("peak56-linked")->setValueNotifyingHost(0);
+        stateTree->getParameter("peak56-linked")->endChangeGesture();
+        stateTree->getParameter("lpf-linked")->beginChangeGesture();
         stateTree->getParameter("lpf-linked")->setValueNotifyingHost(0);
+        stateTree->getParameter("lpf-linked")->endChangeGesture();
+        processorRef.notifyHostOfStateChange();
         checkGlobalLinkButtonState();
     };
     addAndMakeVisible(unlinkAllButton);
@@ -252,25 +277,26 @@ void PluginEditor::initializeGlobalControls()
     {
         processorRef.tree.undoManager->beginNewTransaction();
         processorRef.resetAllParams();
+        processorRef.notifyHostOfStateChange();
     };
     addAndMakeVisible(resetButton);
     auto notif = juce::sendNotification;
     midSideButton.toggle.setToggleState(processorRef.isMidSide(), notif);
     leftRightButton.toggle.setToggleState(!processorRef.isMidSide(), notif);
-    undo.setText("undo");
-    undo.setDisplayAlwaysUp(true);
-    undo.onClick = [this]
-    {
-        processorRef.undoManager.undo();
-    };
-    addAndMakeVisible(&undo);
-    redo.setText("redo");
-    redo.setDisplayAlwaysUp(true);
-    redo.onClick = [this]
-    {
-        processorRef.undoManager.redo();
-    };
-    addAndMakeVisible(&redo);
+    // undo.setText("undo");
+    // undo.setDisplayAlwaysUp(true);
+    // undo.onClick = [this]
+    // {
+    //     processorRef.undoManager.undo();
+    // };
+    // addAndMakeVisible(&undo);
+    // redo.setText("redo");
+    // redo.setDisplayAlwaysUp(true);
+    // redo.onClick = [this]
+    // {
+    //     processorRef.undoManager.redo();
+    // };
+    // addAndMakeVisible(&redo);
 }
 
 void PluginEditor::initializeEqVisual()

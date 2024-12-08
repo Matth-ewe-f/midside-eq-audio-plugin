@@ -270,7 +270,12 @@ void PluginProcessor::setStateInformation(const void *data, int sizeInBytes)
 		tree.replaceState(juce::ValueTree::fromXml(*xml));
 }
 
-// === Other Private Helper ===============================================
+void PluginProcessor::notifyHostOfStateChange()
+{
+	updateHostDisplay(ChangeDetails().withNonParameterStateChanged(true));
+}
+
+// === Other Private Helper ===================================================
 float PluginProcessor::processSampleChannelOne(float sample)
 {
 	sample = gainOne.processSample(sample);
@@ -301,7 +306,9 @@ void PluginProcessor::resetFilterParams(CtmFilter* filter)
 	{
 		std::string name = filter->name + "-" + fields.idPostfix;
 		juce::RangedAudioParameter* param = tree.getParameter(name);
+		param->beginChangeGesture();
 		param->setValueNotifyingHost(param->getDefaultValue());
+		param->endChangeGesture();
 	}
 }
 

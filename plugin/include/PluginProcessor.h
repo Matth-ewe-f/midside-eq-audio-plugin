@@ -87,6 +87,7 @@ public:
     void resetAllParams();
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;
+    void notifyHostOfStateChange();
 
     // === Factory Functions ==================================================
     juce::AudioProcessorEditor* createEditor() override;

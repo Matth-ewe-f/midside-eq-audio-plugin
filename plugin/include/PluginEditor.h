@@ -40,8 +40,11 @@ private:
     CtmToggle resetButton;
     CtmToggle linkAllButton;
     CtmToggle unlinkAllButton;
-    CtmToggle undo;
-    CtmToggle redo;
+    // users should prefer their hosts undo/redo functionality, but I'll leave
+    // these here so I won't have to re-implement it if I want to expose local
+    // undo/redo functionality
+    // CtmToggle undo;
+    // CtmToggle redo;
     // channel gains
     GainControl gainOne;
     GainControl gainTwo;
