@@ -250,6 +250,7 @@ void PluginEditor::initializeGlobalControls()
     resetButton.setDisplayAlwaysUp(true);
     resetButton.onClick = [this]
     {
+        processorRef.tree.undoManager->beginNewTransaction();
         processorRef.resetAllParams();
     };
     addAndMakeVisible(resetButton);
