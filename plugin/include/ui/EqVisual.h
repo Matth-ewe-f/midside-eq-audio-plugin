@@ -8,6 +8,7 @@ class EqVisual : public juce::Component, public FilterStateListener
 {
 public:
     /// === Lifecycle =========================================================
+    EqVisual();
     ~EqVisual() override;
 
     // === Graphics Functions =================================================
@@ -28,6 +29,7 @@ private:
     juce::Colour freqResponseColorOne;
     juce::Colour freqResponseColorTwo;
     juce::Image bgImage;
+    bool bgImageCached;
     std::vector<double> displayFreqs;
     size_t numDisplayFreqs;
     // === Color Constants ====================================================

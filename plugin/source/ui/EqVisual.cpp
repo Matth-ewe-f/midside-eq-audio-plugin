@@ -2,6 +2,8 @@
 #include "CtmLookAndFeel.h"
 
 // === Lifecycle ==============================================================
+EqVisual::EqVisual() : bgImageCached(false) { }
+
 EqVisual::~EqVisual()
 {
     for (CtmFilter* filter : filtersForResponseOne)
@@ -13,8 +15,19 @@ EqVisual::~EqVisual()
 // === Graphics ===============================================================
 void EqVisual::paint(juce::Graphics& g)
 {
-    g.setOpacity(1);
-    g.drawImageAt(bgImage, 0, 0);
+    // draw the background image
+    if (!bgImageCached)
+    {
+        float s = g.getInternalContext().getPhysicalPixelScaleFactor();
+        int w = getWidth() * s;
+        int h = getHeight() * s;
+        bgImage = juce::Image(juce::Image::RGB, w, h, false);
+        juce::Graphics bgImageGraphics(bgImage);
+        bgImageGraphics.addTransform(juce::AffineTransform::scale(s));
+        drawBackground(bgImageGraphics);
+    }
+    juce::Rectangle<float> targetArea(getWidth(), getHeight());
+    g.drawImage(bgImage, targetArea);
     // draw the frequency response
     drawFreqResponse(g, filtersForResponseTwo, freqResponseColorTwo);
     drawFreqResponse(g, filtersForResponseOne, freqResponseColorOne);
