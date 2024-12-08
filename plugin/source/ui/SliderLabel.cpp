@@ -76,7 +76,7 @@ void SliderLabel::focusGained(juce::Component::FocusChangeType changeType)
     juce::ignoreUnused(changeType);
     setFont(mainFont);
     setText(getSliderValueAsString(attachedSlider));
-    selectAll();
+    TextEditor::focusGained(changeType);
 }
 
 void SliderLabel::focusLost(juce::Component::FocusChangeType changeType)
