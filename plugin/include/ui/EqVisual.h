@@ -23,10 +23,8 @@ public:
     void setFrequencyResponseColors(juce::Colour, juce::Colour);
 
 private:
-    // std::vector<CtmFilter*> filtersForResponseOne;
-    // std::vector<CtmFilter*> filtersForResponseTwo;
-    std::map<CtmFilter*, std::vector<double>> responseOne;
-    std::map<CtmFilter*, std::vector<double>> responseTwo;
+    std::vector<CtmFilter*> filtersForResponseOne;
+    std::vector<CtmFilter*> filtersForResponseTwo;
     juce::Colour freqResponseColorOne;
     juce::Colour freqResponseColorTwo;
     juce::Image bgImage;
@@ -56,13 +54,9 @@ private:
     void drawGainLabel(juce::Graphics&, int, int);
     void drawFreqLabel(juce::Graphics&, int, int);
     void drawFreqResponse
-    (juce::Graphics&, std::map<CtmFilter*, std::vector<double>>&,
-    juce::Colour);
+    (juce::Graphics&, std::vector<CtmFilter*>&, juce::Colour);
 
     // === Other Helper Functions =============================================
-    void updateOrAddFilterResponse
-    (CtmFilter*, std::map<CtmFilter*, std::vector<double>>&);
-    void updateResponseOnResize(std::map<CtmFilter*, std::vector<double>>&);
     float getYForGain(float);
     float getXForFrequency(float);
     float getFrequencyForX(int);

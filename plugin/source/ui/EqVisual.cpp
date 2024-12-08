@@ -4,14 +4,10 @@
 // === Lifecycle ==============================================================
 EqVisual::~EqVisual()
 {
-    for (auto kvp : responseOne)
-    {
-        kvp.first->removeStateListener(this);
-    }
-    for (auto kvp : responseTwo)
-    {
-        kvp.first->removeStateListener(this);
-    }
+    for (CtmFilter* filter : filtersForResponseOne)
+        filter->removeStateListener(this);
+    for (CtmFilter* filter : filtersForResponseTwo)
+        filter->removeStateListener(this);
 }
 
 // === Graphics ===============================================================
@@ -20,8 +16,8 @@ void EqVisual::paint(juce::Graphics& g)
     g.setOpacity(1);
     g.drawImageAt(bgImage, 0, 0);
     // draw the frequency response
-    drawFreqResponse(g, responseTwo, freqResponseColorTwo);
-    drawFreqResponse(g, responseOne, freqResponseColorOne);
+    drawFreqResponse(g, filtersForResponseTwo, freqResponseColorTwo);
+    drawFreqResponse(g, filtersForResponseOne, freqResponseColorOne);
 }
 
 void EqVisual::resized()
@@ -39,30 +35,23 @@ void EqVisual::resized()
         int x = xStart - freqResponseExtension + i;
         displayFreqs[(size_t) i] = getFrequencyForX(x);
     }
-    // reset the frequency responses of all the filters
-    updateResponseOnResize(responseOne);
-    updateResponseOnResize(responseTwo);
 }
 
 // === Filter State Listener ==================================================
 void EqVisual::addToFirstResponse(CtmFilter* filter)
 {
     filter->addStateListener(this);
-    updateOrAddFilterResponse(filter, responseOne);
+    filtersForResponseOne.push_back(filter);
 }
 
 void EqVisual::addToSecondResponse(CtmFilter* filter)
 {
     filter->addStateListener(this);
-    updateOrAddFilterResponse(filter, responseTwo);
+    filtersForResponseTwo.push_back(filter);
 }
 
 void EqVisual::notify(CtmFilter* filter)
 {
-    if (responseOne.contains(filter))
-        updateOrAddFilterResponse(filter, responseOne);
-    else if (responseTwo.contains(filter))
-        updateOrAddFilterResponse(filter, responseTwo);
     repaint();
 }
 
@@ -219,23 +208,23 @@ void EqVisual::drawFreqLabel(juce::Graphics& g, int cx, int freq)
 }
 
 void EqVisual::drawFreqResponse
-(juce::Graphics& g, std::map<CtmFilter*, std::vector<double>>& response,
-juce::Colour color)
+(juce::Graphics& g, std::vector<CtmFilter*>& filters, juce::Colour color)
 {
     // create the total frequency response of all filters in the map
-    if (response.size() == 0)
+    if (filters.size() == 0)
         return;
     double* totals = new double[numDisplayFreqs];
+    double* intermediate = new double[numDisplayFreqs];
     for (size_t i = 0;i < numDisplayFreqs;i++)
     {
         totals[i] = 1;
     }
-    for (auto kvp : response)
+    for (CtmFilter* filter : filters)
     {
-        double* filterResponse = kvp.second.data();
+        filter->getMagnitudes(displayFreqs.data(), intermediate, numDisplayFreqs);
         for (size_t i = 0;i < numDisplayFreqs;i++)
         {
-            totals[i] *= filterResponse[i];
+            totals[i] *= intermediate[i];
         }
     }
     // create the frequency response path, point by point
@@ -249,6 +238,7 @@ juce::Colour color)
         else
             p.lineTo(x, y);
     }
+    delete[] intermediate;
     delete[] totals;
     // draw the path itself
     int start = xStart - freqResponseExtension;
@@ -277,31 +267,6 @@ juce::Colour color)
 }
 
 // === Other Helper Functions =================================================
-void EqVisual::updateOrAddFilterResponse
-(CtmFilter* filter, std::map<CtmFilter*, std::vector<double>>& response)
-{
-    if (!response.contains(filter))
-    {
-        response[filter] = std::vector<double>(numDisplayFreqs);
-    }
-    filter->getMagnitudes(
-        displayFreqs.data(), response[filter].data(), numDisplayFreqs
-    );
-}
-
-void EqVisual::updateResponseOnResize
-(std::map<CtmFilter*, std::vector<double>>& response)
-{
-    for (auto it = response.begin();it != response.end();it++)
-    {
-        it->second.clear();
-        it->second.resize(numDisplayFreqs);
-        it->first->getMagnitudes(
-            displayFreqs.data(), it->second.data(), numDisplayFreqs
-        );
-    }
-}
-
 float EqVisual::getYForGain(float gain)
 {
     int cy = getHeight() / 2;
