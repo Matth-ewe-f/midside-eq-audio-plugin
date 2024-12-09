@@ -2,7 +2,6 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "FilterStateListener.h"
 #include "CtmFilter.h"
-#include "PeakFilter.h"
 
 class EqVisual : public juce::Component, public FilterStateListener
 {
