@@ -1,7 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-
-using Parameter = juce::AudioProcessorValueTreeState::Parameter;
+#include "ParameterBlueprint.h"
 
 // === Lifecycle ==============================================================
 PluginProcessor::PluginProcessor()
@@ -13,20 +12,20 @@ PluginProcessor::PluginProcessor()
 		.withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
 	),
-	gainOne("gain1", "Channel Gain {0} (M/L)"),
-	gainTwo("gain2", "Channel Gain {0} (S/R)"),
+	gainOne("gain1", "Gain {0} (M/L)"),
+	gainTwo("gain2", "Gain {0} (S/R)"),
 	highPassOne("hpf1", "High-Pass {0} (M/L)"),
 	highPassTwo("hpf2", "High-Pass {0} (S/R)"),
-	peakOne("peak1", "Peak #1 {0} (M/L)", 200),
-	peakTwo("peak2", "Peak #1 {0} (S/R)", 200),
-	peakThree("peak3", "Peak #2 {0} (M/L)", 1000),
-	peakFour("peak4", "Peak #2 {0} (S/R)", 1000),
-	peakFive("peak5", "Peak #3 {0} (M/L)", 6000),
-	peakSix("peak6", "Peak #4 {0} (S/R)", 6000),
+	peakOne("peak1", "Peak 1 {0} (M/L)", 200),
+	peakTwo("peak2", "Peak 1 {0} (S/R)", 200),
+	peakThree("peak3", "Peak 2 {0} (M/L)", 1000),
+	peakFour("peak4", "Peak 2 {0} (S/R)", 1000),
+	peakFive("peak5", "Peak 3 {0} (M/L)", 6000),
+	peakSix("peak6", "Peak 3 {0} (S/R)", 6000),
 	lowPassOne("lpf1", "Low-Pass {0} (M/L)"),
 	lowPassTwo("lpf2", "Low-Pass {0} (S/R)"),
 	tree(*this, &undoManager, "PARAMETERS", createParameters()),
-	lastSampleRate(48000) // default value
+	lastSampleRate(44100) // default value
 {
 #if PERFETTO
     MelatoninPerfetto::get().beginSession();
@@ -77,45 +76,42 @@ PluginProcessor::createParameters()
 	peakSix.addParameters(&parameters);
 	lowPassOne.addParameters(&parameters);
 	lowPassTwo.addParameters(&parameters);
-	parameters.add(std::make_unique<Parameter>(
-		"mode", "Mode", juce::NormalisableRange<float>(0, 1, 1), 0
-	));
-	parameters.add(std::make_unique<Parameter>(
-		"gain-linked",
-		"Gain Channels Linked",
-		juce::NormalisableRange<float>(0, 1, 1),
-		0
-	));
-	parameters.add(std::make_unique<Parameter>(
-		"hpf-linked",
-		"High-Pass Channels Linked",
-		juce::NormalisableRange<float>(0, 1, 1),
-		0
-	));
-	parameters.add(std::make_unique<Parameter>(
-		"peak12-linked",
-		"Peak Filter #1 Channels Linked",
-		juce::NormalisableRange<float>(0, 1, 1),
-		0
-	));
-	parameters.add(std::make_unique<Parameter>(
-		"peak34-linked",
-		"Peak Filter #2 Channels Linked",
-		juce::NormalisableRange<float>(0, 1, 1),
-		0
-	));
-	parameters.add(std::make_unique<Parameter>(
-		"peak56-linked",
-		"Peak Filter #3 Channels Linked",
-		juce::NormalisableRange<float>(0, 1, 1),
-		0
-	));
-	parameters.add(std::make_unique<Parameter>(
-		"lpf-linked",
-		"Low-Pass Channels Linked",
-		juce::NormalisableRange<float>(0, 1, 1),
-		0
-	));
+	parameters.add(
+		ParameterBlueprint("mode", "Mode")
+			.withTwoStepDiscrete("STEREO", "M-S")
+			.withDefault(0)
+			.create()
+	);
+	parameters.add(
+		ParameterBlueprint("hpf-linked", "High-Pass Channel Link")
+			.withTwoStepDiscrete("LINK", "UNLINK")
+			.withDefault(0)
+			.create()
+	);
+	parameters.add(
+		ParameterBlueprint("peak12-linked", "Peak 1 Channel Link")
+			.withTwoStepDiscrete("LINK", "UNLINK")
+			.withDefault(0)
+			.create()
+	);
+	parameters.add(
+		ParameterBlueprint("peak34-linked", "Peak 2 Channel Link")
+			.withTwoStepDiscrete("LINK", "UNLINK")
+			.withDefault(0)
+			.create()
+	);
+	parameters.add(
+		ParameterBlueprint("peak56-linked", "Peak 3 Channel Link")
+			.withTwoStepDiscrete("LINK", "UNLINK")
+			.withDefault(0)
+			.create()
+	);
+	parameters.add(
+		ParameterBlueprint("lpf-linked", "Low-Pass Channel Link")
+			.withTwoStepDiscrete("LINK", "UNLINK")
+			.withDefault(0)
+			.create()
+	);
 	return parameters;
 }
 
@@ -300,9 +296,9 @@ float PluginProcessor::processSampleChannelTwo(float sample)
 
 void PluginProcessor::resetFilterParams(CtmFilter* filter)
 {
-	std::vector<ParameterFields> parameters;
+	std::vector<ParameterBlueprint> parameters;
 	filter->getParameters(parameters);
-	for (ParameterFields fields : parameters)
+	for (ParameterBlueprint fields : parameters)
 	{
 		std::string name = filter->name + "-" + fields.idPostfix;
 		juce::RangedAudioParameter* param = tree.getParameter(name);

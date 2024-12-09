@@ -27,7 +27,7 @@ void PeakFilter::onChangedParameter(const juce::String& param, float value)
         setQFactor(value);
 }
 
-void PeakFilter::getParameters(std::vector<ParameterFields>& parameters)
+void PeakFilter::getParameters(std::vector<ParameterBlueprint>& parameters)
 {
     parameters.push_back(onOffParam);
     parameters.push_back(gainParam);

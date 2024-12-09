@@ -25,7 +25,7 @@ public:
         { return name + "-" + shelfGainParam.idPostfix; }
     inline std::string getResonanceParameter()
         { return name + "-" + resParam.idPostfix; }
-    void getParameters(std::vector<ParameterFields>&) override;
+    void getParameters(std::vector<ParameterBlueprint>&) override;
     void getMagnitudes(const double*, double*, size_t) override;
 
     // === Set Parameters =====================================================
@@ -63,23 +63,44 @@ private:
     double sampleRate;
     
     // === Static Constants ===================================================
-    inline static const ParameterFields onOffParam {
-        makeParamFields("on", "On/Off", 0, 1, 1, 1, 0)
+    inline static const ParameterBlueprint onOffParam {
+        ParameterBlueprint("on", "On/Off")
+            .withTwoStepDiscrete("ON", "OFF")
+            .withDefault(0)
     };
-    inline static const ParameterFields shelfModeParam {
-        makeParamFields("shelf-mode", "Shelf Mode", 0, 1, 1, 1, 0)
+    inline static const ParameterBlueprint shelfModeParam {
+        ParameterBlueprint("shelf-mode", "Shelf Mode")
+            .withTwoStepDiscrete("SHELF", "FILTER")
+            .withDefault(0)
     };
-    inline static const ParameterFields freqParam {
-        makeParamFields("freq", "Frequency", 20, 20000, 0.1f, 0.35f, 20)
+    inline static const ParameterBlueprint freqParam {
+        ParameterBlueprint("freq", "Frequency")
+            .withRange(20, 20000, 0.1f, 0.35f)
+            .withDefault(20)
+            .withMaxDecimals(1)
+            .withUnits("Hz")
     };
-    inline static const ParameterFields falloffParam {
-        makeParamFields("falloff", "Falloff", 6, 36, 6, 1, 6)
+    inline static const ParameterBlueprint falloffParam {
+        ParameterBlueprint("falloff", "Falloff")
+            .withRange(6, 36, 6)
+            .withDiscrete()
+            .withDefault(6)
+            .withAlwaysNegative()
+            .withUnits("dB/oct")
     };
-    inline static const ParameterFields shelfGainParam {
-        makeParamFields("shelf-gain", "(Shelf Mode) Gain", -18, 18, 0.1f, 1, 0)
+    inline static const ParameterBlueprint shelfGainParam {
+        ParameterBlueprint("shelf-gain", "Gain (Shelf)")
+            .withRange(-18, 18, 0.1f)
+            .withDefault(0)
+            .withShowPlus()
+            .withMaxDecimals(1)
+            .withUnits("dB")
     };
-    inline static const ParameterFields resParam {
-        makeParamFields("res", "Resonance", 0.25f, 10, 0.01f, 0.7f, 0.71f)
+    inline static const ParameterBlueprint resParam {
+        ParameterBlueprint("res", "Resonance")
+            .withRange(0.25f, 10, 0.01f, 0.7f)
+            .withDefault(0.71f)
+            .withMaxDecimals(2)
     };
     inline static const int fadeLength { 200 };
 

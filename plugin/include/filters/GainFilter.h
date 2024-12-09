@@ -3,10 +3,6 @@
 #include <juce_dsp/juce_dsp.h>
 #include "CtmFilter.h"
 
-using ParameterLayout = juce::AudioProcessorValueTreeState::ParameterLayout;
-using Parameter = juce::AudioProcessorValueTreeState::Parameter;
-namespace dsp = juce::dsp;
-
 class GainFilter : public CtmFilter
 {
 public:
@@ -19,7 +15,7 @@ public:
         { return name + "-" + onOffParam.idPostfix; }
     inline std::string getGainParameter()
         { return name + "-" + gainParam.idPostfix; }
-    void getParameters(std::vector<ParameterFields>&) override;
+    void getParameters(std::vector<ParameterBlueprint>&) override;
     void getMagnitudes(const double*, double*, size_t) override;
     void setGain(float);
     void setBypass(bool);
@@ -36,10 +32,17 @@ private:
     juce::SmoothedValue<float> smoothBypass;
 
     // === Static Constants ===================================================
-    inline static const ParameterFields onOffParam {
-        makeParamFields("on", "On/Off", 0, 1, 1, 1, 1)
+    inline static const ParameterBlueprint onOffParam {
+        ParameterBlueprint("on", "On/Off")
+            .withTwoStepDiscrete("ON", "OFF")
+            .withDefault(1)
     };
-    inline static const ParameterFields gainParam {
-        makeParamFields("gain", "", -12, 12, 0.1f, 1, 0)
+    inline static const ParameterBlueprint gainParam {
+        ParameterBlueprint("gain", "")
+            .withRange(-12, 12, 0.1f)
+            .withDefault(0)
+            .withShowPlus()
+            .withMaxDecimals(1)
+            .withUnits("dB")
     };
 };

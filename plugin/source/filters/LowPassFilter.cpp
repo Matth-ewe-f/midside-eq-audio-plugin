@@ -31,7 +31,7 @@ void LowPassFilter::onChangedParameter(const juce::String& param, float value)
         setResonance(value);
 }
 
-void LowPassFilter::getParameters(std::vector<ParameterFields>& parameters)
+void LowPassFilter::getParameters(std::vector<ParameterBlueprint>& parameters)
 {
     parameters.push_back(onOffParam);
     parameters.push_back(freqParam);

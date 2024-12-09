@@ -17,7 +17,7 @@ void GainFilter::onChangedParameter(const juce::String& parameter, float value)
         setBypass(value <= 0);
 }
 
-void GainFilter::getParameters(std::vector<ParameterFields>& params)
+void GainFilter::getParameters(std::vector<ParameterBlueprint>& params)
 {
     params.push_back(onOffParam);
     params.push_back(gainParam);

@@ -23,7 +23,7 @@ public:
         { return name + "-" + gainParam.idPostfix; }
     inline std::string getQFactorParameter()
         { return name + "-" + qParam.idPostfix; }
-    void getParameters(std::vector<ParameterFields>&) override;
+    void getParameters(std::vector<ParameterBlueprint>&) override;
     void getMagnitudes(const double*, double*, size_t) override;
 
     // === Set Parameters =====================================================
@@ -50,21 +50,33 @@ private:
     double sampleRate;
     
     // === Parameter Settings =================================================
-    inline static const ParameterFields onOffParam {
-        makeParamFields("on", "On/Off", 0, 1, 1, 1, 1)
+    inline static const ParameterBlueprint onOffParam {
+        ParameterBlueprint("on", "On/Off")
+            .withTwoStepDiscrete("ON", "OFF")
+            .withDefault(1)
     };
-    inline static const ParameterFields gainParam {
-        makeParamFields("gain", "Gain", -18, 18, 0.1f, 1, 0)
+    inline static const ParameterBlueprint gainParam {
+        ParameterBlueprint("gain", "Gain")
+            .withRange(-18, 18, 0.1f)
+            .withDefault(0)
+            .withShowPlus()
+            .withMaxDecimals(1)
+            .withUnits("dB")
     };
-    inline static const ParameterFields qParam {
-        makeParamFields("q", "Q Factor", 0.25f, 10, 0.01f, 0.7f, 0.71f)
+    inline static const ParameterBlueprint qParam {
+        ParameterBlueprint("q", "Q-Factor")
+            .withRange(0.25f, 10, 0.01f, 0.7f)
+            .withDefault(0.71f)
+            .withMaxDecimals(2)
     };
     inline static const std::string freqParamIdPostfix { "freq" };
-    inline ParameterFields getFreqParameterFields()
+    inline ParameterBlueprint getFreqParameterFields()
     {
-        return makeParamFields(
-            freqParamIdPostfix, "Frequency", 20, 20000, 0.1f, 0.35f, defaultFreq
-        );
+        return ParameterBlueprint(freqParamIdPostfix, "Frequency")
+            .withRange(20, 20000, 0.1f)
+            .withDefault(defaultFreq)
+            .withMaxDecimals(1)
+            .withUnits("Hz");
     }
 
     // === Private Helper =====================================================

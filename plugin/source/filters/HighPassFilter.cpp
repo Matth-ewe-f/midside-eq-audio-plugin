@@ -33,7 +33,7 @@ void HighPassFilter::onChangedParameter(const juce::String& param, float value)
         setShelfGain(value);
 }
 
-void HighPassFilter::getParameters(std::vector<ParameterFields>& parameters)
+void HighPassFilter::getParameters(std::vector<ParameterBlueprint>& parameters)
 {
     parameters.push_back(onOffParam);
     parameters.push_back(shelfModeParam);

@@ -13,22 +13,22 @@ CtmFilter::CtmFilter(std::string nameArg, std::string parameterText)
 // === ValueTreeState Listener ================================================
 void CtmFilter::setListenTo(juce::AudioProcessorValueTreeState* tree)
 {
-    std::vector<ParameterFields> parameters;
+    std::vector<ParameterBlueprint> parameters;
     getParameters(parameters);
-    for (ParameterFields fields : parameters)
+    for (ParameterBlueprint param : parameters)
     {
-        tree->addParameterListener(name + "-" + fields.idPostfix, this);
+        tree->addParameterListener(param.getIdWithFilterName(name), this);
     }
     stateTree = tree;
 }
 
 void CtmFilter::stopListeningTo(juce::AudioProcessorValueTreeState* tree)
 {
-    std::vector<ParameterFields> parameters;
+    std::vector<ParameterBlueprint> parameters;
     getParameters(parameters);
-    for (ParameterFields fields : parameters)
+    for (ParameterBlueprint param : parameters)
     {
-        tree->removeParameterListener(name + "-" + fields.idPostfix, this);
+        tree->removeParameterListener(param.getIdWithFilterName(name), this);
     }
     stateTree = nullptr;
 }
@@ -61,16 +61,11 @@ void CtmFilter::removeStateListener(FilterStateListener* listener)
 // === Parameters =============================================================
 void CtmFilter::addParameters(ParameterLayout* parameters)
 {
-    std::vector<ParameterFields> parameterFields;
-    getParameters(parameterFields);
-    for (ParameterFields fields : parameterFields)
+    std::vector<ParameterBlueprint> blueprints;
+    getParameters(blueprints);
+    for (ParameterBlueprint param : blueprints)
     {
-        parameters->add(std::make_unique<Parameter>(
-            name + "-" + fields.idPostfix,
-            std::vformat(paramText, std::make_format_args(fields.displayName)),
-            fields.range,
-            fields.defaultValue
-        ));
+        parameters->add(param.create(name, paramText));
     }
 }
 
