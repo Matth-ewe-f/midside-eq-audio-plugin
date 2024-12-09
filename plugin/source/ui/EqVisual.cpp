@@ -19,8 +19,8 @@ void EqVisual::paint(juce::Graphics& g)
     if (!bgImageCached)
     {
         float s = g.getInternalContext().getPhysicalPixelScaleFactor();
-        int w = getWidth() * s;
-        int h = getHeight() * s;
+        int w = (int) (getWidth() * s);
+        int h = (int) (getHeight() * s);
         bgImage = juce::Image(juce::Image::RGB, w, h, false);
         juce::Graphics bgImageGraphics(bgImage);
         bgImageGraphics.addTransform(juce::AffineTransform::scale(s));
