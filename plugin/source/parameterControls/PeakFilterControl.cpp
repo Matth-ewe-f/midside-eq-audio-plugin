@@ -2,8 +2,7 @@
 
 // === Lifecycle ==============================================================
 PeakFilterControl::PeakFilterControl()
-    : attachedTo(nullptr), tree(nullptr), unlinkedAttachedTo(nullptr),
-    unlinkedTree(nullptr)
+    : attachedTo(nullptr), tree(nullptr)
 {
     frequency.label.setPostfix(" Hz");
     frequency.label.setMaxDecimals(1);
@@ -12,6 +11,12 @@ PeakFilterControl::PeakFilterControl()
     qFactor.label.setPostfix(" Q");
     qFactor.label.setMaxDecimals(2);
     onOff.toggle.setText("ON", "OFF");
+    onOff.addOnToggleFunction([this] (bool toggled)
+    {
+        frequency.slider.setEnabled(toggled);
+        gain.slider.setEnabled(toggled);
+        qFactor.slider.setEnabled(toggled);
+    });
 }
 
 PeakFilterControl::~PeakFilterControl() { }
@@ -47,13 +52,5 @@ void PeakFilterControl::attachToFilter
     gain.attachToParameter(stateTree, filter->getGainParameter());
     qFactor.attachToParameter(stateTree, filter->getQFactorParameter());
     onOff.removeOnToggleFunctions();
-    onOff.addOnToggleFunction([this] (bool toggled)
-    {
-        frequency.slider.setEnabled(toggled);
-        gain.slider.setEnabled(toggled);
-        qFactor.slider.setEnabled(toggled);
-    });
     onOff.attachToParameter(stateTree, filter->getOnOffParameter());
-    tree = stateTree;
-    attachedTo = filter;
 }

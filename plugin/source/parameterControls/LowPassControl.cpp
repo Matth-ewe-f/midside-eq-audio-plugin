@@ -13,8 +13,20 @@ LowPassControl::LowPassControl()
     resonance.label.setPostfix(" res");
     resonance.label.setMaxDecimals(2);
     onOff.toggle.setText("ON", "OFF");
+    onOff.addOnToggleFunction([this] (bool toggled)
+    {
+        frequency.slider.setEnabled(toggled);
+        falloff.slider.setEnabled(toggled);
+        shelfGain.slider.setEnabled(toggled);
+        resonance.slider.setEnabled(toggled);
+        shelfToggle.toggle.setColorAsUntoggled(!toggled);
+    });
     shelfToggle.toggle.setText("SHELF", "FILTER");
     shelfToggle.toggle.setDisplayAlwaysUp(true);
+    shelfToggle.addOnToggleFunction([this] (bool toggled)
+    {
+        setIsShelf(toggled);
+    });
 }
 
 LowPassControl::~LowPassControl() { }
@@ -55,19 +67,7 @@ void LowPassControl::attachToFilter
     falloff.attachToParameter(stateTree, filter->getFalloffParameter());
     shelfGain.attachToParameter(stateTree, filter->getShelfGainParameter());
     resonance.attachToParameter(stateTree, filter->getResonanceParameter());
-    shelfToggle.addOnToggleFunction([this] (bool toggled)
-    {
-        setIsShelf(toggled);
-    });
     shelfToggle.attachToParameter(stateTree, filter->getShelfModeParameter());
-    onOff.addOnToggleFunction([this] (bool toggled)
-    {
-        frequency.slider.setEnabled(toggled);
-        falloff.slider.setEnabled(toggled);
-        shelfGain.slider.setEnabled(toggled);
-        resonance.slider.setEnabled(toggled);
-        shelfToggle.toggle.setColorAsUntoggled(!toggled);
-    });
     onOff.attachToParameter(stateTree, filter->getOnOffParameter());
 }
 

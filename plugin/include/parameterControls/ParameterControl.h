@@ -24,7 +24,8 @@ public:
     void setBounds(juce::Rectangle<int>);
     void setBounds(int x, int y, int width, int height);
     inline juce::Rectangle<int> getBounds() { return bounds; }
-    void attachToParameter(juce::AudioProcessorValueTreeState*, std::string);
+    void attachToParameter
+    (juce::AudioProcessorValueTreeState*, std::string);
     void setSliderStyle(juce::Slider::SliderStyle);
 
     // === Parameter Linking ==================================================
@@ -37,6 +38,7 @@ private:
     juce::AudioProcessorValueTreeState* tree;
     std::vector<std::string> linkedParameters;
     juce::Rectangle<int> bounds;
+    bool everAttached;
 
     void copyValueToParameter(const std::string, float);
 };

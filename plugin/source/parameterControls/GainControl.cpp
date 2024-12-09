@@ -8,6 +8,10 @@ GainControl::GainControl() : toggleAbove(true)
     gain.label.setMaxDecimals(1);
     gain.label.setShowPlusForPositive(true);
     onOff.toggle.setText("GAIN");
+    onOff.addOnToggleFunction([this] (bool toggled)
+    {
+        gain.slider.setEnabled(toggled);
+    });
 }
 
 GainControl::~GainControl() { }
@@ -52,9 +56,5 @@ void GainControl::attachToFilter
 (juce::AudioProcessorValueTreeState* tree, GainFilter* filter)
 {
     gain.attachToParameter(tree, filter->getGainParameter());
-    onOff.addOnToggleFunction([this] (bool toggled)
-    {
-        gain.slider.setEnabled(toggled);
-    });
     onOff.attachToParameter(tree, filter->getOnOffParameter());
 }

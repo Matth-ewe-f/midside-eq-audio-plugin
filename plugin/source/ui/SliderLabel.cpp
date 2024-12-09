@@ -73,7 +73,6 @@ void SliderLabel::setPostfixFont(const juce::FontOptions& font)
 // === Focus Functions ========================================================
 void SliderLabel::focusGained(juce::Component::FocusChangeType changeType)
 {
-    juce::ignoreUnused(changeType);
     setFont(mainFont);
     setText(getSliderValueAsString(attachedSlider));
     TextEditor::focusGained(changeType);

@@ -25,8 +25,4 @@ public:
     void setAllColorOverrides(juce::Colour) override;
     void attachToFilter(juce::AudioProcessorValueTreeState*, PeakFilter*)
         override;
-
-private:
-    PeakFilter* unlinkedAttachedTo;
-    juce::AudioProcessorValueTreeState* unlinkedTree;
 };

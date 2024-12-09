@@ -2,7 +2,7 @@
 
 // === Lifecycle ==============================================================
 ParameterControl::ParameterControl()
-    : parameterName(""), tree(nullptr)
+    : parameterName(""), tree(nullptr), everAttached(false)
 {
     bounds = juce::Rectangle<int>(0, 0, 0, 0);
     setSliderStyle(juce::Slider::RotaryVerticalDrag);
@@ -35,14 +35,16 @@ void ParameterControl::setBounds(int x, int y, int width, int height)
 }
 
 void ParameterControl::attachToParameter
-(juce::AudioProcessorValueTreeState* stateTree, std::string parameter)
+(juce::AudioProcessorValueTreeState* stateTree, std::string param)
 {
     SliderAttachment* old = attachment.release();
     delete old;
     tree = stateTree;
-    parameterName = parameter;
-    attachment.reset(new SliderAttachment(*stateTree, parameter, slider));
-    label.updateText(&slider);
+    parameterName = param;
+    attachment.reset(new SliderAttachment(*stateTree, param, slider));
+    if (!everAttached)
+        label.updateText(&slider);
+    everAttached = true;
 }
 
 void ParameterControl::setSliderStyle(juce::Slider::SliderStyle style)

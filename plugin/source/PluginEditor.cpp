@@ -378,7 +378,8 @@ T* toggledFilter)
                 control->attachToFilter(tree, untoggledFilter);
             }
             checkGlobalLinkButtonState();
-        });
+        }
+    );
     addAndMakeVisible(&linkButton->toggle);
 }
 
