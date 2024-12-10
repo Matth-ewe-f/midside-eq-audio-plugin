@@ -55,10 +55,11 @@ void HighPassFilter::getMagnitudes
     double* perFilter = new double[len];
     float freq = smoothFrequency.getTargetValue();
     int curOrder = pendingOrder == -1 ? order : pendingOrder;
+    float res = smoothResonance.getTargetValue();
     if (filterOneEnabled(curOrder))
     {
         auto coefficients = Coefficients::makeHighPass(
-            sampleRate * 2, freq, getQForFilter(1, curOrder)
+            sampleRate * 2, freq, getQForFilter(1, curOrder, res)
         );
         coefficients->getMagnitudeForFrequencyArray(
             frequencies, perFilter, len, sampleRate * 2
@@ -68,7 +69,7 @@ void HighPassFilter::getMagnitudes
     if (filterTwoEnabled(curOrder))
     {
         auto coefficients = Coefficients::makeHighPass(
-            sampleRate * 2, freq, getQForFilter(2, curOrder)
+            sampleRate * 2, freq, getQForFilter(2, curOrder, res)
         );
         coefficients->getMagnitudeForFrequencyArray(
             frequencies, perFilter, len, sampleRate * 2
@@ -78,7 +79,7 @@ void HighPassFilter::getMagnitudes
     if (filterThreeEnabled(curOrder))
     {
         auto coefficients = Coefficients::makeHighPass(
-            sampleRate * 2, freq, getQForFilter(3, curOrder)
+            sampleRate * 2, freq, getQForFilter(3, curOrder, res)
         );
         coefficients->getMagnitudeForFrequencyArray(
             frequencies, perFilter, len, sampleRate * 2
@@ -90,7 +91,6 @@ void HighPassFilter::getMagnitudes
         juce::ReferenceCountedObjectPtr<Coefficients> coefficients;
         if (isShelf)
         {
-            float res = smoothResonance.getTargetValue();
             float gain = smoothGain.getTargetValue();
             coefficients = Coefficients::makeLowShelf(
                 sampleRate * 2, freq, res, pow(10.0f, gain / 20.f)
@@ -288,17 +288,17 @@ void HighPassFilter::updateFilters(float f, float gain, float resonance)
 {
     if (filterOneEnabled())
     {
-        float q = getQForFilter(1, order);
+        float q = getQForFilter(1, order, resonance);
         filterOne.coefficients = Coefficients::makeHighPass(sampleRate, f, q);
     }
     if (filterTwoEnabled())
     {
-        float q = getQForFilter(2, order);
+        float q = getQForFilter(2, order, resonance);
         filterTwo.coefficients = Coefficients::makeHighPass(sampleRate, f, q);
     }
     if (filterThreeEnabled())
     {
-        float q = getQForFilter(3, order);
+        float q = getQForFilter(3, order, resonance);
         filterThree.coefficients
             = Coefficients::makeHighPass(sampleRate, f, q);
     }
@@ -331,7 +331,7 @@ bool HighPassFilter::anythingSmoothing()
         || smoothResonance.isSmoothing();
 }
 
-float HighPassFilter::getQForFilter(int filter, int filterOrder)
+float HighPassFilter::getQForFilter(int filter, int filterOrder, float res)
 {
     // result should be overwritten, but default to a neutral q just in case
     float result = 0.707f;
@@ -367,6 +367,11 @@ float HighPassFilter::getQForFilter(int filter, int filterOrder)
             result = 1.932f;
         else if (filterOrder == 7)
             result = 2.247f;
+    }
+    int highestBipolar = filterOrder / 2;
+    if (filter == highestBipolar)
+    {
+        result *= res / 0.707f;
     }
     return result;
 }
