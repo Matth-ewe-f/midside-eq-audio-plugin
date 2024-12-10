@@ -7,6 +7,7 @@ Split EQ allows you to apply EQ to each individual channel of an incoming stereo
 * High-Cut/Shelf Filter (Switchable)
 * Three Peak Filters
 * Channel Gain
+
 Each filter can be adjusted individually for each channel, or together for the entire audio signal. Split EQ also provides a visualization of both channel's frequency responses overlaid on top of each other, for easy comparison.
 
 ## Built With
@@ -32,4 +33,4 @@ As of now, the only way to install Split EQ is to download the sources files and
 
     `cmake --build build`
 
-6. After the build is complete, the plugin files will be located in subfolders of `build/plugin/Split-EQ_artefacts/` based on plugin format (VST, AU, etc). Choose the one you plan to use and install it as you would any other plugin.
+6. Plugin files will be located in subfolders of `build/plugin/Split-EQ_artefacts/` based on plugin format (VST, AU, etc). Choose the one you plan to use and install it as you would any other plugin.
