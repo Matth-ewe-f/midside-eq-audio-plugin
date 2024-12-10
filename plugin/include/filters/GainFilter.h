@@ -12,9 +12,9 @@ public:
     // === Parameters =========================================================
     void onChangedParameter(const juce::String&, float) override;
     inline std::string getOnOffParameter() override
-        { return name + "-" + onOffParam.idPostfix; }
+        { return getIdForParameter(&onOffParam); }
     inline std::string getGainParameter()
-        { return name + "-" + gainParam.idPostfix; }
+        { return getIdForParameter(&gainParam); }
     void getParameters(std::vector<ParameterBlueprint>&) override;
     void getMagnitudes(const double*, double*, size_t) override;
     void setGain(float);
@@ -33,7 +33,7 @@ private:
 
     // === Static Constants ===================================================
     inline static const ParameterBlueprint onOffParam {
-        ParameterBlueprint("on", "On/Off")
+        ParameterBlueprint("on", "On")
             .withTwoStepDiscrete("ON", "OFF")
             .withDefault(1)
     };

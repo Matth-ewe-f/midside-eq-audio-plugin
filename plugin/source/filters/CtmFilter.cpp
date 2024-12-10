@@ -5,9 +5,10 @@
 using Parameter = juce::AudioProcessorValueTreeState::Parameter;
 
 // === Lifecycle ==============================================================
-CtmFilter::CtmFilter(std::string nameArg, std::string parameterText)
-    : name(nameArg), paramText(parameterText), timeAtLastProcess(0),
-    stateTree(nullptr)
+CtmFilter::CtmFilter
+(std::string nameArg, std::string parameterText, std::string secondText)
+    : name(nameArg), paramText(parameterText), secondaryParamText(secondText),
+    timeAtLastProcess(0), stateTree(nullptr)
 { }
 
 // === ValueTreeState Listener ================================================
@@ -17,7 +18,7 @@ void CtmFilter::setListenTo(juce::AudioProcessorValueTreeState* tree)
     getParameters(parameters);
     for (ParameterBlueprint param : parameters)
     {
-        tree->addParameterListener(param.getIdWithFilterName(name), this);
+        tree->addParameterListener(getIdForParameter(&param), this);
     }
     stateTree = tree;
 }
@@ -28,7 +29,7 @@ void CtmFilter::stopListeningTo(juce::AudioProcessorValueTreeState* tree)
     getParameters(parameters);
     for (ParameterBlueprint param : parameters)
     {
-        tree->removeParameterListener(param.getIdWithFilterName(name), this);
+        tree->removeParameterListener(getIdForParameter(&param), this);
     }
     stateTree = nullptr;
 }
@@ -65,7 +66,12 @@ void CtmFilter::addParameters(ParameterLayout* parameters)
     getParameters(blueprints);
     for (ParameterBlueprint param : blueprints)
     {
-        parameters->add(param.create(name, paramText));
+        std::string paramTextToUse;
+        if (param.useSecondFilterName && secondaryParamText.compare("") != 0)
+            paramTextToUse = secondaryParamText;
+        else
+            paramTextToUse = paramText;
+        parameters->add(param.create(name, paramTextToUse));
     }
 }
 
@@ -113,4 +119,9 @@ bool CtmFilter::isProcessing()
         sinceEpoch
     ).count();
     return timeAtLastProcess.load() >= ms - 2;
+}
+
+std::string CtmFilter::getIdForParameter(const ParameterBlueprint* param)
+{
+    return param->getIdWithFilterName(name);
 }

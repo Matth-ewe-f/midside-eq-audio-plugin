@@ -9,22 +9,23 @@ class HighPassFilter : public CtmFilter
 {
 public:
     // === Lifecycle ==========================================================
-    HighPassFilter(std::string name, std::string parameterText);
+    HighPassFilter
+    (std::string name, std::string parameterText, std::string secondParamText);
 
     // === Parameter Information ==============================================
     void onChangedParameter(const juce::String&, float) override;
     inline std::string getOnOffParameter() override
-        { return name + "-" + onOffParam.idPostfix; }
+        { return getIdForParameter(&onOffParam); }
     inline std::string getShelfModeParameter()
-        { return name + "-" + shelfModeParam.idPostfix; }
+        { return getIdForParameter(&shelfModeParam); }
     inline std::string getFrequencyParameter()
-        { return name + "-" + freqParam.idPostfix; }
+        { return getIdForParameter(&freqParam); }
     inline std::string getFalloffParameter()
-        { return name + "-" + falloffParam.idPostfix; }
+        { return getIdForParameter(&falloffParam); }
     inline std::string getShelfGainParameter()
-        { return name + "-" + shelfGainParam.idPostfix; }
+        { return getIdForParameter(&shelfGainParam); }
     inline std::string getResonanceParameter()
-        { return name + "-" + resParam.idPostfix; }
+        { return getIdForParameter(&resParam); }
     void getParameters(std::vector<ParameterBlueprint>&) override;
     void getMagnitudes(const double*, double*, size_t) override;
 
@@ -64,13 +65,14 @@ private:
     
     // === Static Constants ===================================================
     inline static const ParameterBlueprint onOffParam {
-        ParameterBlueprint("on", "On/Off")
+        ParameterBlueprint("on", "On")
             .withTwoStepDiscrete("ON", "OFF")
             .withDefault(0)
     };
     inline static const ParameterBlueprint shelfModeParam {
-        ParameterBlueprint("shelf-mode", "Shelf Mode")
-            .withTwoStepDiscrete("SHELF", "FILTER")
+        ParameterBlueprint("shelf-mode", "Enabled")
+            .withUseSecondFilterName()
+            .withTwoStepDiscrete("SHELF", "CUT")
             .withDefault(0)
     };
     inline static const ParameterBlueprint freqParam {
@@ -89,7 +91,8 @@ private:
             .withUnits("dB/oct")
     };
     inline static const ParameterBlueprint shelfGainParam {
-        ParameterBlueprint("shelf-gain", "Gain (Shelf)")
+        ParameterBlueprint("shelf-gain", "Gain")
+            .withUseSecondFilterName()
             .withRange(-18, 18, 0.1f)
             .withDefault(0)
             .withShowPlus()

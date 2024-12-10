@@ -7,6 +7,7 @@ typedef struct ParameterBlueprint
     // === Fields =============================================================
     std::string idPostfix;
     std::string displayName;
+    bool useSecondFilterName;
     juce::NormalisableRange<float> range;
     float defaultValue;
     bool isTwoStepDiscrete;
@@ -22,7 +23,8 @@ typedef struct ParameterBlueprint
     ParameterBlueprint(std::string postfix, std::string display);
     ParameterBlueprint(const ParameterBlueprint& other) = default;
 
-    // === Immutable "Setters" ================================================
+    // === Setters ============================================================
+    ParameterBlueprint withUseSecondFilterName(bool = true);
     ParameterBlueprint withRange
     (float min, float max, float step = 1, float skew = 1);
     ParameterBlueprint withDefault(float);
@@ -40,7 +42,7 @@ typedef struct ParameterBlueprint
     std::unique_ptr<juce::RangedAudioParameter> create();
     std::unique_ptr<juce::RangedAudioParameter> create
     (std::string filterName, std::string filterParamText);
-    std::string getIdWithFilterName(std::string filterName);
+    std::string getIdWithFilterName(std::string filterName) const;
 
 }
 ParameterBlueprint;

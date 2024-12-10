@@ -51,7 +51,7 @@ private:
     
     // === Parameter Settings =================================================
     inline static const ParameterBlueprint onOffParam {
-        ParameterBlueprint("on", "On/Off")
+        ParameterBlueprint("on", "On")
             .withTwoStepDiscrete("ON", "OFF")
             .withDefault(1)
     };
@@ -64,7 +64,7 @@ private:
             .withUnits("dB")
     };
     inline static const ParameterBlueprint qParam {
-        ParameterBlueprint("q", "Q-Factor")
+        ParameterBlueprint("q", "Q")
             .withRange(0.25f, 10, 0.01f, 0.7f)
             .withDefault(0.71f)
             .withMaxDecimals(2)

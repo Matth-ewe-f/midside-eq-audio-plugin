@@ -6,12 +6,19 @@ using Attributes = juce::AudioProcessorValueTreeStateParameterAttributes;
 
 // === Lifecycle ==============================================================
 ParameterBlueprint::ParameterBlueprint(std::string post, std::string display)
-    : idPostfix(post), displayName(display), range(0, 1, 1), defaultValue(0),
-    isTwoStepDiscrete(false), isDiscrete(false), units(""), showPlus(false),
-    showAlwaysNegative(false), maxDecimals(0), onText(""), offText("")
+    : idPostfix(post), displayName(display), useSecondFilterName(false),
+    range(0, 1, 1), defaultValue(0), isTwoStepDiscrete(false),
+    isDiscrete(false), units(""), showPlus(false), showAlwaysNegative(false),
+    maxDecimals(0), onText(""), offText("")
 { }
 
-// === Immutable "Setters" ====================================================
+// === Setters ================================================================
+ParameterBlueprint ParameterBlueprint::withUseSecondFilterName(bool use)
+{
+    useSecondFilterName = use;
+    return *this;
+}
+
 ParameterBlueprint ParameterBlueprint::withRange
 (float min, float max, float step, float skew)
 {
@@ -133,7 +140,8 @@ std::unique_ptr<juce::RangedAudioParameter> ParameterBlueprint::create
     );
 }
 
-std::string ParameterBlueprint::getIdWithFilterName(std::string filterName)
+std::string ParameterBlueprint::getIdWithFilterName
+(std::string filterName) const
 {
     return filterName + "-" + idPostfix;
 }

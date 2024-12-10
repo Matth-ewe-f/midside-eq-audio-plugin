@@ -3,9 +3,10 @@
 using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 // === Lifecycle ==============================================================
-LowPassFilter::LowPassFilter(std::string nameArg, std::string parameterText)
-    : CtmFilter(nameArg, parameterText), order(1), pendingOrder(-1),
-    fadeSamples(-1), isShelf(false), sampleRate(48000)
+LowPassFilter::LowPassFilter
+(std::string nameArg, std::string parameterText, std::string secondParamText)
+    : CtmFilter(nameArg, parameterText, secondParamText), order(1),
+    pendingOrder(-1), fadeSamples(-1), isShelf(false), sampleRate(48000)
 {
     smoothFrequency.setCurrentAndTargetValue(20000);
     smoothBypass.setCurrentAndTargetValue(0);

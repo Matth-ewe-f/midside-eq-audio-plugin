@@ -12,18 +12,18 @@ PluginProcessor::PluginProcessor()
 		.withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
 	),
-	gainOne("gain1", "Gain {0} (M/L)"),
-	gainTwo("gain2", "Gain {0} (S/R)"),
-	highPassOne("hpf1", "High-Pass {0} (M/L)"),
-	highPassTwo("hpf2", "High-Pass {0} (S/R)"),
-	peakOne("peak1", "Peak 1 {0} (M/L)", 200),
-	peakTwo("peak2", "Peak 1 {0} (S/R)", 200),
-	peakThree("peak3", "Peak 2 {0} (M/L)", 1000),
-	peakFour("peak4", "Peak 2 {0} (S/R)", 1000),
-	peakFive("peak5", "Peak 3 {0} (M/L)", 6000),
-	peakSix("peak6", "Peak 3 {0} (S/R)", 6000),
-	lowPassOne("lpf1", "Low-Pass {0} (M/L)"),
-	lowPassTwo("lpf2", "Low-Pass {0} (S/R)"),
+	gainOne("gain1", "Gain M/L {0}"),
+	gainTwo("gain2", "Gain S/R {0}"),
+	highPassOne("hpf1", "Low-Cut M/L {0}", "Low-Shelf M/L {0}"),
+	highPassTwo("hpf2", "Low-Cut S/R {0}", "Low-Shelf S/R {0}"),
+	peakOne("peak1", "Peak 1 M/L {0}", 200),
+	peakTwo("peak2", "Peak 1 S/R {0}", 200),
+	peakThree("peak3", "Peak 2 M/L {0}", 1000),
+	peakFour("peak4", "Peak 2 S/R {0}", 1000),
+	peakFive("peak5", "Peak 3 M/L {0}", 6000),
+	peakSix("peak6", "Peak 3 S/R {0}", 6000),
+	lowPassOne("lpf1", "High-Cut M/L {0}", "High-Shelf M/L {0}"),
+	lowPassTwo("lpf2", "High-Cut S/R {0}", "High-Shelf S/R {0}"),
 	tree(*this, &undoManager, "PARAMETERS", createParameters()),
 	lastSampleRate(44100) // default value
 {
@@ -77,43 +77,43 @@ PluginProcessor::createParameters()
 	lowPassOne.addParameters(&parameters);
 	lowPassTwo.addParameters(&parameters);
 	parameters.add(
-		ParameterBlueprint("mode", "Mode")
+		ParameterBlueprint("mode", "Channel Mode")
 			.withTwoStepDiscrete("STEREO", "M-S")
 			.withDefault(0)
 			.create()
 	);
 	parameters.add(
-		ParameterBlueprint("gain-linked", "Gain Channel Link")
+		ParameterBlueprint("gain-linked", "Gain Link")
 			.withTwoStepDiscrete("LINK", "UNLINK")
 			.withDefault(0)
 			.create()
 	);
 	parameters.add(
-		ParameterBlueprint("hpf-linked", "High-Pass Channel Link")
+		ParameterBlueprint("hpf-linked", "Low-Cut/Shelf Link")
 			.withTwoStepDiscrete("LINK", "UNLINK")
 			.withDefault(0)
 			.create()
 	);
 	parameters.add(
-		ParameterBlueprint("peak12-linked", "Peak 1 Channel Link")
+		ParameterBlueprint("peak12-linked", "Peak 1 Link")
 			.withTwoStepDiscrete("LINK", "UNLINK")
 			.withDefault(0)
 			.create()
 	);
 	parameters.add(
-		ParameterBlueprint("peak34-linked", "Peak 2 Channel Link")
+		ParameterBlueprint("peak34-linked", "Peak 2 Link")
 			.withTwoStepDiscrete("LINK", "UNLINK")
 			.withDefault(0)
 			.create()
 	);
 	parameters.add(
-		ParameterBlueprint("peak56-linked", "Peak 3 Channel Link")
+		ParameterBlueprint("peak56-linked", "Peak 3 Link")
 			.withTwoStepDiscrete("LINK", "UNLINK")
 			.withDefault(0)
 			.create()
 	);
 	parameters.add(
-		ParameterBlueprint("lpf-linked", "Low-Pass Channel Link")
+		ParameterBlueprint("lpf-linked", "High-Cut/Shelf Link")
 			.withTwoStepDiscrete("LINK", "UNLINK")
 			.withDefault(0)
 			.create()

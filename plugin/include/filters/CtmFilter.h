@@ -11,9 +11,11 @@ class CtmFilter : public juce::AudioProcessorValueTreeState::Listener
 public:
     const std::string name;
     const std::string paramText;
+    const std::string secondaryParamText;
     
     // === Lifecycle ==========================================================
-    CtmFilter(std::string nameArg, std::string parameterText);
+    CtmFilter
+    (std::string name, std::string paramText, std::string secondText = "");
 
     // === ValueTreeState Listener ============================================
     void setListenTo(juce::AudioProcessorValueTreeState*);
@@ -45,6 +47,7 @@ protected:
     virtual float processSampleProtected(float) = 0;
     virtual void onChangedParameter(const juce::String&, float) = 0;
     bool isProcessing();
+    std::string getIdForParameter(const ParameterBlueprint*);
 
 private:
     std::vector<FilterStateListener*> listeners;

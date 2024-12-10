@@ -21,7 +21,7 @@ LowPassControl::LowPassControl()
         resonance.slider.setEnabled(toggled);
         shelfToggle.toggle.setColorAsUntoggled(!toggled);
     });
-    shelfToggle.toggle.setText("SHELF", "FILTER");
+    shelfToggle.toggle.setText("SHELF", "CUT");
     shelfToggle.toggle.setDisplayAlwaysUp(true);
     shelfToggle.addOnToggleFunction([this] (bool toggled)
     {
