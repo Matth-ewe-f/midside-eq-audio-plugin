@@ -38,7 +38,7 @@ public:
 
     // === Plugin Information =================================================
     inline const juce::String getName() const override
-        { return "Mid-Side EQ"; }
+        { return "Split EQ"; }
 
     inline bool hasEditor() const override { return true; }
     inline double getTailLengthSeconds() const override { return 0.0; }
