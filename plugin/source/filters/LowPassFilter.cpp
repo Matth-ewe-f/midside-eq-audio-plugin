@@ -52,11 +52,12 @@ void LowPassFilter::getMagnitudes
     }
     double* perFilter = new double[len];
     float freq = smoothFrequency.getTargetValue();
+    float res = smoothResonance.getTargetValue();
     int curOrder = pendingOrder == -1 ? order : pendingOrder;
     if (filterOneEnabled())
     {
         auto coefficients = Coefficients::makeLowPass(
-            sampleRate * 2, freq, getQForFilter(1, curOrder)
+            sampleRate * 2, freq, getQForFilter(1, curOrder, res)
         );
         coefficients->getMagnitudeForFrequencyArray(
             frequencies, perFilter, len, sampleRate * 2
@@ -66,7 +67,7 @@ void LowPassFilter::getMagnitudes
     if (filterTwoEnabled())
     {
         auto coefficients = Coefficients::makeLowPass(
-            sampleRate * 2, freq, getQForFilter(2, curOrder)
+            sampleRate * 2, freq, getQForFilter(2, curOrder, res)
         );
         coefficients->getMagnitudeForFrequencyArray(
             frequencies, perFilter, len, sampleRate * 2
@@ -76,7 +77,7 @@ void LowPassFilter::getMagnitudes
     if (filterThreeEnabled())
     {
         auto coefficients = Coefficients::makeLowPass(
-            sampleRate * 2, freq, getQForFilter(3, curOrder)
+            sampleRate * 2, freq, getQForFilter(3, curOrder, res)
         );
         coefficients->getMagnitudeForFrequencyArray(
             frequencies, perFilter, len, sampleRate * 2
@@ -88,7 +89,6 @@ void LowPassFilter::getMagnitudes
         juce::ReferenceCountedObjectPtr<Coefficients> coefficients;
         if (isShelf)
         {
-            float res = smoothResonance.getTargetValue();
             float gain = smoothGain.getTargetValue();
             coefficients = Coefficients::makeHighShelf(
                 sampleRate * 2, freq, res, pow(10.0f, gain / 20.f)
@@ -286,17 +286,17 @@ void LowPassFilter::updateFilters(float f, float gain, float resonance)
 {
     if (filterOneEnabled())
     {
-        float q = getQForFilter(1, order);
+        float q = getQForFilter(1, order, resonance);
         filterOne.coefficients = Coefficients::makeLowPass(sampleRate, f, q);
     }
     if (filterTwoEnabled())
     {
-        float q = getQForFilter(2, order);
+        float q = getQForFilter(2, order, resonance);
         filterTwo.coefficients = Coefficients::makeLowPass(sampleRate, f, q);
     }
     if (filterThreeEnabled())
     {
-        float q = getQForFilter(3, order);
+        float q = getQForFilter(3, order, resonance);
         filterThree.coefficients = Coefficients::makeLowPass(sampleRate, f, q);
     }
     if (filterFourEnabled())
@@ -328,43 +328,49 @@ bool LowPassFilter::anythingSmoothing()
         || smoothResonance.isSmoothing();
 }
 
-float LowPassFilter::getQForFilter(int filter, int ord)
+float LowPassFilter::getQForFilter(int filter, int ord, float res)
 {
+    // result should be overwriten, but default to a neutral q just in case
+    float result = 0.707f;
     if (filter == 1)
     {
         if (ord == 2)
-            return 0.707f;
+            result =  0.707f;
         else if (ord == 3)
-            return 1;
+            result =  1;
         else if (ord == 4)
-            return 0.541f;
+            result =  0.541f;
         else if (ord == 5)
-            return 0.618f;
+            result =  0.618f;
         else if (ord == 6)
-            return 0.518f;
+            result =  0.518f;
         else if (ord == 7)
-            return 0.555f;
+            result =  0.555f;
     }
     else if (filter == 2)
     {
         if (ord == 4)
-            return 1.307f;
+            result =  1.307f;
         else if (ord == 5)
-            return 1.618f;
+            result =  1.618f;
         else if (ord == 6)
-            return 0.707f;
+            result =  0.707f;
         else if (ord == 7)
-            return 0.802f;
+            result =  0.802f;
     }
     else if (filter == 3)
     {
         if (ord == 6)
-            return 1.932f;
+            result =  1.932f;
         else if (ord == 7)
-            return 2.247f;
+            result =  2.247f;
     }
-    // this shouldn't happen, but return a neutral q just in case
-    return 0.707f;
+    int highestBiquad = ord / 2;
+    if (filter == highestBiquad)
+    {
+        result *= res / 0.707f;
+    }
+    return result;
 }
 
 void LowPassFilter::combineMagnitudes

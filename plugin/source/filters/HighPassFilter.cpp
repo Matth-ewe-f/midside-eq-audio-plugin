@@ -368,8 +368,8 @@ float HighPassFilter::getQForFilter(int filter, int filterOrder, float res)
         else if (filterOrder == 7)
             result = 2.247f;
     }
-    int highestBipolar = filterOrder / 2;
-    if (filter == highestBipolar)
+    int highestBiquad = filterOrder / 2;
+    if (filter == highestBiquad)
     {
         result *= res / 0.707f;
     }
