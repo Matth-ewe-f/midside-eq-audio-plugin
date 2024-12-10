@@ -65,6 +65,7 @@ void EqVisual::addToSecondResponse(CtmFilter* filter)
 
 void EqVisual::notify(CtmFilter* filter)
 {
+    juce::ignoreUnused(filter);
     repaint();
 }
 
