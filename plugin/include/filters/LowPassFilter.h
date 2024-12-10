@@ -92,6 +92,7 @@ private:
     };
     inline static const ParameterBlueprint shelfFreqParam {
         ParameterBlueprint("shelf-freq", "Frequency")
+            .withUseSecondFilterName()
             .withRange(20, 20000, 0.1f, 0.35f)
             .withDefault(20000)
             .withMaxDecimals(1)
@@ -122,6 +123,7 @@ private:
     };
     inline static const ParameterBlueprint shelfResParam {
         ParameterBlueprint("shelf-res", "Resonance")
+            .withUseSecondFilterName()
             .withRange(0.25f, 10, 0.01f, 0.7f)
             .withDefault(0.71f)
             .withMaxDecimals(2)
