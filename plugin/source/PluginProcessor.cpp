@@ -83,6 +83,12 @@ PluginProcessor::createParameters()
 			.create()
 	);
 	parameters.add(
+		ParameterBlueprint("gain-linked", "Gain Channel Link")
+			.withTwoStepDiscrete("LINK", "UNLINK")
+			.withDefault(0)
+			.create()
+	);
+	parameters.add(
 		ParameterBlueprint("hpf-linked", "High-Pass Channel Link")
 			.withTwoStepDiscrete("LINK", "UNLINK")
 			.withDefault(0)
