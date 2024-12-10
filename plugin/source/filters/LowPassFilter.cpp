@@ -8,10 +8,12 @@ LowPassFilter::LowPassFilter
     : CtmFilter(nameArg, parameterText, secondParamText), order(1),
     pendingOrder(-1), fadeSamples(-1), isShelf(false), sampleRate(48000)
 {
-    smoothFrequency.setCurrentAndTargetValue(20000);
+    smoothCutFreq.setCurrentAndTargetValue(20000);
+    smoothShelfFreq.setCurrentAndTargetValue(20000);
     smoothBypass.setCurrentAndTargetValue(0);
     smoothGain.setCurrentAndTargetValue(0);
-    smoothResonance.setCurrentAndTargetValue(0.71f);
+    smoothCutRes.setCurrentAndTargetValue(0.71f);
+    smoothShelfRes.setCurrentAndTargetValue(0.71f);
     updateFilters();
 }
 
@@ -22,22 +24,28 @@ void LowPassFilter::onChangedParameter(const juce::String& param, float value)
         setBypass(value <= 0);
     else if (param.compare(shelfModeParam.idPostfix) == 0)
         setIsShelf(value >= 1);
-    else if (param.compare(freqParam.idPostfix) == 0)
-        setFrequency(value);
+    else if (param.compare(cutFreqParam.idPostfix) == 0)
+        setCutFrequency(value);
+    else if (param.compare(shelfFreqParam.idPostfix) == 0)
+        setShelfFrequency(value);
     else if (param.compare(falloffParam.idPostfix) == 0)
         setOrder((int) value / 6);
     else if (param.compare(shelfGainParam.idPostfix) == 0)
         setShelfGain(value);
-    else if (param.compare(resParam.idPostfix) == 0)
-        setResonance(value);
+    else if (param.compare(cutResParam.idPostfix) == 0)
+        setCutResonance(value);
+    else if (param.compare(shelfResParam.idPostfix) == 0)
+        setShelfResonance(value);
 }
 
 void LowPassFilter::getParameters(std::vector<ParameterBlueprint>& parameters)
 {
     parameters.push_back(onOffParam);
-    parameters.push_back(freqParam);
+    parameters.push_back(cutFreqParam);
+    parameters.push_back(shelfFreqParam);
     parameters.push_back(falloffParam);
-    parameters.push_back(resParam);
+    parameters.push_back(cutResParam);
+    parameters.push_back(shelfResParam);
     parameters.push_back(shelfModeParam);
     parameters.push_back(shelfGainParam);
 }
@@ -52,8 +60,18 @@ void LowPassFilter::getMagnitudes
         return;
     }
     double* perFilter = new double[len];
-    float freq = smoothFrequency.getTargetValue();
-    float res = smoothResonance.getTargetValue();
+    float freq;
+    float res;
+    if (isShelf)
+    {
+        freq = smoothShelfFreq.getTargetValue();
+        res = smoothShelfRes.getTargetValue();
+    }
+    else
+    {
+        freq = smoothCutFreq.getTargetValue();
+        res = smoothCutRes.getTargetValue();
+    }
     int curOrder = pendingOrder == -1 ? order : pendingOrder;
     if (filterOneEnabled())
     {
@@ -115,10 +133,12 @@ void LowPassFilter::reset(double newSampleRate, int samplesPerBlock)
     filterTwo.reset();
     filterThree.reset();
     filterFour.reset();
-    smoothFrequency.reset(samplesPerBlock);
+    smoothCutFreq.reset(samplesPerBlock);
+    smoothShelfFreq.reset(samplesPerBlock);
     smoothBypass.reset(samplesPerBlock);
     smoothGain.reset(samplesPerBlock);
-    smoothResonance.reset(samplesPerBlock);
+    smoothCutRes.reset(samplesPerBlock);
+    smoothShelfRes.reset(samplesPerBlock);
     sampleRate = newSampleRate;
 }
 
@@ -130,13 +150,24 @@ void LowPassFilter::setBypass(bool isBypassed)
         smoothBypass.setCurrentAndTargetValue(isBypassed ? 0 : 1);
 }
 
-void LowPassFilter::setFrequency(float newFrequency)
+void LowPassFilter::setCutFrequency(float newFrequency)
 {
-    if (isProcessing())
-        smoothFrequency.setTargetValue(newFrequency);
+    if (!isShelf && isProcessing())
+        smoothCutFreq.setTargetValue(newFrequency);
     else
     {
-        smoothFrequency.setCurrentAndTargetValue(newFrequency);
+        smoothCutFreq.setCurrentAndTargetValue(newFrequency);
+        updateFilters();
+    }
+}
+
+void LowPassFilter::setShelfFrequency(float newFrequency)
+{
+    if (isShelf && isProcessing())
+        smoothShelfFreq.setTargetValue(newFrequency);
+    else
+    {
+        smoothShelfFreq.setCurrentAndTargetValue(newFrequency);
         updateFilters();
     }
 }
@@ -185,13 +216,24 @@ void LowPassFilter::setShelfGain(float gain)
     }
 }
 
-void LowPassFilter::setResonance(float res)
+void LowPassFilter::setCutResonance(float res)
 {
-    if (isProcessing())
-        smoothResonance.setTargetValue(res);
+    if (!isShelf && isProcessing())
+        smoothCutRes.setTargetValue(res);
     else
     {
-        smoothResonance.setCurrentAndTargetValue(res);
+        smoothCutRes.setCurrentAndTargetValue(res);
+        updateFilters();
+    }
+}
+
+void LowPassFilter::setShelfResonance(float res)
+{
+    if (isShelf && isProcessing())
+        smoothShelfRes.setTargetValue(res);
+    else
+    {
+        smoothShelfRes.setCurrentAndTargetValue(res);
         updateFilters();
     }
 }
@@ -201,22 +243,28 @@ void LowPassFilter::setParamsOnLink(std::string paramName)
 {
     std::atomic<float>* param;
     std::string paramId;
-    paramId = paramName + "-" + onOffParam.idPostfix;
+    paramId = onOffParam.getIdWithFilterName(paramName);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setBypass(*param <= 0);
-    paramId = paramName + "-" + freqParam.idPostfix;
+    paramId = cutFreqParam.getIdWithFilterName(paramName);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
-        setFrequency(*param);
-    paramId = paramName + "-" + falloffParam.idPostfix;
+        setCutFrequency(*param);
+    paramId = shelfFreqParam.getIdWithFilterName(paramName);
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setShelfFrequency(*param);
+    paramId = falloffParam.getIdWithFilterName(paramName);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setOrder((int)(*param) / 6);
-    paramId = paramName + "-" + resParam.idPostfix;
+    paramId = cutResParam.getIdWithFilterName(paramName);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
-        setResonance(*param);
-    paramId = paramName + "-" + shelfModeParam.idPostfix;
+        setCutResonance(*param);
+    paramId = shelfResParam.getIdWithFilterName(paramName);
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setShelfResonance(*param);
+    paramId = shelfModeParam.getIdWithFilterName(paramName);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setIsShelf(*param >= 1);
-    paramId = paramName + "-" + shelfGainParam.idPostfix;
+    paramId = shelfGainParam.getIdWithFilterName(paramName);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setShelfGain(*param);
 }
@@ -236,10 +284,12 @@ float LowPassFilter::processSampleProtected(float sample)
         return sample;
     if (anythingSmoothing())
     {
-        float freq = smoothFrequency.getNextValue();
+        float cutFreq = smoothCutFreq.getNextValue();
+        float shelfFreq = smoothShelfFreq.getNextValue();
         float gain = smoothGain.getNextValue();
-        float res = smoothResonance.getNextValue();
-        updateFilters(freq, gain, res);
+        float cutRes = smoothCutRes.getNextValue();
+        float shelfRes = smoothShelfRes.getNextValue();
+        updateFilters(cutFreq, shelfFreq, gain, cutRes, shelfRes);
     }
     float result = sample;
     if (filterOneEnabled())
@@ -277,41 +327,47 @@ float LowPassFilter::processSampleProtected(float sample)
 // === Private Helper =========================================================
 void LowPassFilter::updateFilters()
 {
-    float freq = smoothFrequency.getCurrentValue();
+    float cutFreq = smoothCutFreq.getCurrentValue();
+    float shelfFreq = smoothShelfFreq.getCurrentValue();
     float gain = smoothGain.getCurrentValue();
-    float res = smoothResonance.getCurrentValue();
-    updateFilters(freq, gain, res);
+    float cutRes = smoothCutRes.getCurrentValue();
+    float shelfRes = smoothShelfRes.getCurrentValue();
+    updateFilters(cutFreq, shelfFreq, gain, cutRes, shelfRes);
 }
 
-void LowPassFilter::updateFilters(float f, float gain, float resonance)
+void LowPassFilter::updateFilters
+(float cutFreq, float shelfFreq, float gain, float cutRes, float shelfRes)
 {
     if (filterOneEnabled())
     {
-        float q = getQForFilter(1, order, resonance);
-        filterOne.coefficients = Coefficients::makeLowPass(sampleRate, f, q);
+        float q = getQForFilter(1, order, cutRes);
+        filterOne.coefficients
+            = Coefficients::makeLowPass(sampleRate, cutFreq, q);
     }
     if (filterTwoEnabled())
     {
-        float q = getQForFilter(2, order, resonance);
-        filterTwo.coefficients = Coefficients::makeLowPass(sampleRate, f, q);
+        float q = getQForFilter(2, order, cutRes);
+        filterTwo.coefficients
+            = Coefficients::makeLowPass(sampleRate, cutFreq, q);
     }
     if (filterThreeEnabled())
     {
-        float q = getQForFilter(3, order, resonance);
-        filterThree.coefficients = Coefficients::makeLowPass(sampleRate, f, q);
+        float q = getQForFilter(3, order, cutRes);
+        filterThree.coefficients
+            = Coefficients::makeLowPass(sampleRate, cutFreq, q);
     }
     if (filterFourEnabled())
     {
         if (isShelf)
         {
             filterFour.coefficients = Coefficients::makeHighShelf(
-                sampleRate, f, resonance, pow(10.0f, gain / 20.0f)
+                sampleRate, shelfFreq, shelfRes, pow(10.0f, gain / 20.0f)
             );
         }
         else
         {
             filterFour.coefficients
-                = Coefficients::makeFirstOrderLowPass(sampleRate, f);
+                = Coefficients::makeFirstOrderLowPass(sampleRate, cutFreq);
         }
     }
 }
@@ -325,8 +381,9 @@ void LowPassFilter::delayedUpdateOrder()
 
 bool LowPassFilter::anythingSmoothing()
 {
-    return smoothFrequency.isSmoothing() || smoothGain.isSmoothing()
-        || smoothResonance.isSmoothing();
+    return smoothCutFreq.isSmoothing() || smoothShelfFreq.isSmoothing()
+        || smoothGain.isSmoothing() || smoothCutRes.isSmoothing()
+        || smoothShelfRes.isSmoothing();
 }
 
 float LowPassFilter::getQForFilter(int filter, int ord, float res)

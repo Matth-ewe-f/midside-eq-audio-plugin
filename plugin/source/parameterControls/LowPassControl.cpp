@@ -3,22 +3,28 @@
 // === Lifecycle ==============================================================
 LowPassControl::LowPassControl()
 {
-    frequency.label.setPostfix(" Hz");
-    frequency.label.setMaxDecimals(1);
+    cutFreq.label.setPostfix(" Hz");
+    cutFreq.label.setMaxDecimals(1);
+    shelfFreq.label.setPostfix(" Hz");
+    shelfFreq.label.setMaxDecimals(1);
     falloff.label.setPostfix(" dB/oct");
     falloff.label.setTypeNegativeValues(true);
     shelfGain.label.setPostfix(" dB");
     shelfGain.label.setShowPlusForPositive(true);
     shelfGain.label.setMaxDecimals(1);
-    resonance.label.setPostfix(" res");
-    resonance.label.setMaxDecimals(2);
+    cutRes.label.setPostfix(" res");
+    cutRes.label.setMaxDecimals(2);
+    shelfRes.label.setPostfix(" res");
+    shelfRes.label.setMaxDecimals(2);
     onOff.toggle.setText("ON", "OFF");
     onOff.addOnToggleFunction([this] (bool toggled)
     {
-        frequency.slider.setEnabled(toggled);
+        cutFreq.slider.setEnabled(toggled);
+        shelfFreq.slider.setEnabled(toggled);
         falloff.slider.setEnabled(toggled);
         shelfGain.slider.setEnabled(toggled);
-        resonance.slider.setEnabled(toggled);
+        cutRes.slider.setEnabled(toggled);
+        shelfRes.slider.setEnabled(toggled);
         shelfToggle.toggle.setColorAsUntoggled(!toggled);
     });
     shelfToggle.toggle.setText("SHELF", "CUT");
@@ -36,12 +42,18 @@ void LowPassControl::setBounds(int x, int y, int w, int h, int xPad, int yPad)
 {
     int itemW = (w - xPad) / 2;
     int itemH = (h - yPad) / 2;
-    frequency.setBounds(x, y, itemW, itemH);
     if (isShelf)
+    {
+        shelfFreq.setBounds(x, y, itemW, itemH);
         shelfGain.setBounds(x, y + itemH + yPad, itemW, itemH);
-    else
+        shelfRes.setBounds(x + itemW + xPad, y + itemH + yPad, itemW, itemH);
+    }
+    else 
+    {
+        cutFreq.setBounds(x, y, itemW, itemH);
         falloff.setBounds(x, y + itemH + yPad, itemW, itemH);
-    resonance.setBounds(x + itemW + xPad, y + itemH + yPad, itemW, itemH);
+        cutRes.setBounds(x + itemW + xPad, y + itemH + yPad, itemW, itemH);
+    }
     int toggleW = 37;
     int toggleX = x + itemW + xPad + ((itemW - toggleW) / 2);
     onOff.setBounds(toggleX, y - 2, toggleW, 21);
@@ -50,10 +62,12 @@ void LowPassControl::setBounds(int x, int y, int w, int h, int xPad, int yPad)
 
 void LowPassControl::setAllColorOverrides(juce::Colour color)
 {
-    frequency.slider.setColorOverride(color);
+    cutFreq.slider.setColorOverride(color);
+    shelfFreq.slider.setColorOverride(color);
     falloff.slider.setColorOverride(color);
     shelfGain.slider.setColorOverride(color);
-    resonance.slider.setColorOverride(color);
+    cutRes.slider.setColorOverride(color);
+    shelfRes.slider.setColorOverride(color);
     color = color.withMultipliedSaturation(0.8f);
     color = color.withMultipliedBrightness(0.8f);
     onOff.toggle.setColorOverride(color);
@@ -61,14 +75,16 @@ void LowPassControl::setAllColorOverrides(juce::Colour color)
 }
 
 void LowPassControl::attachToFilter
-(juce::AudioProcessorValueTreeState* stateTree, LowPassFilter* filter)
+(juce::AudioProcessorValueTreeState* tree, LowPassFilter* filter)
 {
-    frequency.attachToParameter(stateTree, filter->getFrequencyParameter());
-    falloff.attachToParameter(stateTree, filter->getFalloffParameter());
-    shelfGain.attachToParameter(stateTree, filter->getShelfGainParameter());
-    resonance.attachToParameter(stateTree, filter->getResonanceParameter());
-    shelfToggle.attachToParameter(stateTree, filter->getShelfModeParameter());
-    onOff.attachToParameter(stateTree, filter->getOnOffParameter());
+    cutFreq.attachToParameter(tree, filter->getCutFrequencyParameter());
+    shelfFreq.attachToParameter(tree, filter->getShelfFrequencyParameter());
+    falloff.attachToParameter(tree, filter->getFalloffParameter());
+    shelfGain.attachToParameter(tree, filter->getShelfGainParameter());
+    cutRes.attachToParameter(tree, filter->getCutResonanceParameter());
+    shelfRes.attachToParameter(tree, filter->getShelfResonanceParameter());
+    shelfToggle.attachToParameter(tree, filter->getShelfModeParameter());
+    onOff.attachToParameter(tree, filter->getOnOffParameter());
 }
 
 // === Private ================================================================
@@ -76,13 +92,21 @@ void LowPassControl::setIsShelf(bool b)
 {
     if (isShelf && !b)
     {
+        cutFreq.setBounds(shelfFreq.getBounds());
+        shelfFreq.setBounds(0, 0, 0, 0);
         falloff.setBounds(shelfGain.getBounds());
         shelfGain.setBounds(0, 0, 0, 0);
+        cutRes.setBounds(shelfRes.getBounds());
+        shelfRes.setBounds(0, 0, 0, 0);
     }
     else if (!isShelf && b)
     {
+        shelfFreq.setBounds(cutFreq.getBounds());
+        cutFreq.setBounds(0, 0, 0, 0);
         shelfGain.setBounds(falloff.getBounds());
         falloff.setBounds(0, 0, 0, 0);
+        shelfRes.setBounds(cutRes.getBounds());
+        cutRes.setBounds(0, 0, 0, 0);
     }
     isShelf = b;
 }
