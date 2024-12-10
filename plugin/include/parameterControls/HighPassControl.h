@@ -9,10 +9,12 @@
 class HighPassControl : public FilterControl<HighPassFilter>
 {
 public:
-    ParameterControl frequency;
+    ParameterControl cutFreq;
+    ParameterControl shelfFreq;
     ParameterControl falloff;
     ParameterControl shelfGain;
-    ParameterControl resonance;
+    ParameterControl cutRes;
+    ParameterControl shelfRes;
     ParameterToggle onOff;
     ParameterToggle shelfToggle;
 

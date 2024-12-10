@@ -331,10 +331,12 @@ void PluginEditor::addGainControl(GainControl* gain)
 
 void PluginEditor::addHighPassControl(HighPassControl* control)
 {
-    addParameterControl(&control->frequency);
+    addParameterControl(&control->cutFreq);
+    addParameterControl(&control->shelfFreq);
     addParameterControl(&control->falloff);
     addParameterControl(&control->shelfGain);
-    addParameterControl(&control->resonance);
+    addParameterControl(&control->cutRes);
+    addParameterControl(&control->shelfRes);
     addAndMakeVisible(&control->onOff.toggle);
     addAndMakeVisible(&control->shelfToggle.toggle);
 }

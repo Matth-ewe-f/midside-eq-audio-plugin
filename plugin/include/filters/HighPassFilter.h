@@ -18,23 +18,29 @@ public:
         { return getIdForParameter(&onOffParam); }
     inline std::string getShelfModeParameter()
         { return getIdForParameter(&shelfModeParam); }
-    inline std::string getFrequencyParameter()
-        { return getIdForParameter(&freqParam); }
+    inline std::string getCutFrequencyParameter()
+        { return getIdForParameter(&cutFreqParam); }
+    inline std::string getShelfFrequencyParameter()
+        { return getIdForParameter(&shelfFreqParam); }
     inline std::string getFalloffParameter()
         { return getIdForParameter(&falloffParam); }
     inline std::string getShelfGainParameter()
         { return getIdForParameter(&shelfGainParam); }
-    inline std::string getResonanceParameter()
-        { return getIdForParameter(&resParam); }
+    inline std::string getCutResonanceParameter()
+        { return getIdForParameter(&cutResParam); }
+    inline std::string getShelfResonanceParameter()
+        { return getIdForParameter(&shelfResParam); }
     void getParameters(std::vector<ParameterBlueprint>&) override;
     void getMagnitudes(const double*, double*, size_t) override;
 
     // === Set Parameters =====================================================
     void reset(double newSampleRate, int samplesPerBlock);
     void setBypass(bool);
-    void setFrequency(float);
+    void setCutFrequency(float);
+    void setShelfFrequency(float);
     void setOrder(int);
-    void setResonance(float);
+    void setCutResonance(float);
+    void setShelfResonance(float);
     void setIsShelf(bool);
     void setShelfGain(float);
     
@@ -53,10 +59,12 @@ private:
     dsp::IIR::Filter<float> filterTwo;
     dsp::IIR::Filter<float> filterThree;
     dsp::IIR::Filter<float> filterFour;
-    juce::SmoothedValue<float> smoothFrequency;
+    juce::SmoothedValue<float> smoothCutFreq;
+    juce::SmoothedValue<float> smoothShelfFreq;
     juce::SmoothedValue<float> smoothBypass;
     juce::SmoothedValue<float> smoothGain;
-    juce::SmoothedValue<float> smoothResonance;
+    juce::SmoothedValue<float> smoothCutRes;
+    juce::SmoothedValue<float> smoothShelfRes;
     int order;
     int pendingOrder;
     int fadeSamples;
@@ -75,8 +83,16 @@ private:
             .withTwoStepDiscrete("SHELF", "CUT")
             .withDefault(0)
     };
-    inline static const ParameterBlueprint freqParam {
+    inline static const ParameterBlueprint cutFreqParam {
         ParameterBlueprint("freq", "Frequency")
+            .withRange(20, 20000, 0.1f, 0.35f)
+            .withDefault(20)
+            .withMaxDecimals(1)
+            .withUnits("Hz")
+    };
+    inline static const ParameterBlueprint shelfFreqParam {
+        ParameterBlueprint("shelf-freq", "Frequency")
+            .withUseSecondFilterName()
             .withRange(20, 20000, 0.1f, 0.35f)
             .withDefault(20)
             .withMaxDecimals(1)
@@ -99,8 +115,15 @@ private:
             .withMaxDecimals(1)
             .withUnits("dB")
     };
-    inline static const ParameterBlueprint resParam {
+    inline static const ParameterBlueprint cutResParam {
+        ParameterBlueprint("shelf-res", "Resonance")
+            .withRange(0.25f, 10, 0.01f, 0.7f)
+            .withDefault(0.71f)
+            .withMaxDecimals(2)
+    };
+    inline static const ParameterBlueprint shelfResParam {
         ParameterBlueprint("res", "Resonance")
+            .withUseSecondFilterName()
             .withRange(0.25f, 10, 0.01f, 0.7f)
             .withDefault(0.71f)
             .withMaxDecimals(2)
@@ -109,7 +132,8 @@ private:
 
     // === Private Helper =====================================================
     void updateFilters();
-    void updateFilters(float frequency, float gain, float resonance);
+    void updateFilters
+    (float cutFreq, float shelfFreq, float gain, float cutRes, float shelfRes);
     void delayedUpdateOrder();
     bool anythingSmoothing();
     float getQForFilter(int, int, float);

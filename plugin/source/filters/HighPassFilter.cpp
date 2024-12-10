@@ -10,10 +10,12 @@ HighPassFilter::HighPassFilter
     : CtmFilter(nameArg, parameterText, secondParamText), order(1),
     pendingOrder(-1), fadeSamples(-1), isShelf(false), sampleRate(48000)
 {
-    smoothFrequency.setCurrentAndTargetValue(20);
+    smoothCutFreq.setCurrentAndTargetValue(20);
+    smoothShelfFreq.setCurrentAndTargetValue(20);
     smoothBypass.setCurrentAndTargetValue(0);
     smoothGain.setCurrentAndTargetValue(0);
-    smoothResonance.setCurrentAndTargetValue(0.71f);
+    smoothCutRes.setCurrentAndTargetValue(0.71f);
+    smoothShelfRes.setCurrentAndTargetValue(0.71f);
     updateFilters();
 }
 
@@ -22,12 +24,16 @@ void HighPassFilter::onChangedParameter(const juce::String& param, float value)
 {
     if (param.compare(onOffParam.idPostfix) == 0)
         setBypass(value <= 0);
-    else if (param.compare(freqParam.idPostfix) == 0)
-        setFrequency(value);
+    else if (param.compare(cutFreqParam.idPostfix) == 0)
+        setCutFrequency(value);
+    else if (param.compare(shelfFreqParam.idPostfix) == 0)
+        setShelfFrequency(value);
     else if (param.compare(falloffParam.idPostfix) == 0)
         setOrder((int) value / 6);
-    else if (param.compare(resParam.idPostfix) == 0)
-        setResonance(value);
+    else if (param.compare(cutResParam.idPostfix) == 0)
+        setCutResonance(value);
+    else if (param.compare(shelfResParam.idPostfix) == 0)
+        setShelfResonance(value);
     else if (param.compare(shelfModeParam.idPostfix) == 0)
         setIsShelf(value >= 1);
     else if (param.compare(shelfGainParam.idPostfix) == 0)
@@ -38,10 +44,12 @@ void HighPassFilter::getParameters(std::vector<ParameterBlueprint>& parameters)
 {
     parameters.push_back(onOffParam);
     parameters.push_back(shelfModeParam);
-    parameters.push_back(freqParam);
+    parameters.push_back(cutFreqParam);
+    parameters.push_back(shelfFreqParam);
     parameters.push_back(falloffParam);
     parameters.push_back(shelfGainParam);
-    parameters.push_back(resParam);
+    parameters.push_back(cutResParam);
+    parameters.push_back(shelfResParam);
 }
 
 void HighPassFilter::getMagnitudes
@@ -54,9 +62,19 @@ void HighPassFilter::getMagnitudes
         return;
     }
     double* perFilter = new double[len];
-    float freq = smoothFrequency.getTargetValue();
+    float freq;
+    float res;
+    if (isShelf) 
+    {
+        freq = smoothShelfFreq.getTargetValue();
+        res = smoothShelfRes.getTargetValue();
+    }
+    else
+    {
+        freq = smoothCutFreq.getTargetValue();
+        res = smoothCutRes.getTargetValue();
+    }
     int curOrder = pendingOrder == -1 ? order : pendingOrder;
-    float res = smoothResonance.getTargetValue();
     if (filterOneEnabled(curOrder))
     {
         auto coefficients = Coefficients::makeHighPass(
@@ -117,10 +135,12 @@ void HighPassFilter::reset(double newSampleRate, int samplesPerBlock)
     filterTwo.reset();
     filterThree.reset();
     filterFour.reset();
-    smoothFrequency.reset(samplesPerBlock);
+    smoothCutFreq.reset(samplesPerBlock);
+    smoothShelfFreq.reset(samplesPerBlock);
     smoothBypass.reset(samplesPerBlock);
     smoothGain.reset(samplesPerBlock);
-    smoothResonance.reset(samplesPerBlock);
+    smoothCutRes.reset(samplesPerBlock);
+    smoothShelfRes.reset(samplesPerBlock);
     sampleRate = newSampleRate;
 }
 
@@ -132,13 +152,24 @@ void HighPassFilter::setBypass(bool isBypassed)
         smoothBypass.setCurrentAndTargetValue(isBypassed ? 0 : 1);
 }
 
-void HighPassFilter::setFrequency(float newFrequency)
+void HighPassFilter::setCutFrequency(float newFrequency)
 {
-    if (isProcessing())
-        smoothFrequency.setTargetValue(newFrequency);
+    if (!isShelf && isProcessing())
+        smoothCutFreq.setTargetValue(newFrequency);
     else
     {
-        smoothFrequency.setCurrentAndTargetValue(newFrequency);
+        smoothCutFreq.setCurrentAndTargetValue(newFrequency);
+        updateFilters();
+    }
+}
+
+void HighPassFilter::setShelfFrequency(float newFrequency)
+{
+    if (isShelf && isProcessing())
+        smoothShelfFreq.setTargetValue(newFrequency);
+    else
+    {
+        smoothShelfFreq.setCurrentAndTargetValue(newFrequency);
         updateFilters();
     }
 }
@@ -170,13 +201,24 @@ void HighPassFilter::setOrder(int newOrder)
     }
 }
 
-void HighPassFilter::setResonance(float newRes)
+void HighPassFilter::setCutResonance(float newRes)
 {
-    if (isProcessing())
-        smoothResonance.setTargetValue(newRes);
+    if (!isShelf && isProcessing())
+        smoothCutRes.setTargetValue(newRes);
     else
     {
-        smoothResonance.setCurrentAndTargetValue(newRes);
+        smoothCutRes.setCurrentAndTargetValue(newRes);
+        updateFilters();
+    }
+}
+
+void HighPassFilter::setShelfResonance(float newRes)
+{
+    if (isShelf && isProcessing())
+        smoothShelfRes.setTargetValue(newRes);
+    else
+    {
+        smoothShelfRes.setCurrentAndTargetValue(newRes);
         updateFilters();
     }
 }
@@ -203,18 +245,24 @@ void HighPassFilter::setParamsOnLink(std::string paramName)
 {
     std::atomic<float>* param;
     std::string paramId;
-    paramId = paramName + "-" + onOffParam.idPostfix;
+    paramId = getIdForParameter(&onOffParam);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setBypass(*param <= 0);
-    paramId = paramName + "-" + freqParam.idPostfix;
+    paramId = getIdForParameter(&cutFreqParam);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
-        setFrequency(*param);
-    paramId = paramName + "-" + falloffParam.idPostfix;
+        setCutFrequency(*param);
+    paramId = getIdForParameter(&shelfFreqParam);
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setShelfFrequency(*param);
+    paramId = getIdForParameter(&falloffParam);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setOrder((int)(*param) / 6);
-    paramId = paramName + "-" + resParam.idPostfix;
+    paramId = getIdForParameter(&cutResParam);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
-        setResonance(*param);
+        setCutResonance(*param);
+    paramId = getIdForParameter(&shelfResParam);
+    if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
+        setShelfResonance(*param);
     paramId = paramName + "-" + shelfModeParam.idPostfix;
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setIsShelf(*param >= 1);
@@ -238,10 +286,12 @@ float HighPassFilter::processSampleProtected(float sample)
         return sample;
     if (anythingSmoothing())
     {
-        float freq = smoothFrequency.getNextValue();
+        float cutFreq = smoothCutFreq.getNextValue();
+        float shelfFreq = smoothShelfFreq.getNextValue();
         float gain = smoothGain.getNextValue();
-        float res = smoothResonance.getNextValue();
-        updateFilters(freq, gain, res);
+        float cutRes = smoothCutRes.getNextValue();
+        float shelfRes = smoothShelfRes.getNextValue();
+        updateFilters(cutFreq, shelfFreq, gain, cutRes, shelfRes);
     }  
     float result = sample;
     if (filterOneEnabled())
@@ -279,42 +329,47 @@ float HighPassFilter::processSampleProtected(float sample)
 // === Private Helper =========================================================
 void HighPassFilter::updateFilters()
 {
-    float freq = smoothFrequency.getCurrentValue();
+    float cutFreq = smoothCutFreq.getCurrentValue();
+    float shelfFreq = smoothShelfFreq.getCurrentValue();
     float gain = smoothGain.getCurrentValue();
-    float res = smoothResonance.getCurrentValue();
-    updateFilters(freq, gain, res);
+    float cutRes = smoothCutRes.getCurrentValue();
+    float shelfRes = smoothShelfRes.getCurrentValue();
+    updateFilters(cutFreq, shelfFreq, gain, cutRes, shelfRes);
 }
 
-void HighPassFilter::updateFilters(float f, float gain, float resonance)
+void HighPassFilter::updateFilters
+(float cutFreq, float shelfFreq, float gain, float cutRes, float shelfRes)
 {
     if (filterOneEnabled())
     {
-        float q = getQForFilter(1, order, resonance);
-        filterOne.coefficients = Coefficients::makeHighPass(sampleRate, f, q);
+        float q = getQForFilter(1, order, cutRes);
+        filterOne.coefficients
+            = Coefficients::makeHighPass(sampleRate, cutFreq, q);
     }
     if (filterTwoEnabled())
     {
-        float q = getQForFilter(2, order, resonance);
-        filterTwo.coefficients = Coefficients::makeHighPass(sampleRate, f, q);
+        float q = getQForFilter(2, order, cutRes);
+        filterTwo.coefficients
+            = Coefficients::makeHighPass(sampleRate, cutFreq, q);
     }
     if (filterThreeEnabled())
     {
-        float q = getQForFilter(3, order, resonance);
+        float q = getQForFilter(3, order, cutRes);
         filterThree.coefficients
-            = Coefficients::makeHighPass(sampleRate, f, q);
+            = Coefficients::makeHighPass(sampleRate, cutFreq, q);
     }
     if (filterFourEnabled())
     {
         if (isShelf)
         {
             filterFour.coefficients = Coefficients::makeLowShelf(
-                sampleRate, f, resonance, pow(10.0f, gain / 20.f)
+                sampleRate, shelfFreq, shelfRes, pow(10.0f, gain / 20.f)
             );
         }
         else
         {
             filterFour.coefficients
-                = Coefficients::makeFirstOrderHighPass(sampleRate, f);
+                = Coefficients::makeFirstOrderHighPass(sampleRate, cutFreq);
         }
     }
 }
@@ -328,8 +383,9 @@ void HighPassFilter::delayedUpdateOrder()
 
 bool HighPassFilter::anythingSmoothing()
 {
-    return smoothFrequency.isSmoothing() || smoothGain.isSmoothing()
-        || smoothResonance.isSmoothing();
+    return smoothCutFreq.isSmoothing() || smoothShelfFreq.isSmoothing()
+        || smoothGain.isSmoothing() || smoothCutRes.isSmoothing()
+        || smoothShelfRes.isSmoothing();
 }
 
 float HighPassFilter::getQForFilter(int filter, int filterOrder, float res)
