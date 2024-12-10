@@ -51,6 +51,5 @@ void PeakFilterControl::attachToFilter
     frequency.attachToParameter(stateTree, filter->getFrequencyParameter());
     gain.attachToParameter(stateTree, filter->getGainParameter());
     qFactor.attachToParameter(stateTree, filter->getQFactorParameter());
-    onOff.removeOnToggleFunctions();
     onOff.attachToParameter(stateTree, filter->getOnOffParameter());
 }
