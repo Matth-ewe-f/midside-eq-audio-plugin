@@ -245,28 +245,28 @@ void HighPassFilter::setParamsOnLink(std::string paramName)
 {
     std::atomic<float>* param;
     std::string paramId;
-    paramId = getIdForParameter(&onOffParam);
+    paramId = onOffParam.getIdWithFilterName(paramName);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setBypass(*param <= 0);
-    paramId = getIdForParameter(&cutFreqParam);
+    paramId = cutFreqParam.getIdWithFilterName(paramName);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setCutFrequency(*param);
-    paramId = getIdForParameter(&shelfFreqParam);
+    paramId = shelfFreqParam.getIdWithFilterName(paramName);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setShelfFrequency(*param);
-    paramId = getIdForParameter(&falloffParam);
+    paramId = falloffParam.getIdWithFilterName(paramName);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setOrder((int)(*param) / 6);
-    paramId = getIdForParameter(&cutResParam);
+    paramId = cutResParam.getIdWithFilterName(paramName);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setCutResonance(*param);
-    paramId = getIdForParameter(&shelfResParam);
+    paramId = shelfResParam.getIdWithFilterName(paramName);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setShelfResonance(*param);
-    paramId = paramName + "-" + shelfModeParam.idPostfix;
+    paramId = shelfModeParam.getIdWithFilterName(paramName);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setIsShelf(*param >= 1);
-    paramId = paramName + "-" + shelfGainParam.idPostfix;
+    paramId = shelfGainParam.getIdWithFilterName(paramName);
     if ((param = stateTree->getRawParameterValue(paramId)) != nullptr)
         setShelfGain(*param);
 }
