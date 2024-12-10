@@ -73,7 +73,7 @@ private:
     inline ParameterBlueprint getFreqParameterFields()
     {
         return ParameterBlueprint(freqParamIdPostfix, "Frequency")
-            .withRange(20, 20000, 0.1f)
+            .withRange(20, 20000, 0.1f, 0.35f)
             .withDefault(defaultFreq)
             .withMaxDecimals(1)
             .withUnits("Hz");
