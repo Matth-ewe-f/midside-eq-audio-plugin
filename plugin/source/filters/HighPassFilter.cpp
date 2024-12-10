@@ -333,41 +333,42 @@ bool HighPassFilter::anythingSmoothing()
 
 float HighPassFilter::getQForFilter(int filter, int filterOrder)
 {
+    // result should be overwritten, but default to a neutral q just in case
+    float result = 0.707f;
     if (filter == 1)
     {
         if (filterOrder == 2)
-            return 0.707f;
+            result = 0.707f;
         else if (filterOrder == 3)
-            return 1;
+            result = 1;
         else if (filterOrder == 4)
-            return 0.541f;
+            result = 0.541f;
         else if (filterOrder == 5)
-            return 0.618f;
+            result = 0.618f;
         else if (filterOrder == 6)
-            return 0.518f;
+            result = 0.518f;
         else if (filterOrder == 7)
-            return 0.555f;
+            result = 0.555f;
     }
     else if (filter == 2)
     {
         if (filterOrder == 4)
-            return 1.307f;
+            result = 1.307f;
         else if (filterOrder == 5)
-            return 1.618f;
+            result = 1.618f;
         else if (filterOrder == 6)
-            return 0.707f;
+            result = 0.707f;
         else if (filterOrder == 7)
-            return 0.802f;
+            result = 0.802f;
     }
     else if (filter == 3)
     {
         if (filterOrder == 6)
-            return 1.932f;
+            result = 1.932f;
         else if (filterOrder == 7)
-            return 2.247f;
+            result = 2.247f;
     }
-    // this shouldn't happen, but return a neutral q just in case
-    return 0.707f;
+    return result;
 }
 
 void HighPassFilter::combineMagnitudes
