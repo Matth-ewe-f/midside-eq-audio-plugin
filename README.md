@@ -4,7 +4,7 @@
   <img src="/screenshots/shot2.png" width="49%" /> 
 </p>
 
-A plugin capable of EQing individual channels of incoming audio, in a switchable stereo or mid-side configuration. With **Split EQ**, you can clean up bass frequencies by filtering them on the side channel. You can move an instrument in the stereo field by adjusting its brightness in the left or right channel. You can focus elements of your mix by boosting them in the mid channel. See the **[Installation Guide](#installation-guide)** to get started using Split EQ!
+A plugin capable of EQing individual channels of incoming audio, in a switchable stereo or mid-side configuration. With **Split EQ**, you can clean up bass frequencies by filtering them on the side channel. You can move an instrument in the stereo field by adjusting its brightness in the left or right channel. You can focus elements of your mix by boosting them in the mid channel. You can download Split EQ from the "Releases" section of this repository, or see the **[Installation Guide](#installation-guide)** if you'd like to build it from source yourself.
 
 ## Description
 Split EQ allows you to apply EQ to each individual channel of an incoming stereo audio signal, as either stereo or mid-side. For each channel it provides:
@@ -20,7 +20,7 @@ Each filter can be adjusted individually for each channel, or together for the e
 * [JUCE](https://juce.com/)
 
 ## Installation Guide
-As of now, the only way to install Split EQ is to download the sources files and build it yourself using the command line. Soon I will make pre-built versions available for download.
+Pre-build VST3 and Audio Unit version of Split EQ are available for download from the "Releases" section. You can also follow the below steps to build Split EQ from source yourself.
 
 1. [Download and Install CMake](https://cmake.org/download/)
 
