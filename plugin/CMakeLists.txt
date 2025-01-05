@@ -10,7 +10,7 @@ juce_add_plugin(
     PLUGIN_MANUFACTURER_CODE Mthe
     PLUGIN_CODE MSEQ
     FORMATS VST3 AU Standalone
-    PRODUCT_NAME ${PROJECT_NAME}
+    PRODUCT_NAME "Split EQ"
 )
 
 target_sources(
