@@ -4,6 +4,8 @@
   <img src="/screenshots/shot2.png" width="49%" /> 
 </p>
 
+[Video Demo](https://www.youtube.com/watch?v=GJRnWOEJaHs)
+
 A plugin capable of EQing individual channels of incoming audio, in a switchable stereo or mid-side configuration. With **Split EQ**, you can clean up bass frequencies by filtering them on the side channel. You can move an instrument in the stereo field by adjusting its brightness in the left or right channel. You can focus elements of your mix by boosting them in the mid channel. You can download Split EQ from the "Releases" section of this repository, or see the **[Installation Guide](#installation-guide)** if you'd like to build it from source yourself.
 
 ## Description
